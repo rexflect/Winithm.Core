@@ -30,14 +30,14 @@ public partial class Note : Control, IPoolable
   // Configurable properties typically managed by NoteManager
   [Export] public Vector2 PlayerAreaSize { get; set; } = new(1280, 720);
   [Export] public float Width { get; set; } = 300f;
-  [Export] public NoteType Type { get; set; }
+  [Export] public NoteType Type { get; set; } = NoteType.Tap;
   [Export] public float NoteSize { get; set; } = 1f;
-  [Export] public float BodyHeight { get; set; }
+  [Export] public float BodyHeight { get; set; } = 0f;
   public ResourcePack ResourcePack { get; set; } = ResourcePackManager.Instance.GetActiveResourcePack();
 
-  public static readonly float BODY_TO_HEAD_WIDTH_OFFSET = 0.015f;
   public static readonly float NOTE_HEAD_HEIGHT_RATIO = 0.0175f;
   public static readonly float NOTE_HEAD_OVERLAY_RATIO_SIZE = 1.2f;
+  public static readonly float BODY_TO_HEAD_WIDTH_OFFSET = 0.015f;
 
   public static readonly float BASE_HIGHTLIGHTING_SIZE = 10f;
 
