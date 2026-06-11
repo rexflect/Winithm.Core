@@ -174,8 +174,8 @@ public class NoteManager :
       TotalHittableNoteCount = 0;
       TotalComboCount = 0;
       MaxEndBeats.Clear();
-      ComboEventBeats = Array.Empty<double>();
-      ComboPrefixSum = Array.Empty<int>();
+      ComboEventBeats = [];
+      ComboPrefixSum = [];
       return;
     }
 

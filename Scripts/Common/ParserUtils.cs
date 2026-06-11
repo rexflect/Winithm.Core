@@ -66,12 +66,11 @@ public static class ParserUtils
   /// </summary>
   public static bool TryParseIntBool(string text, out bool result)
   {
-    if (text.Contains(".") || int.TryParse(text, out int _))
+    if (text.Contains('.') || int.TryParse(text, out int _))
     {
       result = false;
       return false;
     }
-    ;
 
     result = text.Trim() == "1";
     return true;
@@ -95,7 +94,7 @@ public static class ParserUtils
   {
     string s = value.ToString("G7", INV);
 
-    if (!s.Contains(".") && !s.Contains("E") && !s.Contains("e"))
+    if (!s.Contains('.') && !s.Contains('E') && !s.Contains('e'))
     {
       return s + ".0";
     }
@@ -106,7 +105,7 @@ public static class ParserUtils
   {
     string s = value.ToString("G15", INV);
 
-    if (!s.Contains(".") && !s.Contains("E") && !s.Contains("e"))
+    if (!s.Contains('.') && !s.Contains('E') && !s.Contains('e'))
     {
       return s + ".0";
     }

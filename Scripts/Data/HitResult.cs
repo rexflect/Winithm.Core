@@ -23,7 +23,7 @@ public struct HitResult
   /// <summary>The note that was evaluated.</summary>
   public NoteData Note;
 
-  public bool IsHit => Weight > 0f;
+  public readonly bool IsHit => Weight > 0f;
 
   public static HitResult None(NoteData note) =>
     new()
@@ -92,6 +92,7 @@ public struct HitResult
       absMs <= Constants.HitResult.TimmingWindowMs[HitResultType.Good] ?
       Constants.HitResult.ResultWeight[HitResultType.Perfect]
       : Constants.HitResult.ResultWeight[HitResultType.Miss];
+      
     HitResultType type =
       absMs <= Constants.HitResult.TimmingWindowMs[HitResultType.Good] ?
       HitResultType.Perfect

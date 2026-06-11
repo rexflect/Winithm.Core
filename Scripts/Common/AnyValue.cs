@@ -163,7 +163,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     return result;
   }
 
-  public Godot.Color ToGodotColor(float alpha = 1f)
+  public readonly Godot.Color ToGodotColor(float alpha = 1f)
   {
     if (Type == AnyValueType.Vec4) return new(X, Y, Z, W);
     return new(X, Y, Z, alpha);
@@ -177,7 +177,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     return Type switch
     {
       AnyValueType.Inherited => "-",
-      AnyValueType.String when StringValue != null && StringValue.Contains(" ") => $"\"{StringValue}\"",
+      AnyValueType.String when StringValue != null && StringValue.Contains(' ') => $"\"{StringValue}\"",
       AnyValueType.String => StringValue ?? "",
       AnyValueType.Bool => ParserUtils.FormatIntBool(X),
       AnyValueType.Float => ParserUtils.FormatFloat(X),

@@ -64,7 +64,7 @@ public struct BeatTime(int beat, int numerator, int denominator)
       if (!int.TryParse(text, out int beatOnly))
         return false;
 
-      result = new BeatTime(beatOnly, 0, 0);
+      result = new(beatOnly, 0, 0);
       return true;
     }
 
@@ -74,13 +74,13 @@ public struct BeatTime(int beat, int numerator, int denominator)
     if (slashIndex < 0 || slashIndex < colonIndex)
       return false;
 
-    if (!int.TryParse(text.Substring(0, colonIndex), out int beat))
+    if (!int.TryParse(text.AsSpan(0, colonIndex), out int beat))
       return false;
 
-    if (!int.TryParse(text.Substring(colonIndex + 1, slashIndex - colonIndex - 1), out int numerator))
+    if (!int.TryParse(text.AsSpan(colonIndex + 1, slashIndex - colonIndex - 1), out int numerator))
       return false;
 
-    if (!int.TryParse(text.Substring(slashIndex + 1), out int denominator))
+    if (!int.TryParse(text.AsSpan(slashIndex + 1), out int denominator))
       return false;
 
     if (denominator < 0)
@@ -94,10 +94,8 @@ public struct BeatTime(int beat, int numerator, int denominator)
   // Formatting
   // ==========================================
 
-  public override string ToString()
-  {
-    return $"{Beat}:{Numerator}/{Denominator}";
-  }
+  public override readonly string ToString() => $"{Beat}:{Numerator}/{Denominator}";
+  
 
   // ==========================================
   // Comparison Operators
@@ -150,14 +148,14 @@ public struct BeatTime(int beat, int numerator, int denominator)
   // IComparable / IEquatable
   // ==========================================
 
-  public int CompareTo(BeatTime other)
+  public readonly int CompareTo(BeatTime other)
   {
     ToReducedFraction(this, out var ln, out var ld);
     ToReducedFraction(other, out var rn, out var rd);
     return (ln * rd).CompareTo(rn * ld);
   }
 
-  public int CompareTo(object obj)
+  public readonly int CompareTo(object obj)
   {
     if (obj == null)
       return 1;
@@ -168,7 +166,7 @@ public struct BeatTime(int beat, int numerator, int denominator)
     throw new ArgumentException("Object must be of type BeatTime.", nameof(obj));
   }
 
-  public bool Equals(BeatTime other) => CompareTo(other) == 0;
+  public readonly bool Equals(BeatTime other) => CompareTo(other) == 0;
 
   public override bool Equals(object obj)
   {
@@ -178,7 +176,7 @@ public struct BeatTime(int beat, int numerator, int denominator)
     return false;
   }
 
-  public override int GetHashCode()
+  public override readonly int GetHashCode()
   {
     ToReducedFraction(this, out var numerator, out var denominator);
     return unchecked((numerator.GetHashCode() * 397) ^ denominator.GetHashCode());

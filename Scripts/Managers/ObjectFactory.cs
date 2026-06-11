@@ -38,7 +38,7 @@ public class ObjectFactory
   // Factory Methods
   // ==========================================
 
-  public BPMStop CreateBPMStop(BeatTime startBeat, float bpm, int signatureNum, int signatureDen) => new()
+  public static BPMStop CreateBPMStop(BeatTime startBeat, float bpm, int signatureNum, int signatureDen) => new()
   {
     StartBeat = startBeat,
     BPM = bpm,

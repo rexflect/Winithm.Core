@@ -68,6 +68,7 @@ public static class WNCParser
 
         switch (currentSection)
         {
+          // TODO: Add versioning
           case "FORMAT": break;
           case "METADATA":
             ParseChartMetadataLine(trimmed, data.ChartMetadata);

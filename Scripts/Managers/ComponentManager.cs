@@ -22,7 +22,7 @@ public class ComponentManager : IObjectManager<ComponentType, ComponentData>
 {
   public event Action<ComponentManager> OnUpdated;
 
-  private readonly Dictionary<ComponentType, ComponentData> _componentDictionary = new();
+  private readonly Dictionary<ComponentType, ComponentData> _componentDictionary = [];
 
   public int Count => _componentDictionary.Count;
 
