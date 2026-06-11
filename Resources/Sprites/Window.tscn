@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://cbr3fb6tmemws"]
+[gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://dsfy5c31c5n0l" path="res://Winithm.Core/Scripts/Behaviors/Window.cs" id="1_nqped"]
-[ext_resource type="Script" uid="uid://dpc4ib4rg2uph" path="res://Winithm.Core/Scripts/Behaviors/WindowFrame.cs" id="2_g5fm5"]
+[ext_resource type="Script" path="res://Winithm.Core/Scripts/Behaviors/Window.cs" id="1_nqped"]
+[ext_resource type="Script" path="res://Winithm.Core/Scripts/Behaviors/WindowFrame.cs" id="2_g5fm5"]
 
 [node name="Window" type="Control"]
 layout_mode = 3

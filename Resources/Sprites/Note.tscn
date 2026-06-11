@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://7gxvt46fnces"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" uid="uid://csci3yo0bgekk" path="res://Winithm.Core/Scripts/Behaviors/Note.cs" id="1_5o3w4"]
-[ext_resource type="Shader" uid="uid://note_highlight_shader" path="res://Winithm.Core/Resources/Shaders/NoteHighlight.gdshader" id="2_shader"]
+[ext_resource type="Script" path="res://Winithm.Core/Scripts/Behaviors/Note.cs" id="1_5o3w4"]
+[ext_resource type="Shader" path="res://Winithm.Core/Resources/Shaders/NoteHighlight.gdshader" id="2_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
 shader = ExtResource("2_shader")
