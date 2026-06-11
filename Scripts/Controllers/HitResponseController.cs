@@ -6,27 +6,65 @@ using Winithm.Core.Managers;
 
 namespace Winithm.Core.Controllers;
 
-public partial class HitFXController : Node
+public partial class HitResponseController : Node
 {
   // ── Nullable reference types (C# 13 / .NET 9 best practice) ──────────────
   private Control _hitFXLayer;
   private NoteController _noteController;
 
-  [Export] public Vector2 PlayerAreaSize = new(1280, 720);
+  [Export] public Vector2 PlayerAreaSize { set; get; } = new(1280, 720);
+  [Export] public float HitSoundVolume { set; get; } = 0.5f;
 
   // C# 13: collection expressions for cleaner initialisation
   private readonly Dictionary<PackedScene, NodePool<HitFX>> _pools = [];
   private readonly Dictionary<HitFX, PackedScene> _sceneByInstance = [];
+  private readonly AudioStreamPlayer _hitSoundPlayer = new();
 
   // ─────────────────────────────────────────────────────────────────────────
   public void Initialize(Control hitFXLayer, NoteController noteController)
   {
     _hitFXLayer = hitFXLayer;
     _noteController = noteController;
+
+    if (!IsInstanceValid(_hitSoundPlayer.GetParent()))
+    {
+      AddChild(_hitSoundPlayer);
+      _hitSoundPlayer.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
+
+      _hitSoundPlayer.MaxPolyphony = 32;
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  public void RequestHitFX(string windowId, NoteData note, HitResultType resultType)
+
+  public void RequestHitResponse(string windowId, NoteData note, HitResult result)
+  {
+    RequestHitFX(windowId, note, result);
+    RequestHitSound(note);
+  }
+
+  private void RequestHitSound(NoteData note)
+  {
+    if (note is null) return;
+
+    // Get resource pack (override by note, otherwise use active)
+    ResourcePack resourcePack = note.ResourcePack.HasValue
+        ? note.ResourcePack.Value
+        : ResourcePackManager.Instance.GetActiveResourcePack();
+
+    if (resourcePack.SFX != null && resourcePack.SFX.TryGetValue(note.Type, out var soundStream))
+    {
+      if (soundStream is null) return;
+
+      // Set volume to current value (default 0.5, can be changed by config UI)
+      _hitSoundPlayer.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
+
+      _hitSoundPlayer.Stream = soundStream;
+      _hitSoundPlayer.Play();
+    }
+  }
+
+  private void RequestHitFX(string windowId, NoteData note, HitResult result)
   {
     // Use IsInstanceValid() instead of `!= null` for all Godot nodes/resources.
     if (!IsInstanceValid(_noteController) || note is null || !IsInstanceValid(_hitFXLayer))
@@ -61,7 +99,7 @@ public partial class HitFXController : Node
     fx.ZIndex = 0;
 
     fx.Play(
-        resultType,
+        result.Type,
         note.Type,
         info.NoteWidth,
         info.PlayerAreaSize,
