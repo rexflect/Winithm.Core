@@ -4,16 +4,16 @@ namespace Winithm.Core.Behaviors;
 
 public partial class WindowFrame : Control
 {
-  private Window _parent = null!;
+  private Window _parent = null;
 
   public override void _Ready()
   {
-    _parent = GetParent<Window>();
+    _parent = GetParentOrNull<Window>();
   }
 
   public override void _Draw()
   {
-    if (_parent.Borderless)
+    if (_parent is null || _parent.Borderless)
       return;
 
     var color = _parent.TitleBarColor with
