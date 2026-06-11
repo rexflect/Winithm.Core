@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://byr8k7myp8mjy"]
 
-[ext_resource type="Script" path="res://Winithm.Core/Resources/ResourcePacks/default/vfx/HitFXDefault.cs" id="1_id34e"]
+[ext_resource type="Script" uid="uid://6vxedcdutkqh" path="res://Winithm.Core/Resources/ResourcePacks/default/vfx/HitFXDefault.cs" id="1_id34e"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_1"]
 blend_mode = 1
@@ -17,11 +17,11 @@ scale_min = 0.025
 scale_max = 0.075
 color = Color(1, 1, 1, 0.75)
 
-[node name="HitFX" type="Node2D"]
+[node name="HitFX" type="Node2D" unique_id=738355390]
 material = SubResource("CanvasItemMaterial_1")
 script = ExtResource("1_id34e")
 
-[node name="Burst" type="GPUParticles2D" parent="."]
+[node name="Burst" type="GPUParticles2D" parent="." unique_id=660913194]
 material = SubResource("CanvasItemMaterial_1")
 emitting = false
 amount = 16
