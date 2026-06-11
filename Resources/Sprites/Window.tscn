@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://cbr3fb6tmemws"]
+
+[ext_resource type="Script" uid="uid://dsfy5c31c5n0l" path="res://Winithm.Core/Scripts/Behaviors/Window.cs" id="1_nqped"]
+[ext_resource type="Script" uid="uid://dpc4ib4rg2uph" path="res://Winithm.Core/Scripts/Behaviors/WindowFrame.cs" id="2_g5fm5"]
+
+[node name="Window" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_nqped")
+
+[node name="TitleBar" type="Control" parent="."]
+anchors_preset = 0
+
+[node name="WindowBody" type="Control" parent="."]
+anchors_preset = 0
+
+[node name="NoteLayer" type="Control" parent="WindowBody"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UnfocusOverlay" type="Control" parent="WindowBody"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FocusNoteLayer" type="Control" parent="WindowBody"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UnresponsiveOverlay" type="Control" parent="WindowBody"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Frame" type="Control" parent="."]
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("2_g5fm5")

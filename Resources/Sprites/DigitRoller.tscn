@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://dd8xuv12ojdhk"]
+
+[ext_resource type="FontFile" uid="uid://b2y82p7o4yhtf" path="res://Winithm.Core/Resources/Fonts/SpaceGrotesk.ttf" id="1_8cctp"]
+[ext_resource type="Script" uid="uid://sqg3c2r8osn5" path="res://Winithm.Core/Scripts/Behaviors/DigitRoller.cs" id="1_rdriq"]
+
+[node name="DigitRoller" type="Control" unique_id=1293129340]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 16.0
+offset_bottom = 33.0
+script = ExtResource("1_rdriq")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=-1447376262]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_override_constants/separation = 0
+
+[node name="0" type="Label" parent="VBoxContainer" unique_id=1371248765]
+custom_minimum_size = Vector2(0, 33)
+layout_mode = 2
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("1_8cctp")
+theme_override_font_sizes/font_size = 25
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
