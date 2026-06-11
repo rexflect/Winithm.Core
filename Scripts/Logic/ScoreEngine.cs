@@ -46,7 +46,7 @@ public class ScoreEngine
 
   /// <summary>
   /// Score based on accuracy and max combo.
-  /// Combo weight reduced by 10x (90% Accuracy / 10% Max Combo ratio).
+  /// Combo weight reduced by 10x (95% Accuracy / 5% Max Combo ratio).
   /// </summary>
   public int RealtimeScore => _comboEvaluated > 0
     ? (int)(MaxScore * RealtimeAccuracy * (0.95f + 0.05f * ((float)_maxCombo / _comboEvaluated)))
