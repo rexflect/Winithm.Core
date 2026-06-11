@@ -21,7 +21,7 @@ public class Cursor
 /// <summary>
 /// Manages timeline events and interpolates values.
 /// </summary>
-public class StoryboardManager<TProp> 
+public class StoryboardManager<TProp>
   : IDeepCloneable<StoryboardManager<TProp>>, IObjectManager<TProp, List<EventData>>
 {
   public event Action<StoryboardManager<TProp>> OnUpdated;
@@ -43,7 +43,7 @@ public class StoryboardManager<TProp>
   public bool ContainsKey(TProp prop) => _eventCollection.ContainsKey(prop);
 
 
-  private Dictionary<TProp, Cursor> _propertyCursors = new();
+  private Dictionary<TProp, Cursor> _propertyCursors = [];
 
   private int _updateLockCount = 0;
 
@@ -394,7 +394,7 @@ public class StoryboardManager<TProp>
 
   public IReadOnlyList<EventData> GetEvents(TProp prop, IEnumerable<string> ids)
   {
-    if (!ids.Any()) return Array.Empty<EventData>();
+    if (!ids.Any()) return [];
 
     var result = new List<EventData>();
     if (_eventCollection.TryGetValue(prop, out var list))
@@ -447,22 +447,6 @@ public class StoryboardManager<TProp>
 
   public IReadOnlyDictionary<TProp, List<EventData>> GetAllEvents() => _eventCollection;
 
-  public void SortAllEvents()
-  {
-    if (_eventCollection.Count == 0) return;
-    foreach (TProp prop in _eventCollection.Keys.ToList()) SortPropEvents(prop);
-    NotifyChanged();
-  }
-
-  public void SortPropEvents(TProp key)
-  {
-    if (!_eventCollection.TryGetValue(key, out var events) || events.Count <= 1) return;
-
-    events.Sort((a, b) => a.StartBeat.CompareTo(b.StartBeat));
-    _propertyCursors[key].Reset();
-    NotifyChanged();
-  }
-
   /// <summary>Finds insertion index to maintain sorted stability.</summary>
   public int FindAddIndex(List<EventData> list, EventData evt)
   {
@@ -477,16 +461,16 @@ public class StoryboardManager<TProp>
     return left;
   }
 
-  public AnyValue Evaluate(TProp prop, double currentBeat, AnyValue defaultValue, bool isScrubbing = false)
+  public AnyValue Evaluate(TProp prop, double currentBeat, AnyValue defaultValue)
   {
     if (!_eventCollection.TryGetValue(prop, out var events) || events.Count == 0)
       return defaultValue;
 
-    int idx = AdvanceCursor(prop, currentBeat, isScrubbing);
+    int idx = AdvanceCursor(prop, currentBeat);
     return EvaluateRecursive(events, idx, currentBeat, defaultValue);
   }
 
-  private AnyValue EvaluateRecursive(List<EventData> events, int idx, double currentBeat, AnyValue defaultValue)
+  private static AnyValue EvaluateRecursive(List<EventData> events, int idx, double currentBeat, AnyValue defaultValue)
   {
     if (idx < 0) return defaultValue;
 
@@ -498,7 +482,7 @@ public class StoryboardManager<TProp>
     return Interpolate(evt, currentBeat, resolvedFrom);
   }
 
-  private AnyValue Interpolate(EventData evt, double currentBeat, AnyValue resolvedFrom)
+  private static AnyValue Interpolate(EventData evt, double currentBeat, AnyValue resolvedFrom)
   {
     double startBeat = evt.StartBeat.AbsoluteValue;
     double endBeat = startBeat + evt.Length;
@@ -515,41 +499,39 @@ public class StoryboardManager<TProp>
     return AnyValue.Lerp(resolvedFrom, evt.To, t);
   }
 
-  private int AdvanceCursor(TProp prop, double currentBeat, bool isScrubbing)
+  private int AdvanceCursor(TProp prop, double currentBeat)
   {
     var events = _eventCollection[prop];
     var cursor = _propertyCursors[prop];
 
     int n = events.Count;
-    int last = cursor.LastIndex;
-    if (last >= n) last = n - 1;
+    int last = Math.Min(cursor.LastIndex, n - 1);
 
-    if (isScrubbing)
+    // --- Scrubbing detection via neighbor window ---
+    double lowerBound = last > 0
+      ? events[last - 1].StartBeat.AbsoluteValue
+      : double.NegativeInfinity;
+
+    double upperBound = last < n - 1
+      ? events[last + 1].StartBeat.AbsoluteValue
+      : double.PositiveInfinity;
+
+    if (currentBeat < lowerBound || currentBeat > upperBound)
     {
+      // Playhead is outside the expected neighborhood → scrubbing / seek detected.
       int idx = FindLastStarted(prop, currentBeat);
       cursor.LastIndex = Math.Max(0, idx);
       return idx;
     }
 
-    // If we've moved backward in time before our current cursor event starts
-    if (events[last].StartBeat.AbsoluteValue > currentBeat)
-    {
-      // Skip binary search if before the very first element
-      if (last == 0) return -1;
-
-      int idx = FindLastStarted(prop, currentBeat);
-      cursor.LastIndex = Math.Max(0, idx);
-      return idx;
-    }
-
-    // Fast forward timeline continuously
+    // --- Normal forward walk ---
     while (last + 1 < n && events[last + 1].StartBeat.AbsoluteValue <= currentBeat)
-    {
       last++;
-    }
 
     cursor.LastIndex = last;
-    return last;
+
+    // Return -1 when currentBeat is still before the very first event
+    return events[last].StartBeat.AbsoluteValue <= currentBeat ? last : -1;
   }
 
   private int FindLastStarted(TProp prop, double currentBeat)
