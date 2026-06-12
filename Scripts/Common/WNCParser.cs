@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using Winithm.Core.Data;
 using Winithm.Core.Managers;
 
@@ -199,7 +200,7 @@ public static class WNCParser
     }
     else if (trimmed.StartsWith("/ "))
     {
-      var evt = StoryboardManager<string>.ParseEventLine(trimmed, out var type, out string rawType);
+      var evt = ParseEventLine(trimmed, out var type, out string rawType);
       factory.SyncMaxIDSeed(evt.ID);
       if (type == StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(rawType, evt);
@@ -245,7 +246,7 @@ public static class WNCParser
 
     if (trimmed.StartsWith("/ "))
     {
-      var evt = StoryboardManager<StoryboardProperty>.ParseEventLine(trimmed, out var type, out _);
+      var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
       if (type != StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
@@ -291,7 +292,7 @@ public static class WNCParser
       current.Name = name;
     else if (trimmed.StartsWith("/ "))
     {
-      var evt = StoryboardManager<StoryboardProperty>.ParseEventLine(trimmed, out var type, out _);
+      var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
       if (type != StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
@@ -338,7 +339,7 @@ public static class WNCParser
       current.ParentGroupID = groupId;
     else if (trimmed.StartsWith("/ "))
     {
-      var evt = StoryboardManager<StoryboardProperty>.ParseEventLine(trimmed, out var type, out _);
+      var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
       if (type != StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
@@ -484,7 +485,7 @@ public static class WNCParser
     }
     else if (trimmed.StartsWith("/ "))
     {
-      var evt = StoryboardManager<StoryboardProperty>.ParseEventLine(trimmed, out var type, out _);
+      var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
 
       if (currentSpeedStep != null)
@@ -492,5 +493,56 @@ public static class WNCParser
       else if (type != StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
     }
+  }
+
+  public static EventData ParseEventLine(string trimmed, out StoryboardProperty type, out string rawPropertyName)
+  {
+    var evt = new EventData();
+    type = StoryboardProperty.Custom;
+    rawPropertyName = "";
+
+    var parts = new List<string>();
+    bool inQuotes = false;
+    int tokenStart = 2;
+
+    for (int i = 2; i < trimmed.Length; i++)
+    {
+      char c = trimmed[i];
+      if (c == '\"') inQuotes = !inQuotes;
+      else if (c == ' ' && !inQuotes)
+      {
+        if (i > tokenStart) parts.Add(trimmed.Substring(tokenStart, i - tokenStart).Trim('\"'));
+        tokenStart = i + 1;
+      }
+    }
+    if (tokenStart < trimmed.Length)
+    {
+      string finalPart = trimmed.Substring(tokenStart).Trim();
+      if (finalPart.Length > 0) parts.Add(finalPart.Trim('\"'));
+    }
+
+    if (parts.Count >= 1) evt.ID = parts[0];
+    if (parts.Count >= 2)
+    {
+      rawPropertyName = parts[1];
+      type = StoryboardPropertyExtension.ParseEventProperty(rawPropertyName);
+    }
+    if (parts.Count >= 3) evt.StartBeat = BeatTime.Parse(parts[2]);
+    if (parts.Count >= 4) evt.Length = ParserUtils.TryParseDouble(parts[3], out double length) ? length : 0;
+    if (parts.Count >= 5) evt.From = AnyValue.Parse(parts[4]);
+    if (parts.Count >= 6) evt.To = AnyValue.Parse(parts[5]);
+    if (parts.Count >= 7)
+    {
+      if (parts[6].Contains("|"))
+      {
+        evt.Easing = EasingType.Bezier;
+        evt.EasingBezier = AnyValue.Parse(parts[6]);
+      }
+      else
+      {
+        evt.Easing = EasingFunctions.ParseEasing(parts[6]);
+      }
+    }
+    return evt;
   }
 }

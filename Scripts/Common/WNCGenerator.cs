@@ -57,7 +57,7 @@ public static class WNCGenerator
           {
             foreach (var evt in kvp.Value)
             {
-              sb.AppendLine(StoryboardManager<string>.GenerateEventLine(evt, StoryboardProperty.Custom, kvp.Key));
+              sb.AppendLine(GenerateEventLine(evt, StoryboardProperty.Custom, kvp.Key));
             }
           }
         }
@@ -79,7 +79,7 @@ public static class WNCGenerator
           {
             foreach (var evt in kvp.Value)
             {
-              sb.AppendLine(StoryboardManager<StoryboardProperty>.GenerateEventLine(evt, kvp.Key, ""));
+              sb.AppendLine(GenerateEventLine(evt, kvp.Key, ""));
             }
           }
         }
@@ -102,7 +102,7 @@ public static class WNCGenerator
           {
             foreach (var evt in kvp.Value)
             {
-              sb.AppendLine(StoryboardManager<StoryboardProperty>.GenerateEventLine(evt, kvp.Key, ""));
+              sb.AppendLine(GenerateEventLine(evt, kvp.Key, ""));
             }
           }
         }
@@ -126,7 +126,7 @@ public static class WNCGenerator
           {
             foreach (var evt in kvp.Value)
             {
-              sb.AppendLine(StoryboardManager<StoryboardProperty>.GenerateEventLine(evt, kvp.Key, ""));
+              sb.AppendLine(GenerateEventLine(evt, kvp.Key, ""));
             }
           }
         }
@@ -156,7 +156,7 @@ public static class WNCGenerator
           {
             foreach (var evt in kvp.Value)
             {
-              sb.AppendLine(StoryboardManager<StoryboardProperty>.GenerateEventLine(evt, kvp.Key, ""));
+              sb.AppendLine(GenerateEventLine(evt, kvp.Key, ""));
             }
           }
         }
@@ -181,7 +181,7 @@ public static class WNCGenerator
             {
               foreach (var evt in kvp.Value)
               {
-                sb.AppendLine(StoryboardManager<StoryboardProperty>.GenerateEventLine(evt, kvp.Key, "", 4));
+                sb.AppendLine(GenerateEventLine(evt, kvp.Key, "", 4));
               }
             }
           }
@@ -194,5 +194,13 @@ public static class WNCGenerator
       file.StoreString(sb.ToString());
     else
       GD.PushError($"Failed to open file for writing at: {filePath}");
+  }
+
+  public static string GenerateEventLine(EventData evt, StoryboardProperty type, string customProperty = null, int indent = 2)
+  {
+    string easingStr = evt.Easing == EasingType.Bezier ? evt.EasingBezier.ToString() : evt.Easing.ToString();
+    string propStr = StoryboardPropertyExtension.FormatEventProperty(type, customProperty);
+    string result = $"/ {evt.ID} {propStr} {evt.StartBeat} {evt.Length} {evt.From} {evt.To} {easingStr}";
+    return result.PadLeft(indent);
   }
 }
