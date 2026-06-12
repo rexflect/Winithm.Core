@@ -254,6 +254,8 @@ public class NoteManager :
 
   private readonly Dictionary<NoteData, NoteSide> _noteSideMap = [];
 
+  public bool TryGetNoteSide(NoteData note, out NoteSide side) => _noteSideMap.TryGetValue(note, out side);
+
   private void SubscribeChangeEvent(NoteSide side, NoteData note)
   {
     note.OnStartBeatChanged -= HandleStartBeatChanged;
