@@ -437,8 +437,6 @@ public static class WNCParser
       current.ThemeChannelID = themeId;
     else if (trimmed.StartsWith("| "))
     {
-      // TODO: Viết parser cho SpeedStepManager
-
       currentSpeedStep?.StoryboardEvents?.EndUpdate();
 
       currentSpeedStep = new();
@@ -457,7 +455,30 @@ public static class WNCParser
     }
     else if (trimmed.StartsWith("# "))
     {
-      var currentNote = NoteManager.ParseNoteLine(trimmed, out var side);
+      var currentNote = new NoteData();
+
+      var side = NoteSide.Bottom;
+
+      string[] parts = trimmed.Trim()[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+      if (parts.Length >= 1)
+        currentNote.ID = parts[0];
+      if (parts.Length >= 2)
+        currentNote.Type = NoteData.ParseNoteType(parts[1]);
+      if (parts.Length >= 3)
+        currentNote.StartBeat = BeatTime.TryParse(parts[2], out var sb) ? sb : BeatTime.Zero;
+      if (parts.Length >= 4)
+        currentNote.Length = double.TryParse(parts[3], out var l) ? l : 0;
+      if (parts.Length >= 5)
+        currentNote.X = float.TryParse(parts[4], out var x) ? x : 0.5f;
+      if (parts.Length >= 6)
+        currentNote.Width = float.TryParse(parts[5], out var w) ? w : 0.5f;
+      if (parts.Length >= 7)
+        side = NoteData.ParseNoteSide(parts[6]);
+      if (parts.Length >= 8)
+        currentNote.FakeType = int.TryParse(parts[7], out var ft) ? ft : 0;
+
+
       factory.SyncMaxIDSeed(currentNote.ID);
       current.Notes.AddNote(side, currentNote);
     }
