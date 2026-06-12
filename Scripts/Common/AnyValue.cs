@@ -90,7 +90,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     text = text.Trim();
 
     // Inheritance marker
-    if (text == "-") return new() { Type = AnyValueType.Inherited };
+    if (text is "-") return new() { Type = AnyValueType.Inherited };
 
     // Pipe-separated vector
     if (text.Contains("|"))
@@ -128,12 +128,12 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
   public static AnyValue Lerp(AnyValue from, AnyValue to, double t)
   {
     if (
-      from.Type == AnyValueType.String ||
-      to.Type == AnyValueType.String ||
-      from.Type == AnyValueType.Inherited ||
-      to.Type == AnyValueType.Inherited ||
-      from.Type == AnyValueType.Bool ||
-      to.Type == AnyValueType.Bool)
+      from.Type is AnyValueType.String ||
+      to.Type is AnyValueType.String ||
+      from.Type is AnyValueType.Inherited ||
+      to.Type is AnyValueType.Inherited ||
+      from.Type is AnyValueType.Bool ||
+      to.Type is AnyValueType.Bool)
     {
       return t >= 1f ? to : from;
     }
@@ -165,7 +165,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
 
   public readonly Godot.Color ToGodotColor(float alpha = 1f)
   {
-    if (Type == AnyValueType.Vec4) return new(X, Y, Z, W);
+    if (Type is AnyValueType.Vec4) return new(X, Y, Z, W);
     return new(X, Y, Z, alpha);
   }
 
@@ -177,7 +177,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     return Type switch
     {
       AnyValueType.Inherited => "-",
-      AnyValueType.String when StringValue != null && StringValue.Contains(' ') => $"\"{StringValue}\"",
+      AnyValueType.String when StringValue is not null && StringValue.Contains(' ') => $"\"{StringValue}\"",
       AnyValueType.String => StringValue ?? "",
       AnyValueType.Bool => ParserUtils.FormatIntBool(X),
       AnyValueType.Float => ParserUtils.FormatFloat(X),
@@ -205,7 +205,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
 
   public readonly int CompareTo(object obj)
   {
-    if (obj == null) return 1;
+    if (obj is null) return 1;
     if (obj is AnyValue other) return CompareTo(other);
     throw new ArgumentException("Object must be of type AnyValue.", nameof(obj));
   }
@@ -364,7 +364,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
 
   private static void AssertNumeric(AnyValue v)
   {
-    if (v.Type == AnyValueType.String || v.Type == AnyValueType.Inherited)
+    if (v.Type is AnyValueType.String || v.Type is AnyValueType.Inherited)
       throw new InvalidOperationException(
         $"[AnyValue] Operator not supported for type {v.Type}.");
   }

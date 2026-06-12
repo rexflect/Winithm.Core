@@ -15,16 +15,16 @@ public class BPMStop : IDeepCloneable<BPMStop>
   public event Action<BPMStop> OnUpdated;
 
   private BeatTime _startBeat = BeatTime.Zero;
-  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat != value) { _startBeat = value; OnStartBeatChanged?.Invoke(this); OnInvalidate?.Invoke(this); } } }
+  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat == value) return; _startBeat = value; OnStartBeatChanged?.Invoke(this); OnInvalidate?.Invoke(this); } }
 
   private float _bpm = 120;
-  public float BPM { get => _bpm; set { if (_bpm != value) { _bpm = value; OnInvalidate?.Invoke(this); } } }
+  public float BPM { get => _bpm; set { if (_bpm == value) return; _bpm = value; OnInvalidate?.Invoke(this); } }
 
   private int _timeSignatureNum = 4;
-  public int TimeSignatureNum { get => _timeSignatureNum; set { if (_timeSignatureNum != value) { _timeSignatureNum = value; OnUpdated?.Invoke(this); } } }
+  public int TimeSignatureNum { get => _timeSignatureNum; set { if (_timeSignatureNum == value) return; _timeSignatureNum = value; OnUpdated?.Invoke(this); } }
 
   private int _timeSignatureDen = 4;
-  public int TimeSignatureDen { get => _timeSignatureDen; set { if (_timeSignatureDen != value) { _timeSignatureDen = value; OnUpdated?.Invoke(this); } } }
+  public int TimeSignatureDen { get => _timeSignatureDen; set { if (_timeSignatureDen == value) return; _timeSignatureDen = value; OnUpdated?.Invoke(this); } }
 
   public double StartTimeSeconds;
 
@@ -70,16 +70,16 @@ public class BaseBPM
   public event Action<BaseBPM> OnUpdated;
 
   private double _baseOffsetSeconds = 0;
-  public double BaseOffsetSeconds { get => _baseOffsetSeconds; set { if (_baseOffsetSeconds != value) { _baseOffsetSeconds = value; OnInvalidate?.Invoke(this); } } }
+  public double BaseOffsetSeconds { get => _baseOffsetSeconds; set { if (_baseOffsetSeconds == value) return; _baseOffsetSeconds = value; OnInvalidate?.Invoke(this); } }
 
   private float _initialBPM = 120;
-  public float InitialBPM { get => _initialBPM; set { if (_initialBPM != value) { _initialBPM = value; OnInvalidate?.Invoke(this); } } }
+  public float InitialBPM { get => _initialBPM; set { if (_initialBPM == value) return; _initialBPM = value; OnInvalidate?.Invoke(this); } }
 
   private int _timeSignatureNum = 4;
-  public int TimeSignatureNum { get => _timeSignatureNum; set { if (_timeSignatureNum != value) { _timeSignatureNum = value; OnUpdated?.Invoke(this); } } }
+  public int TimeSignatureNum { get => _timeSignatureNum; set { if (_timeSignatureNum == value) return; _timeSignatureNum = value; OnUpdated?.Invoke(this); } }
 
   private int _timeSignatureDen = 4;
-  public int TimeSignatureDen { get => _timeSignatureDen; set { if (_timeSignatureDen != value) { _timeSignatureDen = value; OnUpdated?.Invoke(this); } } }
+  public int TimeSignatureDen { get => _timeSignatureDen; set { if (_timeSignatureDen == value) return; _timeSignatureDen = value; OnUpdated?.Invoke(this); } }
 
   public float BeatsPerSecond => InitialBPM / 60f;
 

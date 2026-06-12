@@ -63,7 +63,7 @@ public static class WNMGenerator
     }
 
     using var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Write);
-    if (file != null)
+    if (file is not null)
       file.StoreString(sb.ToString());
     else
       GD.PushError($"Failed to open file for writing at: {filePath}");

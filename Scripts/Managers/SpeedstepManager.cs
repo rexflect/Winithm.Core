@@ -39,7 +39,7 @@ public class SpeedStepManager :
   public bool TryGetValue(string id, out SpeedStepData value)
   {
     value = GetSpeedStep(id);
-    return value != null;
+    return value is not null;
   }
 
   private int _updateLockCount = 0;
@@ -57,7 +57,7 @@ public class SpeedStepManager :
     if (_updateLockCount > 0) _updateLockCount--;
     if (_updateLockCount == 0 && success)
     {
-      if (_frameCache != null) _frameCache.CachedBeat = double.NaN;
+      if (_frameCache is not null) _frameCache.CachedBeat = double.NaN;
       OnUpdated?.Invoke(this);
     }
   }
@@ -66,7 +66,7 @@ public class SpeedStepManager :
   {
     if (_updateLockCount == 0)
     {
-      if (_frameCache != null) _frameCache.CachedBeat = double.NaN;
+      if (_frameCache is not null) _frameCache.CachedBeat = double.NaN;
       OnUpdated?.Invoke(this);
     }
   }
@@ -208,7 +208,7 @@ public class SpeedStepManager :
     foreach (var id in ids)
     {
       var speedStep = GetSpeedStep(id);
-      if (speedStep != null) result.Add(speedStep);
+      if (speedStep is not null) result.Add(speedStep);
     }
 
     return result;
@@ -231,7 +231,7 @@ public class SpeedStepManager :
   /// </summary>
   public void BakeFrameCache(double currentBeat)
   {
-    if (_frameCache == null || _speedStepCollection.Count == 0) return;
+    if (_frameCache is null || _speedStepCollection.Count == 0) return;
 
     // Rebuild only when the beat has actually changed.
     if (_frameCache.CachedBeat == currentBeat) return;
@@ -263,7 +263,7 @@ public class SpeedStepManager :
   {
     if (Math.Abs(currentBeat - targetBeat) < 0.0001f) return 0f;
 
-    if (_frameCache == null) _frameCache = new();
+    if (_frameCache is null) _frameCache = new();
     if (_frameCache.CachedBeat != currentBeat && !forceRebuild) BakeFrameCache(currentBeat);
 
     double laneStart = _speedStepCollection.Count > 0 ? _speedStepCollection[0].StartBeat.AbsoluteValue : 0.0;
@@ -284,7 +284,7 @@ public class SpeedStepManager :
   /// </summary>
   public float GetSpeedAt(double currentBeat, double beat)
   {
-    if (_speedStepCollection == null || _speedStepCollection.Count == 0) return 1f;
+    if (_speedStepCollection is null || _speedStepCollection.Count == 0) return 1f;
 
     int n = _speedStepCollection.Count;
     double lastStart = _speedStepCollection[n - 1].StartBeat.AbsoluteValue;

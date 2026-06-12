@@ -42,7 +42,7 @@ public partial class HitResponseController : Node
         ? note.ResourcePack.Value
         : ResourcePackManager.Instance.GetActiveResourcePack();
 
-    if (resourcePack.SFX != null && resourcePack.SFX.TryGetValue(note.Type, out var soundStream))
+    if (resourcePack.SFX is not null && resourcePack.SFX.TryGetValue(note.Type, out var soundStream))
     {
       if (soundStream is null) return;
 

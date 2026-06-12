@@ -117,7 +117,7 @@ public class GroupManager : IObjectManager<GroupData>
     foreach (var id in ids)
     {
       var group = GetGroup(id);
-      if (group != null) result.Add(group);
+      if (group is not null) result.Add(group);
     }
     return result;
   }

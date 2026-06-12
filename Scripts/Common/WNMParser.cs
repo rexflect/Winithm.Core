@@ -21,7 +21,7 @@ public static class WNMParser
     var data = new SongMetaData();
     using var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Read);
 
-    if (file == null)
+    if (file is null)
     {
       System.Diagnostics.Trace.TraceError($"[WNMParser] Failed to open file: {filePath}");
       return data;
@@ -212,7 +212,7 @@ public static class WNMParser
       return current;
     }
 
-    if (current == null) return current;
+    if (current is null) return current;
 
     if (ParserUtils.TryParseProperty(trimmed, "Index:", out string index))
     { int.TryParse(index, out int idx); current.Index = idx; }

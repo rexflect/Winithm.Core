@@ -61,7 +61,7 @@ public partial class Note : Control, IPoolable
 
   private Texture2D GetTextureSafe(NoteType type, NotePart part)
   {
-    if (ResourcePack.TEX?.TryGetValue(type, out var parts) == true
+    if (ResourcePack.TEX?.TryGetValue(type, out var parts) is true
         && parts.TryGetValue(part, out var tex))
     {
       return tex;
@@ -77,7 +77,7 @@ public partial class Note : Control, IPoolable
     Type = type;
     ResourcePack = resourcePack;
 
-    _bodyContainer.Visible = Type == NoteType.Hold;
+    _bodyContainer.Visible = Type is NoteType.Hold;
 
     _headBase.PatchMarginLeft = ResourcePack.Config.NinePatchHeadMarginH;
     _headBase.PatchMarginRight = ResourcePack.Config.NinePatchHeadMarginH;
@@ -89,12 +89,12 @@ public partial class Note : Control, IPoolable
     _bodyBase.PatchMarginTop = ResourcePack.Config.NinePatchBodyMarginV;
     _bodyBase.PatchMarginBottom = ResourcePack.Config.NinePatchBodyMarginV;
 
-    NoteType headType = Type == NoteType.Hold ? NoteType.Tap : Type;
+    NoteType headType = Type is NoteType.Hold ? NoteType.Tap : Type;
 
     _headBase.Texture = GetTextureSafe(headType, NotePart.Base);
     _headOverlay.Texture = GetTextureSafe(headType, NotePart.Overlay);
 
-    if (Type == NoteType.Hold)
+    if (Type is NoteType.Hold)
     {
       _bodyBase.Texture = GetTextureSafe(NoteType.Hold, NotePart.Base);
     }

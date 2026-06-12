@@ -76,7 +76,7 @@ public partial class ResourcePackManager : Node
     Instance = this;
 
     using var resourcePacksDir = DirAccess.Open(RESOURCE_PACKS_PATH);
-    if (resourcePacksDir == null)
+    if (resourcePacksDir is null)
     {
       GD.PushError($"[ResourcePackManager] Failed to open resource packs directory: {RESOURCE_PACKS_PATH}");
       return;
@@ -118,7 +118,7 @@ public partial class ResourcePackManager : Node
     if (!FileAccess.FileExists(path)) return; // Config is optional
 
     using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
-    if (file == null) return;
+    if (file is null) return;
 
     try
     {
@@ -190,7 +190,7 @@ public partial class ResourcePackManager : Node
   private static void LoadTexture(string path, ref ResourcePack resourcePack)
   {
     using var dir = DirAccess.Open(path);
-    if (dir == null) return;
+    if (dir is null) return;
 
     foreach (string fileName in dir.GetFiles())
     {
@@ -222,7 +222,7 @@ public partial class ResourcePackManager : Node
   private static void LoadSoundEffect(string path, ref ResourcePack resourcePack)
   {
     using var dir = DirAccess.Open(path);
-    if (dir == null) return;
+    if (dir is null) return;
 
     foreach (string fileName in dir.GetFiles())
     {

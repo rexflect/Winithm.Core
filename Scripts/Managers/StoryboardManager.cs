@@ -371,7 +371,7 @@ public class StoryboardManager<TProp>
     if (idx < 0) return defaultValue;
 
     var evt = events[idx];
-    var resolvedFrom = evt.From.Type == AnyValueType.Inherited
+    var resolvedFrom = evt.From.Type is AnyValueType.Inherited
       ? EvaluateRecursive(events, idx - 1, currentBeat, defaultValue)
       : evt.From;
 
@@ -388,7 +388,7 @@ public class StoryboardManager<TProp>
     double length = evt.Length;
     double t = length > 0.0 ? (currentBeat - startBeat) / length : 1.0;
 
-    t = evt.Easing == EasingType.Bezier
+    t = evt.Easing is EasingType.Bezier
       ? EasingFunctions.EvaluateBezier(evt.EasingBezier, t)
       : EasingFunctions.Evaluate(evt.Easing, t);
 

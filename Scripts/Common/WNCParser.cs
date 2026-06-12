@@ -16,7 +16,7 @@ public static class WNCParser
   public static void Parse(string filePath, ChartData data)
   {
     using var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Read);
-    if (file == null)
+    if (file is null)
     {
       System.Diagnostics.Trace.TraceError($"[WNCParser] Failed to open file: {filePath}");
       return;
@@ -168,7 +168,7 @@ public static class WNCParser
       {
         string p = parts[j];
         string key = (j - 1).ToString();
-        AnyValue val = p == "-"
+        AnyValue val = p is "-"
           ? new() { Type = AnyValueType.Inherited }
           : AnyValue.Parse(p);
 
@@ -181,7 +181,7 @@ public static class WNCParser
       return;
     }
 
-    if (current == null) return;
+    if (current is null) return;
 
     if (ParserUtils.TryParseProperty(trimmed, "Name:", out string name))
       current.Name = name;
@@ -202,7 +202,7 @@ public static class WNCParser
     {
       var evt = ParseEventLine(trimmed, out var type, out string rawType);
       factory.SyncMaxIDSeed(evt.ID);
-      if (type == StoryboardProperty.Custom)
+      if (type is StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(rawType, evt);
     }
   }
@@ -242,13 +242,13 @@ public static class WNCParser
       return;
     }
 
-    if (current == null) return;
+    if (current is null) return;
 
     if (trimmed.StartsWith("/ "))
     {
       var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
-      if (type != StoryboardProperty.Custom)
+      if (type is not StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
     }
   }
@@ -286,7 +286,7 @@ public static class WNCParser
       return;
     }
 
-    if (current == null) return;
+    if (current is null) return;
 
     if (ParserUtils.TryParseProperty(trimmed, "Name:", out string name))
       current.Name = name;
@@ -294,7 +294,7 @@ public static class WNCParser
     {
       var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
-      if (type != StoryboardProperty.Custom)
+      if (type is not StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
     }
   }
@@ -331,7 +331,7 @@ public static class WNCParser
       return;
     }
 
-    if (current == null) return;
+    if (current is null) return;
 
     if (ParserUtils.TryParseProperty(trimmed, "Name:", out string name))
       current.Name = name;
@@ -341,7 +341,7 @@ public static class WNCParser
     {
       var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
-      if (type != StoryboardProperty.Custom)
+      if (type is not StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
     }
   }
@@ -394,7 +394,7 @@ public static class WNCParser
       return;
     }
 
-    if (current == null) return;
+    if (current is null) return;
 
     if (ParserUtils.TryParseProperty(trimmed, "Name:", out string name))
       current.Name = name;
@@ -488,9 +488,9 @@ public static class WNCParser
       var evt = ParseEventLine(trimmed, out var type, out _);
       factory.SyncMaxIDSeed(evt.ID);
 
-      if (currentSpeedStep != null)
+      if (currentSpeedStep is not null)
         currentSpeedStep.StoryboardEvents.AddEvent(type, evt);
-      else if (type != StoryboardProperty.Custom)
+      else if (type is not StoryboardProperty.Custom)
         current.StoryboardEvents.AddEvent(type, evt);
     }
   }
@@ -508,8 +508,8 @@ public static class WNCParser
     for (int i = 2; i < trimmed.Length; i++)
     {
       char c = trimmed[i];
-      if (c == '\"') inQuotes = !inQuotes;
-      else if (c == ' ' && !inQuotes)
+      if (c is '\"') inQuotes = !inQuotes;
+      else if (c is ' ' && !inQuotes)
       {
         if (i > tokenStart) parts.Add(trimmed.Substring(tokenStart, i - tokenStart).Trim('\"'));
         tokenStart = i + 1;

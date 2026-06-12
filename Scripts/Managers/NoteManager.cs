@@ -132,7 +132,7 @@ public class NoteManager :
   /// </summary>
   public void Compute()
   {
-    if (_windowData == null)
+    if (_windowData is null)
     {
       ExpectedStartFocusBeat = BeatTime.Max;
       ExpectedEndCloseBeat = BeatTime.Max;
@@ -158,13 +158,13 @@ public class NoteManager :
 
       foreach (NoteData note in notes)
       {
-        if (note.Type == NoteType.Focus && note.IsHittable)
+        if (note.Type is NoteType.Focus && note.IsHittable)
         {
           if (note.StartBeat < ExpectedStartFocusBeat)
             ExpectedStartFocusBeat = note.StartBeat;
         }
 
-        if (note.Type == NoteType.Close && note.IsHittable)
+        if (note.Type is NoteType.Close && note.IsHittable)
         {
           if (note.StartBeat < ExpectedEndCloseBeat)
             ExpectedEndCloseBeat = note.StartBeat;
@@ -206,7 +206,7 @@ public class NoteManager :
           TotalHittableNoteCount++;
           note.IsLifecycleBounded = true;
 
-          if (note.Type == NoteType.Hold)
+          if (note.Type is NoteType.Hold)
           {
             comboEvents.Add((noteEndBeat, 2));
             TotalComboCount += 2;
@@ -462,7 +462,7 @@ public class NoteManager :
     foreach (var id in ids)
     {
       var note = GetNote(side, id);
-      if (note != null) result.Add(note);
+      if (note is not null) result.Add(note);
     }
     return result;
   }
@@ -474,7 +474,7 @@ public class NoteManager :
     foreach (var pair in _noteCollection)
     {
       var note = pair.Value.Find(n => n.ID == id);
-      if (note != null) return note;
+      if (note is not null) return note;
     }
 
     return null;
@@ -488,7 +488,7 @@ public class NoteManager :
     foreach (var id in ids)
     {
       var note = GetNote(id);
-      if (note != null) result.Add(note);
+      if (note is not null) result.Add(note);
     }
     return result;
   }

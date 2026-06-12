@@ -16,10 +16,10 @@ public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneable
   public string ID;
 
   private BeatTime _startBeat = BeatTime.NaN;
-  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat != value) { _startBeat = value; OnStartBeatChanged?.Invoke(this); } } }
+  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat == value) return; _startBeat = value; OnStartBeatChanged?.Invoke(this); } }
 
   private float _multiplier = 1f;
-  public float Multiplier { get => _multiplier; set { if (_multiplier != value) { _multiplier = value; OnUpdated?.Invoke(this); } } }
+  public float Multiplier { get => _multiplier; set { if (_multiplier == value) return; _multiplier = value; OnUpdated?.Invoke(this); } }
 
   public StoryboardManager<StoryboardProperty> StoryboardEvents { get; set; } = new();
 

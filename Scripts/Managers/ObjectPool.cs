@@ -119,7 +119,7 @@ public class ObjectPool<T> : IDisposable where T : class
   /// </summary>
   public void Clear()
   {
-    if (_actionOnDestroy != null)
+    if (_actionOnDestroy is not null)
     {
       foreach (var item in _stack)
         _actionOnDestroy(item);

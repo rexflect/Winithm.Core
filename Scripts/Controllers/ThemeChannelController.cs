@@ -56,7 +56,7 @@ public partial class ThemeChannelController : Node
 
   private float EvaluateProperty(ThemeChannelData tc, StoryboardProperty prop, double beat, float defaultValue)
   {
-    if (tc.StoryboardEvents == null || !tc.StoryboardEvents.TryGetValue(prop, out _)) 
+    if (tc.StoryboardEvents is null || !tc.StoryboardEvents.TryGetValue(prop, out _)) 
       return defaultValue;
 
     return tc.StoryboardEvents.Evaluate(prop, beat, new AnyValue(defaultValue)).X;

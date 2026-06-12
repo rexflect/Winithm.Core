@@ -35,8 +35,8 @@ public struct ShaderUniform
 
   public override readonly string ToString() =>
     $"{Type} {Name}" +
-    (Hint != null ? $" : {Hint}" : "") +
-    (RawDefaultValue != null ? $" = {RawDefaultValue}" : "");
+    (Hint is not null ? $" : {Hint}" : "") +
+    (RawDefaultValue is not null ? $" = {RawDefaultValue}" : "");
 }
 
 /// <summary>

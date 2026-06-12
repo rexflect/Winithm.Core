@@ -31,7 +31,7 @@ public class OverlayManager : IObjectManager<OverlayData>
   public bool TryGetValue(string id, out OverlayData value)
   {
     value = GetOverlay(id);
-    return value != null;
+    return value is not null;
   }
 
   /// <summary>
@@ -197,7 +197,7 @@ public class OverlayManager : IObjectManager<OverlayData>
     foreach (var id in ids)
     {
       var overlay = GetOverlay(id);
-      if (overlay != null) result.Add(overlay);
+      if (overlay is not null) result.Add(overlay);
     }
     return result;
   }

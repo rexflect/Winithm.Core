@@ -34,7 +34,7 @@ public class NodePool<T> : ObjectPool<T> where T : Node
       : base(
           createFunc ?? (() =>
           {
-            T instance = scene != null ? scene.Instantiate<T>() : Activator.CreateInstance<T>();
+            T instance = scene is not null ? scene.Instantiate<T>() : Activator.CreateInstance<T>();
             // Add to the tree immediately so it never needs to be re-parented
             parent.AddChild(instance);
             return instance;

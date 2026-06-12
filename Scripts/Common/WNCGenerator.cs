@@ -51,7 +51,7 @@ public static class WNCGenerator
         sb.AppendLine($" Affects UI: {ParserUtils.FormatIntBool(overlay.AffectsUI)}");
         sb.AppendLine($" Layer: {overlay.Layer} {overlay.SubLayer}");
 
-        if (overlay.StoryboardEvents != null)
+        if (overlay.StoryboardEvents is not null)
         {
           foreach (var kvp in overlay.StoryboardEvents)
           {
@@ -73,7 +73,7 @@ public static class WNCGenerator
       {
         sb.AppendLine($"* {comp.Key} {ParserUtils.FormatFloat(comp.Value.InitX)} {ParserUtils.FormatFloat(comp.Value.InitY)} {ParserUtils.FormatFloat(comp.Value.InitRotate)} {ParserUtils.FormatFloat(comp.Value.InitScale)} {ParserUtils.FormatFloat(comp.Value.InitAlpha)}");
 
-        if (comp.Value.StoryboardEvents != null)
+        if (comp.Value.StoryboardEvents is not null)
         {
           foreach (var kvp in comp.Value.StoryboardEvents)
           {
@@ -96,7 +96,7 @@ public static class WNCGenerator
         sb.AppendLine($"+ {tc.ID} {ParserUtils.FormatFloat(tc.InitR)} {ParserUtils.FormatFloat(tc.InitG)} {ParserUtils.FormatFloat(tc.InitB)} {ParserUtils.FormatFloat(tc.InitA)} {ParserUtils.FormatFloat(tc.InitNoteA)}");
         sb.AppendLine($" Name: {tc.Name ?? ""}");
 
-        if (tc.StoryboardEvents != null)
+        if (tc.StoryboardEvents is not null)
         {
           foreach (var kvp in tc.StoryboardEvents)
           {
@@ -120,7 +120,7 @@ public static class WNCGenerator
         sb.AppendLine($" Name: {g.Name ?? ""}");
         sb.AppendLine($" Group: {g.ParentGroupID ?? ""}");
 
-        if (g.StoryboardEvents != null)
+        if (g.StoryboardEvents is not null)
         {
           foreach (var kvp in g.StoryboardEvents)
           {
@@ -150,7 +150,7 @@ public static class WNCGenerator
         sb.AppendLine($" Theme Channel: {w.ThemeChannelID ?? ""}");
 
         // Window-level storyboard events
-        if (w.StoryboardEvents != null)
+        if (w.StoryboardEvents is not null)
         {
           foreach (var kvp in w.StoryboardEvents)
           {
@@ -175,7 +175,7 @@ public static class WNCGenerator
         {
           sb.AppendLine($" | {ss.ID} {ss.StartBeat} {ParserUtils.FormatFloat(ss.Multiplier)}");
 
-          if (ss.StoryboardEvents != null)
+          if (ss.StoryboardEvents is not null)
           {
             foreach (var kvp in ss.StoryboardEvents)
             {
@@ -190,7 +190,7 @@ public static class WNCGenerator
     }
 
     using var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Write);
-    if (file != null)
+    if (file is not null)
       file.StoreString(sb.ToString());
     else
       GD.PushError($"Failed to open file for writing at: {filePath}");
@@ -198,7 +198,7 @@ public static class WNCGenerator
 
   public static string GenerateEventLine(EventData evt, StoryboardProperty type, string customProperty = null, int indent = 2)
   {
-    string easingStr = evt.Easing == EasingType.Bezier ? evt.EasingBezier.ToString() : evt.Easing.ToString();
+    string easingStr = evt.Easing is EasingType.Bezier ? evt.EasingBezier.ToString() : evt.Easing.ToString();
     string propStr = StoryboardPropertyExtension.FormatEventProperty(type, customProperty);
     string result = $"/ {evt.ID} {propStr} {evt.StartBeat} {evt.Length} {evt.From} {evt.To} {easingStr}";
     return result.PadLeft(indent);

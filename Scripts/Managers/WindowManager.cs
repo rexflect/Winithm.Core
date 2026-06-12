@@ -32,7 +32,7 @@ public class WindowManager : IObjectManager<WindowData>
   public bool TryGetValue(string id, out WindowData value)
   {
     value = GetWindow(id);
-    return value != null;
+    return value is not null;
   }
 
 
@@ -142,9 +142,9 @@ public class WindowManager : IObjectManager<WindowData>
   {
     if (_metronome == metronome) return;
 
-    if (_metronome != null) _metronome.OnUpdated -= HandleMetronomeUpdated;
+    if (_metronome is not null) _metronome.OnUpdated -= HandleMetronomeUpdated;
     _metronome = metronome;
-    if (_metronome != null) _metronome.OnUpdated += HandleMetronomeUpdated;
+    if (_metronome is not null) _metronome.OnUpdated += HandleMetronomeUpdated;
     NotifyChanged();
   }
 
@@ -159,7 +159,7 @@ public class WindowManager : IObjectManager<WindowData>
   /// </summary>
   public void ComputeAnimations(WindowData windowData)
   {
-    if (_metronome == null)
+    if (_metronome is null)
       throw new InvalidOperationException("_metronome must be set before computing animations.");
 
     windowData.PreComputeAnimation(_metronome);
@@ -173,7 +173,7 @@ public class WindowManager : IObjectManager<WindowData>
   /// </summary>
   public void ComputeAllAnimations()
   {
-    if (_metronome == null)
+    if (_metronome is null)
       throw new InvalidOperationException("_metronome must be set before computing animations.");
 
     foreach (var window in _windowCollection)
@@ -325,7 +325,7 @@ public class WindowManager : IObjectManager<WindowData>
     foreach (var id in ids)
     {
       var window = GetWindow(id);
-      if (window != null) result.Add(window);
+      if (window is not null) result.Add(window);
     }
     return result;
   }

@@ -95,7 +95,7 @@ public partial class GroupController : Node
 
   private float EvaluateProperty(GroupData g, StoryboardProperty prop, double beat, float defaultValue)
   {
-    if (g.StoryboardEvents == null || !g.StoryboardEvents.TryGetValue(prop, out _))
+    if (g.StoryboardEvents is null || !g.StoryboardEvents.TryGetValue(prop, out _))
       return defaultValue;
 
     return g.StoryboardEvents.Evaluate(prop, beat, new(defaultValue)).X;

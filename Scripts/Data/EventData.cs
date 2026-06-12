@@ -16,22 +16,22 @@ public class EventData : IDeepCloneable<EventData>
   public string ID;
 
   private BeatTime _startBeat = BeatTime.NaN;
-  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat != value) { _startBeat = value; OnStartBeatChanged?.Invoke(this); } } }
+  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat == value) return; _startBeat = value; OnStartBeatChanged?.Invoke(this); } }
 
   private double _length = 0;
-  public double Length { get => _length; set { if (_length != value) { _length = value; OnUpdated?.Invoke(this); } } }
+  public double Length { get => _length; set { if (_length == value) return; _length = value; OnUpdated?.Invoke(this); } }
 
   private AnyValue _from = new(0f);
-  public AnyValue From { get => _from; set { if (_from != value) { _from = value; OnUpdated?.Invoke(this); } } }
+  public AnyValue From { get => _from; set { if (_from == value) return; _from = value; OnUpdated?.Invoke(this); } }
 
   private AnyValue _to = new(0f);
-  public AnyValue To { get => _to; set { if (_to != value) { _to = value; OnUpdated?.Invoke(this); } } }
+  public AnyValue To { get => _to; set { if (_to == value) return; _to = value; OnUpdated?.Invoke(this); } }
 
   private EasingType _easing = EasingType.Linear;
-  public EasingType Easing { get => _easing; set { if (_easing != value) { _easing = value; OnUpdated?.Invoke(this); } } }
+  public EasingType Easing { get => _easing; set { if (_easing == value) return; _easing = value; OnUpdated?.Invoke(this); } }
 
   private AnyValue _easingBezier = new(0f, 0f, 1f, 1f);
-  public AnyValue EasingBezier { get => _easingBezier; set { if (_easingBezier != value) { _easingBezier = value; OnUpdated?.Invoke(this); } } }
+  public AnyValue EasingBezier { get => _easingBezier; set { if (_easingBezier == value) return; _easingBezier = value; OnUpdated?.Invoke(this); } }
 
   public EventData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
   {
