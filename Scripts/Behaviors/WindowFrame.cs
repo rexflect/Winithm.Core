@@ -4,11 +4,11 @@ namespace Winithm.Core.Behaviors;
 
 public partial class WindowFrame : Control
 {
-  private Window _parent = null;
+  private WindowVS _parent = null;
 
   public override void _Ready()
   {
-    _parent = GetParentOrNull<Window>();
+    _parent = GetParentOrNull<WindowVS>();
   }
 
   public override void _Draw()
