@@ -68,8 +68,9 @@ public static class WNCParser
 
         switch (currentSection)
         {
-          // TODO: Add versioning
-          case "FORMAT": break;
+          case "FORMAT": 
+            ParseChartFormatLine(trimmed, data.ChartMetadata);
+            break;
           case "METADATA":
             ParseChartMetadataLine(trimmed, data.ChartMetadata);
             break;
@@ -115,6 +116,13 @@ public static class WNCParser
       file.Close();
     }
 
+  }
+
+  // ── FORMAT ──
+  private static void ParseChartFormatLine(string line, ChartMetadata meta)
+  {
+    if (ParserUtils.TryParseProperty(line, "Version:", out string version))
+      meta.VERSION = int.TryParse(version, out int v) ? v : 0;
   }
 
   // ── METADATA ──
