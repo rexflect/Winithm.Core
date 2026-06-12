@@ -77,7 +77,7 @@ public partial class HitResponseController : Node
     // AddChild manually can emit spurious ready/exit-tree signals and is not
     // deferred-safe.  Reparent(keepGlobalTransform: false) is equivalent and safe.
     if (fx.GetParent() != _hitFXLayer)
-      fx.Reparent(_hitFXLayer!, keepGlobalTransform: false);
+      fx.Reparent(_hitFXLayer!, false);
 
     _hitFXLayer!.MoveChild(fx, -1); // -1 = move to last child (Godot 4.x shorthand)
 
@@ -231,7 +231,7 @@ public partial class HitResponseController : Node
 
           // Return ownership to the pool's parent node
           if (fx.GetParent() != this)
-            fx.Reparent(this, keepGlobalTransform: false);
+            fx.Reparent(this, false);
         },
         defaultCapacity: 16
     );
