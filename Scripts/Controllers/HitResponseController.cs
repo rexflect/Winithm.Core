@@ -14,23 +14,15 @@ public partial class HitResponseController : Node
   [Export] public Vector2 PlayerAreaSize { set; get; } = new(1280, 720);
   [Export] public float HitSoundVolume { set; get; } = 0.5f;
 
-  private readonly Dictionary<PackedScene, NodePool<HitFX>> _pools = [];
+  private readonly Dictionary<PackedScene, NodePool<HitFX>> _hitFXPools = [];
   private readonly Dictionary<HitFX, PackedScene> _sceneByInstance = [];
-  private readonly AudioStreamPlayer _hitSoundPlayer = new();
+  private NodePool<AudioStreamPlayer> _hitSoundPool;
 
   // ─────────────────────────────────────────────────────────────────────────
   public void Initialize(Control hitFXLayer, NoteController noteController)
   {
     _hitFXLayer = hitFXLayer;
     _noteController = noteController;
-
-    if (!IsInstanceValid(_hitSoundPlayer.GetParent()))
-    {
-      AddChild(_hitSoundPlayer);
-      _hitSoundPlayer.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
-
-      _hitSoundPlayer.MaxPolyphony = 32;
-    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -54,11 +46,10 @@ public partial class HitResponseController : Node
     {
       if (soundStream is null) return;
 
-      // Set volume to current value (default 0.5, can be changed by config UI)
-      _hitSoundPlayer.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
-
-      _hitSoundPlayer.Stream = soundStream;
-      _hitSoundPlayer.Play();
+      AudioStreamPlayer player = GetHitSoundPool().Get();
+      player.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
+      player.Stream = soundStream;
+      player.Play();
     }
   }
 
@@ -78,7 +69,7 @@ public partial class HitResponseController : Node
     PackedScene scene = resourcePack.HitFXScene;
     if (scene is null) return;
 
-    NodePool<HitFX> pool = GetPool(scene);
+    NodePool<HitFX> pool = GetHitFXPool(scene);
     HitFX fx = pool.Get();
     _sceneByInstance[fx] = scene;
 
@@ -112,7 +103,7 @@ public partial class HitResponseController : Node
     PackedScene scene = resourcePack.HitFXScene;
     if (scene is null) return;
 
-    NodePool<HitFX> pool = GetPool(scene); // Instantiates defaultCapacity nodes
+    NodePool<HitFX> pool = GetHitFXPool(scene); // Instantiates defaultCapacity nodes
 
     // Force shader compilation to prevent first-hit stutter
     HitFX dummy = pool.Get();
@@ -151,17 +142,57 @@ public partial class HitResponseController : Node
   {
     base._ExitTree();
 
-    foreach (NodePool<HitFX> pool in _pools.Values)
+    foreach (NodePool<HitFX> pool in _hitFXPools.Values)
       pool.Dispose();
 
-    _pools.Clear();
+    _hitSoundPool?.Dispose();
+
+    _hitFXPools.Clear();
     _sceneByInstance.Clear();
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  private NodePool<HitFX> GetPool(PackedScene scene)
+  private NodePool<AudioStreamPlayer> GetHitSoundPool()
   {
-    if (_pools.TryGetValue(scene, out NodePool<HitFX> existing))
+    if (_hitSoundPool is not null)
+      return _hitSoundPool;
+
+    _hitSoundPool = new(
+        parent: this,
+        createFunc: () =>
+        {
+          AudioStreamPlayer player = new();
+          AddChild(player);
+          player.Finished += () => ReleaseHitSound(player);
+          return player;
+        },
+        actionOnGet: static player =>
+        {
+          player.ProcessMode = ProcessModeEnum.Inherit;
+        },
+        actionOnRelease: static player =>
+        {
+          player.Stop();
+          player.Stream = null;
+          player.ProcessMode = ProcessModeEnum.Disabled;
+        },
+        defaultCapacity: 32
+    );
+
+    return _hitSoundPool;
+  }
+
+  private void ReleaseHitSound(AudioStreamPlayer player)
+  {
+    if (!IsInstanceValid(player) || _hitSoundPool is null)
+      return;
+
+    _hitSoundPool.Release(player);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  private NodePool<HitFX> GetHitFXPool(PackedScene scene)
+  {
+    if (_hitFXPools.TryGetValue(scene, out NodePool<HitFX> existing))
       return existing;
 
     NodePool<HitFX> pool = new(
@@ -205,7 +236,7 @@ public partial class HitResponseController : Node
         defaultCapacity: 16
     );
 
-    _pools[scene] = pool;
+    _hitFXPools[scene] = pool;
     return pool;
   }
 
@@ -215,7 +246,7 @@ public partial class HitResponseController : Node
     if (!IsInstanceValid(fx) || !_sceneByInstance.Remove(fx, out var scene))
       return;
 
-    if (_pools.TryGetValue(scene, out var pool))
+    if (_hitFXPools.TryGetValue(scene, out var pool))
       pool.Release(fx);
   }
 }
