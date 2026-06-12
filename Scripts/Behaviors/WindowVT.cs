@@ -3,7 +3,7 @@ using Winithm.Core.Interfaces;
 
 namespace Winithm.Core.Behaviors;
 
-public partial class Window : Control, IPoolable
+public partial class WindowVT : Control, IPoolable
 {
   // --- Dirty tracking ---
   private struct WindowState

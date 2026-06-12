@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://em8hm7scll5x"]
 
-[ext_resource type="Script" uid="uid://dxuopnbllj4tf" path="res://Winithm.Core/Scripts/Behaviors/Window.cs" id="1_nqped"]
+[ext_resource type="Script" uid="uid://dvyqwaw8mamnu" path="res://Winithm.Core/Scripts/Behaviors/WindowVT.cs" id="1_nqped"]
 [ext_resource type="Script" uid="uid://cbba682x03w16" path="res://Winithm.Core/Scripts/Behaviors/WindowFrame.cs" id="2_g5fm5"]
 
-[node name="Window" type="Control" unique_id=1088118390]
+[node name="WindowVT" type="Control" unique_id=1088118390]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_nqped")
