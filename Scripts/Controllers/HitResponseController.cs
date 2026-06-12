@@ -8,14 +8,12 @@ namespace Winithm.Core.Controllers;
 
 public partial class HitResponseController : Node
 {
-  // ── Nullable reference types (C# 13 / .NET 9 best practice) ──────────────
   private Control _hitFXLayer;
   private NoteController _noteController;
 
   [Export] public Vector2 PlayerAreaSize { set; get; } = new(1280, 720);
   [Export] public float HitSoundVolume { set; get; } = 0.5f;
 
-  // C# 13: collection expressions for cleaner initialisation
   private readonly Dictionary<PackedScene, NodePool<HitFX>> _pools = [];
   private readonly Dictionary<HitFX, PackedScene> _sceneByInstance = [];
   private readonly AudioStreamPlayer _hitSoundPlayer = new();
@@ -163,7 +161,6 @@ public partial class HitResponseController : Node
   // ─────────────────────────────────────────────────────────────────────────
   private NodePool<HitFX> GetPool(PackedScene scene)
   {
-    // C# 13: GetOrAdd with a factory delegate (cleaner than TryGetValue + assign)
     if (_pools.TryGetValue(scene, out NodePool<HitFX> existing))
       return existing;
 
