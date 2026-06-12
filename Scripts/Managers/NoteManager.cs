@@ -127,40 +127,6 @@ public class NoteManager :
     NotifyChanged();
   }
 
-  public static NoteData ParseNoteLine(string text, out NoteSide side)
-  {
-    side = NoteSide.Bottom;
-
-    string[] parts = text.Trim()[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-    var current = new NoteData();
-
-    if (parts.Length >= 1)
-      current.ID = parts[0];
-    if (parts.Length >= 2)
-      current.Type = Enum.TryParse<NoteType>(parts[1], true, out var t) ? t : NoteType.Tap;
-    if (parts.Length >= 3)
-      current.StartBeat = BeatTime.TryParse(parts[2], out var sb) ? sb : BeatTime.Zero;
-    if (parts.Length >= 4)
-      current.Length = double.TryParse(parts[3], out var l) ? l : 0;
-    if (parts.Length >= 5)
-      current.X = float.TryParse(parts[4], out var x) ? x : 0.5f;
-    if (parts.Length >= 6)
-      current.Width = float.TryParse(parts[5], out var w) ? w : 0.5f;
-    if (parts.Length >= 7)
-      side = Enum.TryParse<NoteSide>(parts[6], true, out var s) ? s : NoteSide.Bottom;
-    if (parts.Length >= 8)
-      current.FakeType = int.TryParse(parts[7], out var ft) ? ft : 0;
-
-    return current;
-  }
-
-  public static string GenerateNoteLine(NoteSide side, NoteData data, int indent = 2)
-  {
-    string result = $"# {data.ID} {data.Type} {data.StartBeat} {data.Length} {data.X} {data.Width} {side} {data.FakeType}";
-    return result.PadLeft(indent);
-  }
-
   /// <summary>
   /// Re-evaluates note boundaries, max end beats, and combo prefix-sum.
   /// </summary>

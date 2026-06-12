@@ -116,4 +116,16 @@ public class NoteData : IDeepCloneable<NoteData>
       _ => NoteType.Tap
     };
   }
+
+  public static NoteSide ParseNoteSide(string name)
+  {
+    return name.ToLowerInvariant() switch
+    {
+      "bottom" => NoteSide.Bottom,
+      "top" => NoteSide.Top,
+      "left" => NoteSide.Left,
+      "right" => NoteSide.Right,
+      _ => NoteSide.Bottom
+    };
+  }
 }
