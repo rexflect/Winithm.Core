@@ -1,0 +1,122 @@
+using Godot;
+using System.Collections.Generic;
+using Winithm.Core.Behaviors;
+using Winithm.Core.Data;
+
+namespace Winithm.Core.Controllers;
+
+public partial class NoteController
+{
+  public struct NoteGlobalTransformInfo
+  {
+    public Vector2 Position;
+    public float Rotation;
+    public float NoteWidth;
+    public Vector2 PlayerAreaSize;
+  }
+
+  /// <summary>
+  /// Returns a read-only dictionary of registered window states.
+  /// </summary>
+  public IReadOnlyDictionary<string, WindowNoteState> GetRegisteredWindowStates() => WindowStates;
+
+  public bool TryGetNoteGlobalTransformInfo(string windowId, NoteData note, out NoteGlobalTransformInfo info)
+  {
+    info = default;
+
+    if (!WindowStates.TryGetValue(windowId, out var state)) return false;
+
+    if (state.NoteVisualMap.TryGetValue(note, out var noteVisual) && noteVisual is not null && IsInstanceValid(noteVisual))
+    {
+      float headHeight = noteVisual.NoteSize
+        * Mathf.Min(noteVisual.PlayerAreaSize.X, noteVisual.PlayerAreaSize.Y)
+        * Note.NOTE_HEAD_HEIGHT_RATIO;
+
+      Transform2D visualTransform = noteVisual.GetGlobalTransform();
+      Vector2 globalCenter = visualTransform * new Vector2(0, -headHeight * 0.5f);
+
+      info = new()
+      {
+        Position = globalCenter,
+        Rotation = visualTransform.Rotation,
+        NoteWidth = noteVisual.Width,
+        PlayerAreaSize = noteVisual.PlayerAreaSize,
+      };
+
+      return true;
+    }
+
+    if (!state.WindowData.Notes.TryGetNoteSide(note, out var noteSide)) return false;
+
+    Vector2 playerAreaSize = state.WindowVisual.PlayerAreaSize;
+    Vector2 windowSize = state.WindowVisual.WindowSize;
+    float viewportScale = ComputeViewportScale(playerAreaSize);
+    Vector2 scaledWindowSize = windowSize * viewportScale;
+
+    float noteWidth = IsVerticalSide(noteSide)
+      ? scaledWindowSize.X * note.Width
+      : scaledWindowSize.Y * note.Width;
+
+    float lateralPosition = note.X * (1f - note.Width) + note.Width / 2f;
+    float headOffsetPx = 0f;
+
+    var (localPosition, rotationDegrees) = ComputeNoteLocalPositionAndRotation(
+      noteSide, scaledWindowSize, lateralPosition, headOffsetPx
+    );
+
+    float fallbackHeadHeight = PlayerNoteSize
+      * Mathf.Min(playerAreaSize.X, playerAreaSize.Y)
+      * Note.NOTE_HEAD_HEIGHT_RATIO;
+
+    Transform2D noteTransform = new(Mathf.DegToRad(rotationDegrees), localPosition);
+
+    CanvasItem parentLayer = GetNoteParentLayer(state, note);
+    Transform2D parentTransform = parentLayer.GetGlobalTransform();
+    Vector2 globalPos = parentTransform * noteTransform * new Vector2(0, -fallbackHeadHeight * 0.5f);
+
+    info = new()
+    {
+      Position = globalPos,
+      Rotation = parentTransform.Rotation + Mathf.DegToRad(rotationDegrees),
+      NoteWidth = noteWidth,
+      PlayerAreaSize = playerAreaSize,
+    };
+
+    return true;
+  }
+
+  public int GetTotalComboPassedInActivingWindows(double currentBeat)
+  {
+    int total = 0;
+    foreach (var state in WindowStates.Values)
+    {
+      var comboBeats = state.WindowData.Notes.ComboEventBeats;
+      var comboPrefix = state.WindowData.Notes.ComboPrefixSum;
+
+      if (comboBeats is null || comboBeats.Length == 0) continue;
+
+      int left = 0, right = comboBeats.Length - 1;
+      int best = -1;
+
+      while (left <= right)
+      {
+        int mid = left + (right - left) / 2;
+        if (comboBeats[mid] <= currentBeat)
+        {
+          best = mid;
+          left = mid + 1;
+        }
+        else
+        {
+          right = mid - 1;
+        }
+      }
+
+      if (best >= 0)
+      {
+        total += comboPrefix[best];
+      }
+    }
+    return total;
+  }
+}
