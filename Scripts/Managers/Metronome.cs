@@ -294,7 +294,7 @@ public class Metronome : IObjectManager<BPMStop>
 
   public double GetCurrentBPS(double beat)
   {
-    int idx = FindStopIndexByTime(beat);
+    int idx = FindStopIndex(beat);
     return idx == -1 ? BaseBPM.BeatsPerSecond : _bPMStops[idx].BeatsPerSecond;
   }
 
