@@ -52,7 +52,7 @@ public partial class WindowController : Node
   )
   {
     if (_windowScene == null)
-      _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/WindowVT.tscn");
+      _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/WindowVS.tscn");
 
     _windowPool = new NodePool<WindowVS>(this, _windowScene);
 
