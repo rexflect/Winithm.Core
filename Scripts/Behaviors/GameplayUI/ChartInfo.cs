@@ -14,7 +14,7 @@ public partial class ChartInfo : Control
   [Export] public string DifficultText = "Info: 5";
   [Export] public Color TextColor = Colors.White;
   [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = Colors.Gray;
+  [Export] public Color CompBackgroundColor = new(0.35f, 0.35f, 0.35f);
 
   public readonly float PAD_HEIGHT = 7.5f;
 

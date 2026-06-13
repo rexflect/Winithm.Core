@@ -13,7 +13,7 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qqi1i"]
 shader = ExtResource("1_b0t66")
-shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/bg_color = Color(0.35, 0.35, 0.35, 1)
 shader_parameter/stripe_color = Color(0, 0, 0, 0)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
@@ -21,7 +21,7 @@ shader_parameter/slant = -1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_o17d2"]
 shader = ExtResource("1_b0t66")
-shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/bg_color = Color(0.35, 0.35, 0.35, 1)
 shader_parameter/stripe_color = Color(0, 0, 0, 0)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
@@ -29,7 +29,7 @@ shader_parameter/slant = -1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ff0i"]
 shader = ExtResource("1_b0t66")
-shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/bg_color = Color(0.35, 0.35, 0.35, 1)
 shader_parameter/stripe_color = Color(0, 0, 0, 0)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
@@ -37,7 +37,7 @@ shader_parameter/slant = -1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lau8c"]
 shader = ExtResource("1_b0t66")
-shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/bg_color = Color(0.35, 0.35, 0.35, 1)
 shader_parameter/stripe_color = Color(0, 0, 0, 0)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
@@ -51,6 +51,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_e2j1j")
+CompBackgroundColor = Color(0.74509805, 0.74509805, 0.74509805, 1)
 
 [node name="SongInfoTransform" type="Control" parent="." unique_id=1245442107]
 layout_mode = 1
@@ -73,7 +74,7 @@ anchors_preset = 0
 script = ExtResource("2_is1gd")
 
 [node name="Background" type="ColorRect" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=149922271]
-modulate = Color(1, 1, 1, 0.6509804)
+modulate = Color(1, 1, 1, 0.5)
 material = SubResource("ShaderMaterial_qqi1i")
 layout_mode = 0
 offset_left = 75.0
@@ -138,7 +139,7 @@ anchors_preset = 0
 script = ExtResource("6_rx5yn")
 
 [node name="Background" type="ColorRect" parent="ChartInfoTransform/SubTransform/ChartInfo" unique_id=2128106826]
-modulate = Color(1, 1, 1, 0.6509804)
+modulate = Color(1, 1, 1, 0.5)
 material = SubResource("ShaderMaterial_o17d2")
 layout_mode = 0
 offset_left = -105.0
@@ -184,7 +185,7 @@ anchors_preset = 0
 script = ExtResource("7_0cxqn")
 
 [node name="Background" type="ColorRect" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=957669646]
-modulate = Color(1, 1, 1, 0.6509804)
+modulate = Color(1, 1, 1, 0.5)
 material = SubResource("ShaderMaterial_6ff0i")
 layout_mode = 0
 offset_left = 35.0
@@ -253,7 +254,7 @@ anchors_preset = 0
 script = ExtResource("9_rhtcn")
 
 [node name="Background" type="ColorRect" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=1565888443]
-modulate = Color(1, 1, 1, 0.6509804)
+modulate = Color(1, 1, 1, 0.5)
 material = SubResource("ShaderMaterial_lau8c")
 layout_mode = 0
 offset_left = -166.5

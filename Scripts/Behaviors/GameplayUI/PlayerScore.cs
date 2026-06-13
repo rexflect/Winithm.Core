@@ -12,7 +12,7 @@ public partial class PlayerScore : Control
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public Color TextColor = Colors.White;
   [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = Colors.Gray;
+  [Export] public Color CompBackgroundColor = new(0.35f, 0.35f, 0.35f);
 
   private LastState _lastState = new();
 

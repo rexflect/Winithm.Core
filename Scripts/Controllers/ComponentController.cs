@@ -25,7 +25,7 @@ public partial class ComponentController : Control
   [Export] public float SongProgressPercent = 0f;
   [Export] public Color TextColor = Colors.White;
   [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = Colors.Gray;
+  [Export] public Color CompBackgroundColor = new(0.35f, 0.35f, 0.35f);
 
   private LastState _lastState;
 
