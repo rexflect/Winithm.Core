@@ -14,6 +14,7 @@ public class ScoreEngine
   public enum CompletionStatus
   {
     None,
+    AT,
     AP,
     FC,
     CL,

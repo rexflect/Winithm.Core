@@ -1,0 +1,327 @@
+[gd_scene format=3 uid="uid://cgmiyt6dy1hid"]
+
+[ext_resource type="Shader" uid="uid://sw0x7v30scq3" path="res://Winithm.Core/Resources/Shaders/SlantedStripes.gdshader" id="1_b0t66"]
+[ext_resource type="Script" uid="uid://bcire2wvtnsjl" path="res://Winithm.Core/Scripts/Controllers/ComponentController.cs" id="1_e2j1j"]
+[ext_resource type="Texture2D" uid="uid://diougssna5q8j" path="res://Winithm.Core/Resources/Textures/song_placeholder_image.png" id="2_68dja"]
+[ext_resource type="Script" uid="uid://vfxn40lqnjwi" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/SongInfo.cs" id="2_is1gd"]
+[ext_resource type="FontFile" uid="uid://b2y82p7o4yhtf" path="res://Winithm.Core/Resources/Fonts/SpaceGrotesk.ttf" id="3_n315a"]
+[ext_resource type="FontFile" uid="uid://c0iwxwt13dk8u" path="res://Winithm.Core/Resources/Fonts/Quicksand.ttf" id="4_yumhv"]
+[ext_resource type="PackedScene" uid="uid://dcmp6tffpneqy" path="res://Winithm.Core/Resources/Sprites/DigitRoller.tscn" id="5_7kjtd"]
+[ext_resource type="Script" uid="uid://l7yxu0ltd4io" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/ChartInfo.cs" id="6_rx5yn"]
+[ext_resource type="Script" uid="uid://28f01j3kjruj" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/PlayerCombo.cs" id="7_0cxqn"]
+[ext_resource type="Script" uid="uid://cp188c4vqrj0f" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/PlayerScore.cs" id="9_rhtcn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qqi1i"]
+shader = ExtResource("1_b0t66")
+shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/stripe_color = Color(0, 0, 0, 0)
+shader_parameter/speed = 10.0
+shader_parameter/stripe_width = 10.0
+shader_parameter/slant = -1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o17d2"]
+shader = ExtResource("1_b0t66")
+shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/stripe_color = Color(0, 0, 0, 0)
+shader_parameter/speed = 10.0
+shader_parameter/stripe_width = 10.0
+shader_parameter/slant = -1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6ff0i"]
+shader = ExtResource("1_b0t66")
+shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/stripe_color = Color(0, 0, 0, 0)
+shader_parameter/speed = 10.0
+shader_parameter/stripe_width = 10.0
+shader_parameter/slant = -1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lau8c"]
+shader = ExtResource("1_b0t66")
+shader_parameter/bg_color = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/stripe_color = Color(0, 0, 0, 0)
+shader_parameter/speed = 10.0
+shader_parameter/stripe_width = 10.0
+shader_parameter/slant = -1.0
+
+[node name="GameplayUI" type="Control" unique_id=1473560799]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e2j1j")
+
+[node name="SongInfoTransform" type="Control" parent="." unique_id=1245442107]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubTransform" type="Control" parent="SongInfoTransform" unique_id=81110553]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+grow_vertical = 0
+
+[node name="SongInfo" type="Control" parent="SongInfoTransform/SubTransform" unique_id=1816729946]
+layout_mode = 1
+anchors_preset = 0
+script = ExtResource("2_is1gd")
+
+[node name="Background" type="ColorRect" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=149922271]
+modulate = Color(1, 1, 1, 0.6509804)
+material = SubResource("ShaderMaterial_qqi1i")
+layout_mode = 0
+offset_left = 75.0
+offset_top = -75.0
+offset_right = 204.0
+offset_bottom = -25.0
+
+[node name="TextureRect" type="TextureRect" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=118848695]
+layout_mode = 0
+offset_left = 25.0
+offset_top = -75.0
+offset_right = 75.0
+offset_bottom = -25.0
+texture = ExtResource("2_68dja")
+expand_mode = 1
+
+[node name="Name" type="Label" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=158060646]
+layout_mode = 0
+offset_left = 85.0
+offset_top = -75.0
+offset_right = 194.0
+offset_bottom = -49.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_n315a")
+theme_override_font_sizes/font_size = 20
+text = "Song Name"
+vertical_alignment = 1
+
+[node name="BPM" type="Label" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=98164072]
+layout_mode = 0
+offset_left = 85.0
+offset_top = -50.0
+offset_right = 149.0
+offset_bottom = -30.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_n315a")
+theme_override_font_sizes/font_size = 15
+text = "BPM: 120"
+vertical_alignment = 1
+
+[node name="ChartInfoTransform" type="Control" parent="." unique_id=629654156]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubTransform" type="Control" parent="ChartInfoTransform" unique_id=191648706]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="ChartInfo" type="Control" parent="ChartInfoTransform/SubTransform" unique_id=1711508267]
+layout_mode = 1
+anchors_preset = 0
+script = ExtResource("6_rx5yn")
+
+[node name="Background" type="ColorRect" parent="ChartInfoTransform/SubTransform/ChartInfo" unique_id=2128106826]
+modulate = Color(1, 1, 1, 0.6509804)
+material = SubResource("ShaderMaterial_o17d2")
+layout_mode = 0
+offset_left = -105.0
+offset_top = -72.0
+offset_right = -21.0
+offset_bottom = -36.5
+
+[node name="Pad" type="ColorRect" parent="ChartInfoTransform/SubTransform/ChartInfo" unique_id=1686427044]
+layout_mode = 0
+offset_left = -105.0
+offset_top = -36.5
+offset_right = -21.0
+offset_bottom = -29.0
+
+[node name="Difficult" type="Label" parent="ChartInfoTransform/SubTransform/ChartInfo" unique_id=1741076348]
+layout_mode = 0
+offset_left = -100.0
+offset_top = -67.0
+offset_right = -25.0
+offset_bottom = -34.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_n315a")
+theme_override_font_sizes/font_size = 25
+text = "Info: 5"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="PlayerComboTransform" type="Control" parent="." unique_id=600223220]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubTransform" type="Control" parent="PlayerComboTransform" unique_id=206859354]
+layout_mode = 1
+anchors_preset = 0
+
+[node name="PlayerCombo" type="Control" parent="PlayerComboTransform/SubTransform" unique_id=1626395537]
+layout_mode = 1
+anchors_preset = 0
+script = ExtResource("7_0cxqn")
+
+[node name="Background" type="ColorRect" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=957669646]
+modulate = Color(1, 1, 1, 0.6509804)
+material = SubResource("ShaderMaterial_6ff0i")
+layout_mode = 0
+offset_left = 35.0
+offset_top = 25.0
+offset_right = 148.0
+offset_bottom = 75.0
+
+[node name="Pause" type="Control" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=2018201748]
+clip_contents = true
+anchors_preset = 0
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 35.0
+offset_bottom = 75.0
+
+[node name="Progess" type="ColorRect" parent="PlayerComboTransform/SubTransform/PlayerCombo/Pause" unique_id=1529682772]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Combo" type="Label" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=181812478]
+layout_mode = 0
+offset_left = 45.0
+offset_top = 25.0
+offset_right = 91.0
+offset_bottom = 51.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_n315a")
+theme_override_font_sizes/font_size = 20
+text = "x100"
+vertical_alignment = 1
+
+[node name="Status" type="Label" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=137441926]
+layout_mode = 0
+offset_left = 45.0
+offset_top = 50.0
+offset_right = 138.0
+offset_bottom = 69.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("4_yumhv")
+theme_override_font_sizes/font_size = 15
+text = "ALL PERFECT"
+vertical_alignment = 1
+
+[node name="PlayerScoreTransform" type="Control" parent="." unique_id=1121973533]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubTransform" type="Control" parent="PlayerScoreTransform" unique_id=1124056192]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+grow_horizontal = 0
+
+[node name="PlayerScore" type="Control" parent="PlayerScoreTransform/SubTransform" unique_id=1395954684]
+layout_mode = 1
+anchors_preset = 0
+script = ExtResource("9_rhtcn")
+
+[node name="Background" type="ColorRect" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=1565888443]
+modulate = Color(1, 1, 1, 0.6509804)
+material = SubResource("ShaderMaterial_lau8c")
+layout_mode = 0
+offset_left = -166.5
+offset_top = 25.0
+offset_right = -32.5
+offset_bottom = 75.0
+
+[node name="PadLeft" type="ColorRect" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=1943714872]
+layout_mode = 0
+offset_left = -174.0
+offset_top = 25.0
+offset_right = -166.5
+offset_bottom = 50.0
+
+[node name="PadRight" type="ColorRect" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=2026615917]
+layout_mode = 0
+offset_left = -32.5
+offset_top = 50.0
+offset_right = -25.0
+offset_bottom = 75.0
+
+[node name="Score" type="HBoxContainer" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=1631005081]
+layout_mode = 0
+offset_left = -164.0
+offset_top = 25.0
+offset_right = -35.0
+offset_bottom = 55.0
+alignment = 2
+
+[node name="X_XXX_XXX" parent="PlayerScoreTransform/SubTransform/PlayerScore/Score" unique_id=1550277079 instance=ExtResource("5_7kjtd")]
+custom_minimum_size = Vector2(15, 30)
+layout_mode = 2
+
+[node name="XXX_XXX" parent="PlayerScoreTransform/SubTransform/PlayerScore/Score" unique_id=553675028 instance=ExtResource("5_7kjtd")]
+custom_minimum_size = Vector2(15, 30)
+layout_mode = 2
+
+[node name="XX_XXX" parent="PlayerScoreTransform/SubTransform/PlayerScore/Score" unique_id=858981003 instance=ExtResource("5_7kjtd")]
+custom_minimum_size = Vector2(15, 30)
+layout_mode = 2
+
+[node name="X_XXX" parent="PlayerScoreTransform/SubTransform/PlayerScore/Score" unique_id=1169777186 instance=ExtResource("5_7kjtd")]
+custom_minimum_size = Vector2(15, 30)
+layout_mode = 2
+
+[node name="XXX" parent="PlayerScoreTransform/SubTransform/PlayerScore/Score" unique_id=918205727 instance=ExtResource("5_7kjtd")]
+custom_minimum_size = Vector2(15, 30)
+layout_mode = 2
+
+[node name="XX" parent="PlayerScoreTransform/SubTransform/PlayerScore/Score" unique_id=501470014 instance=ExtResource("5_7kjtd")]
+custom_minimum_size = Vector2(15, 30)
+layout_mode = 2
+
+[node name="X" parent="PlayerScoreTransform/SubTransform/PlayerScore/Score" unique_id=894185813 instance=ExtResource("5_7kjtd")]
+custom_minimum_size = Vector2(15, 30)
+layout_mode = 2
+
+[node name="Accuracy" type="Label" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=14015074]
+layout_mode = 0
+offset_left = -94.0
+offset_top = 55.0
+offset_right = -38.0
+offset_bottom = 74.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_n315a")
+theme_override_font_sizes/font_size = 14
+text = "100.00%"
+horizontal_alignment = 2
+vertical_alignment = 1
