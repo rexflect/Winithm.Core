@@ -292,9 +292,14 @@ public class Metronome : IObjectManager<BPMStop>
   public double ToDeltaMilliSeconds(double beat1, double beat2) => (ToSeconds(beat2) - ToSeconds(beat1)) * 1000.0;
   public double ToDeltaMilliSeconds(BeatTime beat1, BeatTime beat2) => ToDeltaMilliSeconds(beat1.AbsoluteValue, beat2.AbsoluteValue);
 
-  public double GetCurrentBPS(double beat)
+  public double GetBPSAtBeat(double beat)
   {
     int idx = FindStopIndex(beat);
+    return idx == -1 ? BaseBPM.BeatsPerSecond : _bPMStops[idx].BeatsPerSecond;
+  }
+  public double GetBPSAtTime(double seconds)
+  {
+    int idx = FindStopIndexByTime(seconds);
     return idx == -1 ? BaseBPM.BeatsPerSecond : _bPMStops[idx].BeatsPerSecond;
   }
 
