@@ -49,7 +49,7 @@ public partial class WindowVS : Control, IPoolable
   public Control UnresponsiveOverlay { get; private set; }
 
   // --- Resources ---
-  private static readonly Texture2D _iconTex = GD.Load<Texture2D>("res://icon.png");
+  private static readonly Texture2D _iconTex = GD.Load<Texture2D>("res://icon.svg");
   private static readonly Texture2D _closeTex = GD.Load<Texture2D>("res://Winithm.Core/Resources/Icons/Window/close.svg");
   private static readonly Texture2D _maxTex = GD.Load<Texture2D>("res://Winithm.Core/Resources/Icons/Window/maximize.svg");
   private static readonly Texture2D _minTex = GD.Load<Texture2D>("res://Winithm.Core/Resources/Icons/Window/minimize.svg");
