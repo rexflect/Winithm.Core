@@ -14,7 +14,7 @@ public partial class ChartInfo : Control
   [Export] public string DifficultText = "Info: 5";
   [Export] public Color TextColor = Colors.White;
   [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = new(0.35f, 0.35f, 0.35f);
+  [Export] public Color CompBackgroundColor = new(0.25f, 0.25f, 0.25f);
 
   public readonly float PAD_HEIGHT = 7.5f;
 
@@ -76,7 +76,7 @@ public partial class ChartInfo : Control
       if (_background is not null)
       {
         // Calculate exact text dimensions
-        float textWidth = _difficult.GetThemeFont("font").GetStringSize(_difficult.Text).X;
+        float textWidth = _difficult.Size.X;
         float textHeight = _difficult.Size.Y;
 
         // Set background size with 10px padding on all sides
@@ -86,10 +86,9 @@ public partial class ChartInfo : Control
 
         // Align background to the right edge of the label
         float labelRightEdge = _difficult.Position.X + _difficult.Size.X;
-        float bgLeftEdge = labelRightEdge - bgWidth;
         float bgTopEdge = _difficult.Position.Y - 10f;
 
-        _background.Position = new(bgLeftEdge, bgTopEdge);
+        _background.Position = new(_difficult.Position.X - 10f, bgTopEdge);
 
         // Position pad directly below the background
         if (_pad is not null)

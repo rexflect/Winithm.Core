@@ -16,7 +16,7 @@ public partial class SongInfo : Control
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public Color TextColor = Colors.White;
   [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = new(0.35f, 0.35f, 0.35f);
+  [Export] public Color CompBackgroundColor = new(0.25f, 0.25f, 0.25f);
   [Export] public string SongName = "Song Name";
   [Export] public float BPM = 120f;
   [Export] public Texture2D SongIcon =
@@ -127,8 +127,8 @@ public partial class SongInfo : Control
 
     if (_background is not null && _name is not null && _bpm is not null)
     {
-      float nameWidth = _name.GetThemeFont("font").GetStringSize(_name.Text).X;
-      float bpmWidth = _bpm.GetThemeFont("font").GetStringSize(_bpm.Text).X;
+      float nameWidth = _name.Size.X;
+      float bpmWidth = _bpm.Size.X;
       float maxTextWidth = Mathf.Max(nameWidth, bpmWidth);
 
       float textStartX = Mathf.Min(_name.OffsetLeft, _bpm.OffsetLeft);
