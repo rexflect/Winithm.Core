@@ -176,7 +176,7 @@ public static class WNMParser
         {
           meta.Illustration.IllustrationPath = illPath;
           meta.Illustration.IllustrationTexture =
-            GD.Load<Texture>(songFolder.PathJoin(illPath));
+            GD.Load<Texture2D>(songFolder.PathJoin(illPath));
         }
         else if (ParserUtils.TryParseProperty(trimmed, "Icon Center:", out string center))
         {

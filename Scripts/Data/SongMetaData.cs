@@ -110,7 +110,7 @@ public class IllustrationResource
   public event Action<IllustrationResource> OnUpdated;
 
   public string IllustrationPath = "illustration.png";
-  public Texture IllustrationTexture;
+  public Texture2D IllustrationTexture;
 
   private string _illustrator = "Noname";
   public string Illustrator { get => _illustrator; set { if (_illustrator == value) return; _illustrator = value; OnUpdated?.Invoke(this); } }
