@@ -128,7 +128,11 @@ public partial class ResourcePackManager : Node
     if (!FileAccess.FileExists(path)) return; // Config is optional
 
     using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
-    if (file is null) return;
+    if (file is null)
+    {
+      GD.PushError($"[ResourcePackManager] Failed to open config file: {path}");
+      return;
+    }
 
     try
     {
@@ -197,7 +201,11 @@ public partial class ResourcePackManager : Node
   private static void LoadTexture(string path, ref ResourcePack resourcePack)
   {
     using var dir = DirAccess.Open(path);
-    if (dir is null) return;
+    if (dir is null)
+    {
+      GD.PushError($"[ResourcePackManager] Failed to open texture directory: {path}");
+      return;
+    }
 
     foreach (string fileName in dir.GetFiles())
     {
@@ -230,7 +238,11 @@ public partial class ResourcePackManager : Node
   private static void LoadSoundEffect(string path, ref ResourcePack resourcePack)
   {
     using var dir = DirAccess.Open(path);
-    if (dir is null) return;
+    if (dir is null)
+    {
+      GD.PushError($"[ResourcePackManager] Failed to open sound effect directory: {path}");
+      return;
+    }
 
     foreach (string fileName in dir.GetFiles())
     {

@@ -13,13 +13,13 @@ namespace Winithm.Core.Controllers;
 /// </summary>
 public partial class NoteController : Node
 {
-  private WindowManager _windowManager;
+  private WindowManager? _windowManager;
 
-  public event Action<string, NoteData> OnActiveHoldTick;
-  public event Action<string, NoteData> OnActiveHoldEnded;
-  public event Action<string, NoteData, double> OnDragReady;
-  public event Action<string, NoteData> OnNoteMiss;
-  public event Action<string, NoteData> OnAutoHit;
+  public event Action<string, NoteData>? OnActiveHoldTick;
+  public event Action<string, NoteData>? OnActiveHoldEnded;
+  public event Action<string, NoteData, double>? OnDragReady;
+  public event Action<string, NoteData>? OnNoteMiss;
+  public event Action<string, NoteData>? OnAutoHit;
 
   [Export] public float PlayerNoteSize = 1f;
   [Export] public float PlayerNoteSpeed = 1f;
@@ -35,17 +35,17 @@ public partial class NoteController : Node
   /// <summary>Off-screen margin multiplier relative to note head height.</summary>
   private const float OFF_SCREEN_MARGIN_FACTOR = 3f;
 
-  private PackedScene _noteScene;
-  private Metronome _metronome;
-  private NodePool<Note> _notePool;
+  private PackedScene? _noteScene;
+  private Metronome? _metronome;
+  private NodePool<Note>? _notePool;
   private double _lastBeat = double.MinValue;
 
   public Dictionary<string, WindowNoteState> WindowStates { get; private set; } = [];
 
   public class WindowNoteState
   {
-    public WindowData WindowData;
-    public WindowVS WindowVisual;
+    public WindowData? WindowData;
+    public WindowVS? WindowVisual;
 
     public Dictionary<NoteData, Note> NoteVisualMap = [];
     public Dictionary<NoteSide, int> RenderCursors = [];
@@ -159,7 +159,7 @@ public partial class NoteController : Node
     Vector2 playerAreaSize = state.WindowVisual.PlayerAreaSize;
     Vector2 windowSize = state.WindowVisual.WindowSize;
 
-    double beatsPerSecond = _metronome.GetBPSAtBeat(currentBeat);
+    double beatsPerSecond = _metronome?.GetBPSAtBeat(currentBeat);
     float pixelsPerBeat =
       NOTE_SPEED_PIXELS_PER_SEC * PlayerNoteSpeed / (float)(
         beatsPerSecond > 0f ? beatsPerSecond : 2f

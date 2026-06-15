@@ -142,6 +142,8 @@ public class NoteManager :
       MaxEndBeats.Clear();
       ComboEventBeats = [];
       ComboPrefixSum = [];
+
+      GD.PushWarning("[NoteManager] WindowData is null, cannot compute note boundaries");
       return;
     }
 

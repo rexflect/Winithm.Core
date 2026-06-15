@@ -145,10 +145,18 @@ public partial class ComponentController : Control
     double currentBeat
   )
   {
-    if (_componentManager is null) return;
+    if (_componentManager is null)
+    {
+      GD.PushError("[ComponentController] ComponentManager is not initialized");
+      return;
+    }
 
     var targetCompData = _componentManager[compType];
-    if (targetCompData is null) return;
+    if (targetCompData is null)
+    {
+      GD.PushError($"[ComponentController] Component data is null for type: {compType}");
+      return;
+    }
 
     float x = targetCompData.StoryboardEvents.Evaluate(
       StoryboardProperty.X, currentBeat, new AnyValue(targetCompData.InitX)

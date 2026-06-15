@@ -13,8 +13,13 @@ public partial class WindowFrame : Control
 
   public override void _Draw()
   {
-    if (_parent?.Borderless ?? true)
+    if (_parent is null)
+    {
+      GD.PushWarning("[WindowFrame] No Parent");
       return;
+    }
+
+    if (_parent.Borderless) return;
 
     var color = _parent.TitleBarColor with
     {

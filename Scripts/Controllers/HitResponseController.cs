@@ -11,7 +11,7 @@ public partial class HitResponseController : Node
   private Control? _hitFXLayer;
   private NoteController? _noteController;
 
-  [Export] public Vector2 PlayerAreaSize { set; get; } = new Vector2(1280, 720);
+  [Export] public Vector2 PlayerAreaSize { set; get; } = new(1280, 720);
   [Export] public float HitSoundVolume { set; get; } = 0.5f;
 
   private readonly Dictionary<PackedScene, NodePool<HitFX>> _hitFXPools = [];
@@ -35,16 +35,23 @@ public partial class HitResponseController : Node
 
   private void RequestHitSound(NoteData note)
   {
-    if (note is null) return;
+    if (note is null) {
+      GD.PushError("[HitResponseController] Note is null");
+      return;
+    }
 
     // Get resource pack (override by note, otherwise use active)
     var resourcePack = note.ResourcePack.HasValue
         ? note.ResourcePack.Value
-        : ResourcePackManager.Instance.GetActiveResourcePack();
+        : ResourcePackManager.Instance!.GetActiveResourcePack();
 
     if (resourcePack.SFX is not null && resourcePack.SFX.TryGetValue(note.Type, out var soundStream))
     {
-      if (soundStream is null) return;
+      if (soundStream is null)
+      {
+        GD.PushError($"[HitResponseController] HitSound is null for note type: {note.Type}");
+        return;
+      }
 
       var player = GetHitSoundPool().Get();
       player.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
@@ -64,10 +71,14 @@ public partial class HitResponseController : Node
 
     var resourcePack = note.ResourcePack.HasValue
         ? note.ResourcePack.Value
-        : ResourcePackManager.Instance.GetActiveResourcePack();
+        : ResourcePackManager.Instance!.GetActiveResourcePack();
 
     var scene = resourcePack.HitFXScene;
-    if (scene is null) return;
+    if (scene is null)
+    {
+      GD.PushError("[HitResponseController] HitFX scene is null");
+      return;
+    }
 
     var pool = GetHitFXPool(scene);
     var fx = pool.Get();
@@ -101,7 +112,11 @@ public partial class HitResponseController : Node
   public void Prewarm(ResourcePack resourcePack)
   {
     var scene = resourcePack.HitFXScene;
-    if (scene is null) return;
+    if (scene is null)
+    {
+      GD.PushError("[HitResponseController] HitFX scene is null");
+      return;
+    }
 
     var pool = GetHitFXPool(scene); // Instantiates defaultCapacity nodes
 
@@ -208,7 +223,7 @@ public partial class HitResponseController : Node
           catch (System.InvalidCastException)
           {
             GD.PushError(
-                    "[HitFXController] HitFX scene root must inherit " +
+                    "[HitResponseController] HitFX scene root must inherit " +
                     "Winithm.Core.Behaviors.HitFX. Falling back to empty HitFX node."
                 );
             // Free the wrongly-typed node that Instantiate() already added to the tree
@@ -244,7 +259,10 @@ public partial class HitResponseController : Node
   private void ReleaseHitFX(HitFX fx)
   {
     if (!IsInstanceValid(fx) || !_sceneByInstance.Remove(fx, out var scene))
+    {
+      GD.PushError("[HitResponseController] Invalid HitFX node");
       return;
+    }
 
     if (_hitFXPools.TryGetValue(scene, out var pool))
       pool.Release(fx);

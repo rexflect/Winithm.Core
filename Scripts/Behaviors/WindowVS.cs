@@ -192,7 +192,12 @@ public partial class WindowVS : Control, IPoolable
 
   private void OnTitleBarDraw()
   {
-    if (Borderless || TitleBar is null) return;
+    if (Borderless) return;
+    if (TitleBar is null)
+    {
+      GD.PushWarning("[WindowVS] No Title Bar");
+      return;
+    }
 
     float w = TitleBar.Size.X;
     float h = TitleBar.Size.Y;

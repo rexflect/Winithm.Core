@@ -1,4 +1,5 @@
 using System;
+using Godot;
 using Winithm.Core.Common;
 using Winithm.Core.Data;
 
@@ -26,10 +27,18 @@ public class ObjectFactory
   /// </summary>
   public void SyncMaxIDSeed(string ID)
   {
-    if (string.IsNullOrEmpty(ID) || ID.Length != 6) return;
+    if (string.IsNullOrEmpty(ID) || ID.Length != 6)
+    {
+      GD.PushError("[ObjectFactory] Invalid ID format");
+      return;
+    }
 
     long seed = UniqueIDGenerator.Decode(ID);
-    if (seed <= 0) return;
+    if (seed <= 0)
+    {
+      GD.PushError("[ObjectFactory] Invalid ID seed");
+      return;
+    }
 
     CurrentIDSeed = Math.Max(CurrentIDSeed, seed);
   }

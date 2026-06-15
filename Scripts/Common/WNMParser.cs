@@ -77,8 +77,17 @@ public static class WNMParser
   {
     string trimmed = line.TrimStart();
     if (ParserUtils.TryParseProperty(trimmed, "Version:", out string version))
-      meta.VERSION = ParserUtils.TryParseFloat(version, out float v)
-        ? v : WNMGenerator.METADATA_FORMAT_VERSION;
+    {
+      var parts = version.Split('.', StringSplitOptions.RemoveEmptyEntries);
+      
+      var metaFormatVersion = Constants.Version.SONG_META_FORMAT_VERSION;
+      if (parts.Length >= 1 && int.TryParse(parts[0], out int m))
+        metaFormatVersion.Major = m;
+      if (parts.Length >= 2 && int.TryParse(parts[1], out int v))
+        metaFormatVersion.Minor = v;
+      
+      meta.VERSION = metaFormatVersion;
+    }
   }
 
   private static void ParseMetadataLine(string line, SongMetaData meta)

@@ -123,7 +123,17 @@ public static class WNCParser
   private static void ParseChartFormatLine(string line, ChartMetadata meta)
   {
     if (ParserUtils.TryParseProperty(line, "Version:", out string version))
-      meta.VERSION = float.TryParse(version, out float v) ? v : 0;
+    {
+      var parts = version.Split('.', StringSplitOptions.RemoveEmptyEntries);
+
+      var metaFormatVersion = Constants.Version.SONG_CHART_FORMAT_VERSION;
+      if (parts.Length >= 1 && int.TryParse(parts[0], out int m))
+        metaFormatVersion.Major = m;
+      if (parts.Length >= 2 && int.TryParse(parts[1], out int v))
+        metaFormatVersion.Minor = v;
+
+      meta.VERSION = metaFormatVersion;
+    }
   }
 
   // ── METADATA ──

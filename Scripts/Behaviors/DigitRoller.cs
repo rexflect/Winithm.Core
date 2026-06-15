@@ -107,13 +107,16 @@ public partial class DigitRoller : Control
 
   public void UpdateColor(Color textColor, Color outlineColor)
   {
-    if (_templateLabel is not null)
-    {
-      _templateLabel.AddThemeColorOverride("font_color", textColor);
-      _templateLabel.AddThemeColorOverride("font_outline_color", outlineColor);
-    }
 
-    if (_container is null) return;
+    _templateLabel?.AddThemeColorOverride("font_color", textColor);
+    _templateLabel?.AddThemeColorOverride("font_outline_color", outlineColor);
+
+
+    if (_container is null)
+    {
+      GD.PushWarning("[DigitRoller] No Container");
+      return;
+    }
 
     for (int i = 0; i < _container.GetChildCount(); i++)
     {

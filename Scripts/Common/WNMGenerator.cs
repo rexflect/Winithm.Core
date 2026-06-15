@@ -19,7 +19,7 @@ public static class WNMGenerator
     // [FORMAT]
     sb.AppendLine("[FORMAT]");
     sb.AppendLine("Type: Metadata");
-    sb.AppendLine($"Version: {data.VERSION}");
+    sb.AppendLine($"Version: {data.VERSION.Major}.{data.VERSION.Minor}");
     sb.AppendLine();
 
     // [METADATA]

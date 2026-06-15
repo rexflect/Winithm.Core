@@ -142,9 +142,9 @@ public class WindowManager : IObjectManager<WindowData>
   {
     if (_metronome == metronome) return;
 
-    if (_metronome is not null) _metronome.OnUpdated -= HandleMetronomeUpdated;
+    _metronome?.OnUpdated -= HandleMetronomeUpdated;
     _metronome = metronome;
-    if (_metronome is not null) _metronome.OnUpdated += HandleMetronomeUpdated;
+    _metronome?.OnUpdated += HandleMetronomeUpdated;
     NotifyChanged();
   }
 

@@ -80,7 +80,12 @@ public partial class PlayerScore : Control
 
   private void ApplyScoreToRollers(int score, bool instant)
   {
-    if (_scoreContainer is null) return;
+    if (_scoreContainer is null) 
+    {
+      GD.PushWarning("[PlayerScore] No Score Container");
+      return;
+    }
+
     string scoreStr = score.ToString("D7");
     int i = 0;
     foreach (Node child in _scoreContainer.GetChildren())

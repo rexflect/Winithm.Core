@@ -20,7 +20,7 @@ public static class WNCGenerator
     // [FORMAT]
     sb.AppendLine("[FORMAT]");
     sb.AppendLine("Type: Chart");
-    sb.AppendLine($"Version: {ParserUtils.FormatFloat(CHART_FORMAT_VERSION)}");
+    sb.AppendLine($"Version: {data.ChartMetadata.VERSION.Major}.{data.ChartMetadata.VERSION.Minor}");
     sb.AppendLine();
 
     // [METADATA]
