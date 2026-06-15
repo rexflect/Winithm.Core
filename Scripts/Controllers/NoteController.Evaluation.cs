@@ -1,3 +1,4 @@
+using Godot;
 using System;
 using Winithm.Core.Data;
 using Winithm.Core.Managers;
@@ -21,6 +22,12 @@ public partial class NoteController
     double currentBeat,
     bool isBackward)
   {
+    if (_metronome is null)
+    {
+      GD.PushWarning("[NoteController] Metronome or NotePool is not initialized.");
+      return;
+    }
+
     if (isBackward)
     {
       state.AutoFireSessionToken++;
@@ -33,62 +40,72 @@ public partial class NoteController
     int evalCursor = state.EvalCursors[side];
     var noteList = state.WindowData.Notes[side];
 
-    while (evalCursor < noteList.Count)
+    while (evalCursor < noteList?.Count)
     {
-      NoteData note = noteList[evalCursor];
+      var noteData = noteList[evalCursor];
 
-      bool isAutoHittable = (Autoplay && !note.IsMutedGhost) || note.IsLoudGhost;
+      // Note is in the future
+      if (noteData.StartBeat.AbsoluteValue > currentBeat) break;
+
+      // Determine if note should be auto-hit
+      bool isAutoHittable = (Autoplay && !noteData.IsMutedGhost) || noteData.IsLoudGhost;
 
       if (isAutoHittable)
       {
         // Skip if already fired in this session
-        if (note.AutoFiredSessionToken == state.AutoFireSessionToken) { evalCursor++; continue; }
+        if (noteData.AutoFiredSessionToken == state.AutoFireSessionToken) { evalCursor++; continue; }
       }
       else
       {
         // Player evaluation uses traditional state
-        if (note.IsEvaluated) { evalCursor++; continue; }
-        if (note.IsHoldActive) { evalCursor++; continue; }
+        if (noteData.IsEvaluated) { evalCursor++; continue; }
+
+        // If hold note is not evaluated, add to active holds
+        if (noteData.IsHoldActive)
+        {
+          state.ActiveHolds.Add(noteData);
+
+          evalCursor++; continue;
+        }
       }
 
-      if (note.StartBeat.AbsoluteValue > currentBeat) break;
 
       double elapsedMs = _metronome.ToDeltaMilliSeconds(
-        note.StartBeat.AbsoluteValue, currentBeat
+        noteData.StartBeat.AbsoluteValue, currentBeat
       );
 
       if (isAutoHittable && elapsedMs >= 0f)
       {
-        note.AutoFiredSessionToken = state.AutoFireSessionToken;
+        noteData.AutoFiredSessionToken = state.AutoFireSessionToken;
 
-        if (note.Type is NoteType.Hold)
+        if (noteData.Type is NoteType.Hold)
         {
-          note.IsHoldActive = true;
-          state.ActiveHolds.Add(note);
+          noteData.IsHoldActive = true;
+          state.ActiveHolds.Add(noteData);
         }
-        OnAutoHit?.Invoke(windowId, note);
+        OnAutoHit?.Invoke(windowId, noteData);
         evalCursor++;
         continue;
       }
 
       // Muted ghost: skip without evaluation
-      if (note.IsMutedGhost && elapsedMs >= 0f)
+      if (noteData.IsMutedGhost && elapsedMs >= 0f)
       {
         evalCursor++;
         continue;
       }
 
       // Drag notes: notify when inside judgement zone
-      if (note.Type is NoteType.Drag && note.IsHittable
+      if (noteData.Type is NoteType.Drag && noteData.IsHittable
           && elapsedMs >= 0 && elapsedMs <= dragWindowMs)
       {
-        OnDragReady?.Invoke(windowId, note, elapsedMs);
+        OnDragReady?.Invoke(windowId, noteData, elapsedMs);
       }
 
       // Miss: exceeded timing window
       if (!Autoplay && elapsedMs > missWindowMs)
       {
-        if (note.IsHittable) OnNoteMiss?.Invoke(windowId, note);
+        if (noteData.IsHittable) OnNoteMiss?.Invoke(windowId, noteData);
         evalCursor++;
       }
       else

@@ -149,7 +149,7 @@ public partial class WindowVS : Control, IPoolable
       TitleBar?.Size = new Vector2(scaledSize.X, TitleBarHeight);
       TitleBar?.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
 
-      if (WindowFrame is not null && TitleBar is not null)
+      if (IsInstanceValid(WindowFrame) && IsInstanceValid(TitleBar))
       {
         WindowFrame.Visible = !Borderless;
         WindowFrame.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
@@ -193,7 +193,7 @@ public partial class WindowVS : Control, IPoolable
   private void OnTitleBarDraw()
   {
     if (Borderless) return;
-    if (TitleBar is null)
+    if (!IsInstanceValid(TitleBar))
     {
       GD.PushWarning("[WindowVS] No Title Bar");
       return;
@@ -220,12 +220,12 @@ public partial class WindowVS : Control, IPoolable
     bool showMin = w >= iconWidth + threeBtns;
 
     int fontSize = (int)(h * 0.55f);
-    bool fontReady = _fontFile is not null;
+    bool fontReady = IsInstanceValid(_fontFile);
 
     string titleText =
       IsNotRespondingTitle ? (Title ?? "") + " (Not Responding)" : (Title ?? "");
     string displayTitle = "";
-    if (showClose && fontReady && titleText.Length > 0 && _fontFile is not null)
+    if (showClose && fontReady && titleText.Length > 0)
     {
       float avail = w - iconWidth - threeBtns - 10f;
 
@@ -248,7 +248,7 @@ public partial class WindowVS : Control, IPoolable
     }
 
     float currentX = margin;
-    if (showIcon && _iconTex is not null)
+    if (showIcon && IsInstanceValid(_iconTex))
     {
       TitleBar.DrawTextureRect(
         _iconTex,
@@ -258,7 +258,7 @@ public partial class WindowVS : Control, IPoolable
       currentX += iconSize + margin;
     }
 
-    if (!string.IsNullOrEmpty(displayTitle) && _fontFile is not null)
+    if (!string.IsNullOrEmpty(displayTitle) && IsInstanceValid(_fontFile))
     {
       float ascent = _fontFile.GetAscent(fontSize);
       Vector2 textPos = new(
@@ -271,17 +271,17 @@ public partial class WindowVS : Control, IPoolable
     float btnX = w - margin - btnSize;
     float btnY = (h - btnSize) / 2f;
 
-    if (showClose && _closeTex is not null)
+    if (showClose && IsInstanceValid(_closeTex))
     {
       TitleBar.DrawTextureRect(_closeTex, new Rect2(btnX, btnY, btnSize, btnSize), false, TitleTextColor);
       btnX -= btnSize + spacing;
     }
-    if (showMax && _maxTex is not null)
+    if (showMax && IsInstanceValid(_maxTex))
     {
       TitleBar.DrawTextureRect(_maxTex, new Rect2(btnX, btnY, btnSize, btnSize), false, TitleTextColor);
       btnX -= btnSize + spacing;
     }
-    if (showMin && _minTex is not null)
+    if (showMin && IsInstanceValid(_minTex))
     {
       TitleBar.DrawTextureRect(_minTex, new Rect2(btnX, btnY, btnSize, btnSize), false, TitleTextColor);
     }

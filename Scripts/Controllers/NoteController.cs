@@ -44,8 +44,8 @@ public partial class NoteController : Node
 
   public class WindowNoteState
   {
-    public WindowData? WindowData;
-    public WindowVS? WindowVisual;
+    public required WindowData WindowData;
+    public required WindowVS WindowVisual;
 
     public Dictionary<NoteData, Note> NoteVisualMap = [];
     public Dictionary<NoteSide, int> RenderCursors = [];
@@ -86,7 +86,7 @@ public partial class NoteController : Node
 
     var state = new WindowNoteState() { WindowData = windowData, WindowVisual = windowVisual };
 
-    foreach (NoteSide side in Enum.GetValues(typeof(NoteSide)))
+    foreach (var side in Enum.GetValues<NoteSide>())
     {
       state.RenderCursors[side] = 0;
       state.EvalCursors[side] = 0;
@@ -97,7 +97,11 @@ public partial class NoteController : Node
 
   public void UnregisterWindow(string windowId)
   {
-    if (!WindowStates.TryGetValue(windowId, out var state)) return;
+    if (!WindowStates.TryGetValue(windowId, out var state))
+    {
+      GD.PushWarning($"[NoteController] Window {windowId} not found in window states to unregister.");
+      return;
+    }
 
     foreach (var noteVisual in state.NoteVisualMap.Values)
       ReturnToPool(noteVisual);
@@ -146,7 +150,12 @@ public partial class NoteController : Node
     bool force
   )
   {
-    if (state.WindowVisual is null) return;
+    if (_metronome is null || _notePool is null)
+    {
+      GD.PushWarning("[NoteController] Metronome or NotePool is not initialized.");
+      return;
+    }
+
     if (currentBeat == state.LastBeat && !force) return;
 
     bool isBackward = currentBeat < state.LastBeat;
@@ -156,10 +165,10 @@ public partial class NoteController : Node
 
     ProcessActiveHoldNotes(windowId, state, currentBeat);
 
-    Vector2 playerAreaSize = state.WindowVisual.PlayerAreaSize;
-    Vector2 windowSize = state.WindowVisual.WindowSize;
+    var playerAreaSize = state.WindowVisual.PlayerAreaSize;
+    var windowSize = state.WindowVisual.WindowSize;
 
-    double beatsPerSecond = _metronome?.GetBPSAtBeat(currentBeat);
+    double beatsPerSecond = _metronome.GetBPSAtBeat(currentBeat);
     float pixelsPerBeat =
       NOTE_SPEED_PIXELS_PER_SEC * PlayerNoteSpeed / (float)(
         beatsPerSecond > 0f ? beatsPerSecond : 2f
@@ -176,7 +185,7 @@ public partial class NoteController : Node
 
     foreach (var sideEntry in state.WindowData.Notes)
     {
-      NoteSide side = sideEntry.Key;
+      var side = sideEntry.Key;
       var noteList = sideEntry.Value;
 
       float viewportLengthPx = IsVerticalSide(side) ? windowSize.Y * viewportScale : windowSize.X * viewportScale;
@@ -200,7 +209,7 @@ public partial class NoteController : Node
       // Render visible notes
       for (int i = renderCursor; i < noteList.Count; i++)
       {
-        NoteData note = noteList[i];
+        var note = noteList[i];
 
         double noteStartBeat = note.StartBeat.AbsoluteValue;
         double noteEndBeat = noteStartBeat + note.Length;
@@ -225,7 +234,7 @@ public partial class NoteController : Node
         if (!state.NoteVisualMap.TryGetValue(note, out var noteVisual))
           noteVisual = SpawnNote(state, note);
 
-        noteVisual.Modulate = note.IsEvaluated ? NOTE_COLOR_EVALUATED : NOTE_COLOR_DEFAULT;
+        noteVisual?.Modulate = note.IsEvaluated ? NOTE_COLOR_EVALUATED : NOTE_COLOR_DEFAULT;
 
         PositionNoteVisual(
           side, note, noteVisual, headOffsetPx, tailOffsetPx, state
@@ -247,7 +256,7 @@ public partial class NoteController : Node
     return side is NoteSide.Top || side is NoteSide.Bottom;
   }
 
-  private static CanvasItem GetNoteParentLayer(WindowNoteState state, NoteData note)
+  private static CanvasItem? GetNoteParentLayer(WindowNoteState state, NoteData note)
   {
     return (note.Type is NoteType.Focus)
       ? state.WindowVisual.FocusNoteLayer
@@ -301,8 +310,16 @@ public partial class NoteController : Node
     float offScreenMarginPx
   )
   {
-    state.WindowData.Notes.MaxEndBeats.TryGetValue(side, out double[] maxEndBeats);
-    if (cursor <= 0 || maxEndBeats is null) return cursor;
+    state.WindowData.Notes.MaxEndBeats.TryGetValue(side, out double[]? maxEndBeats);
+    if (maxEndBeats is null)
+    {
+      GD.PushWarning($"[NoteController] MaxEndBeats is not exist for side {side}.");
+      return cursor;
+    }
+
+    if (cursor <= 0)
+      return 0;
+    
 
     int lo = 0, hi = cursor - 1, result = cursor;
     while (lo <= hi)
@@ -338,7 +355,12 @@ public partial class NoteController : Node
   {
     while (cursor < noteList.Count)
     {
-      double noteEndBeat = noteList[cursor].StartBeat.AbsoluteValue + noteList[cursor].Length;
+      var noteData = noteList[cursor];
+
+      double noteEndBeat = noteData.Type is NoteType.Hold 
+        ? noteData.StartBeat.AbsoluteValue + noteData.Length
+        : noteData.StartBeat.AbsoluteValue;
+
       float distancePx =
         state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * pixelsPerBeat * viewportScale;
 
@@ -353,17 +375,23 @@ public partial class NoteController : Node
   // Spawn & Pool
   // =============================================
 
-  private Note SpawnNote(WindowNoteState state, NoteData note)
+  private Note? SpawnNote(WindowNoteState state, NoteData note)
   {
-    Note noteVisual = _notePool.Get();
+    if (_notePool is null)
+    {
+      GD.PushWarning("[NoteController] Note pool is not created with Note.tscn.");
+      return null;
+    }
 
-    Node parentLayer = GetNoteParentLayer(state, note);
+    var noteVisual = _notePool.Get();
+
+    var parentLayer = GetNoteParentLayer(state, note);
 
     if (noteVisual.GetParent() != parentLayer)
       noteVisual.Reparent(parentLayer);
 
     // Newer notes render on top
-    parentLayer.MoveChild(noteVisual, parentLayer.GetChildCount() - 1);
+    parentLayer?.MoveChild(noteVisual, parentLayer.GetChildCount() - 1);
 
     state.NoteVisualMap[note] = noteVisual;
     return noteVisual;
@@ -389,8 +417,8 @@ public partial class NoteController : Node
   private void ReturnToPool(Note noteVisual)
   {
     noteVisual.Visible = false;
-    if (noteVisual.GetParent() is not null) noteVisual.GetParent().RemoveChild(noteVisual);
-    _notePool.Release(noteVisual);
+    noteVisual.GetParent()?.RemoveChild(noteVisual);
+    _notePool?.Release(noteVisual);
   }
 
   private void CollectStaleNoteVisuals(WindowNoteState state)
@@ -416,15 +444,21 @@ public partial class NoteController : Node
   private void PositionNoteVisual(
     NoteSide side,
     NoteData note,
-    Note noteVisual,
+    Note? noteVisual,
     float headOffsetPx,
     float tailOffsetPx,
     WindowNoteState state)
   {
-    Vector2 playerAreaSize = state.WindowVisual.PlayerAreaSize;
-    Vector2 windowSize = state.WindowVisual.WindowSize;
+    if (!IsInstanceValid(noteVisual))
+    {
+      GD.PushWarning("[NoteController] Note visual is not exist to be positioned.");
+      return;
+    }
+
+    var playerAreaSize = state.WindowVisual.PlayerAreaSize;
+    var windowSize = state.WindowVisual.WindowSize;
     float viewportScale = ComputeViewportScale(playerAreaSize);
-    Vector2 scaledWindowSize = windowSize * viewportScale;
+    var scaledWindowSize = windowSize * viewportScale;
 
     float headHeight =
       noteVisual.NoteSize * Mathf.Min(
@@ -452,9 +486,9 @@ public partial class NoteController : Node
     noteVisual.PlayerAreaSize = playerAreaSize;
     noteVisual.BodyHeight = bodyHeight;
 
-    ResourcePack resourcePack = note.ResourcePack.HasValue
+    var resourcePack = note.ResourcePack.HasValue
       ? note.ResourcePack.Value
-      : ResourcePackManager.Instance.GetActiveResourcePack();
+      : ResourcePackManager.Instance!.GetActiveResourcePack();
     noteVisual.SetNoteType(note.Type, resourcePack);
 
     // Highlight notes sharing the same start beat (chords)
@@ -478,6 +512,12 @@ public partial class NoteController : Node
     if (!NoteHighlightSimulation)
     {
       noteVisual.SetNoteHighlighting(false);
+      return;
+    }
+
+    if (_windowManager is null)
+    {
+      GD.PushWarning("[NoteController] _windowManager is not initilized to highlight chord notes.");
       return;
     }
 

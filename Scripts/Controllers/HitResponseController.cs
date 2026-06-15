@@ -36,7 +36,7 @@ public partial class HitResponseController : Node
   private void RequestHitSound(NoteData note)
   {
     if (note is null) {
-      GD.PushError("[HitResponseController] Note is null");
+      GD.PushError("[HitResponseController] NoteData is null");
       return;
     }
 
@@ -47,7 +47,7 @@ public partial class HitResponseController : Node
 
     if (resourcePack.SFX is not null && resourcePack.SFX.TryGetValue(note.Type, out var soundStream))
     {
-      if (soundStream is null)
+      if (!IsInstanceValid(soundStream))
       {
         GD.PushError($"[HitResponseController] HitSound is null for note type: {note.Type}");
         return;
@@ -64,17 +64,25 @@ public partial class HitResponseController : Node
   {
     // Use IsInstanceValid() instead of `!= null` for all Godot nodes/resources.
     if (!IsInstanceValid(_noteController) || note is null || !IsInstanceValid(_hitFXLayer))
+    {
+      GD.PushError("[HitResponseController] HitFX request failed due to invalid note or controller.");
       return;
+    }
 
-    if (!_noteController!.TryGetNoteGlobalTransformInfo(windowId, note, out var info))
+    if (!_noteController.TryGetNoteGlobalTransformInfo(windowId, note, out var infoNullable))
+    {
+      GD.PushError("[HitResponseController] TryGetNoteGlobalTransformInfo failed");
       return;
+    }
+
+    var info = infoNullable!.Value;
 
     var resourcePack = note.ResourcePack.HasValue
         ? note.ResourcePack.Value
         : ResourcePackManager.Instance!.GetActiveResourcePack();
 
     var scene = resourcePack.HitFXScene;
-    if (scene is null)
+    if (!IsInstanceValid(scene))
     {
       GD.PushError("[HitResponseController] HitFX scene is null");
       return;
@@ -88,13 +96,13 @@ public partial class HitResponseController : Node
     // AddChild manually can emit spurious ready/exit-tree signals and is not
     // deferred-safe.  Reparent(keepGlobalTransform: false) is equivalent and safe.
     if (fx.GetParent() != _hitFXLayer)
-      fx.Reparent(_hitFXLayer!, false);
+      fx.Reparent(_hitFXLayer, false);
 
-    _hitFXLayer!.MoveChild(fx, -1); // -1 = move to last child (Godot 4.x shorthand)
+    _hitFXLayer.MoveChild(fx, -1); // -1 = move to last child (Godot 4.x shorthand)
 
     // NOT the canvas transform; it does not account for CanvasLayer offset.
     // Use GetScreenTransform() (Godot 4) for correct canvas-to-local conversion.
-    fx.Position = _hitFXLayer!.GetScreenTransform().AffineInverse() * info.Position;
+    fx.Position = _hitFXLayer.GetScreenTransform().AffineInverse() * info.Position;
     fx.Rotation = info.Rotation;
     fx.ZIndex = 0;
 
@@ -112,7 +120,7 @@ public partial class HitResponseController : Node
   public void Prewarm(ResourcePack resourcePack)
   {
     var scene = resourcePack.HitFXScene;
-    if (scene is null)
+    if (!IsInstanceValid(scene))
     {
       GD.PushError("[HitResponseController] HitFX scene is null");
       return;
@@ -130,7 +138,7 @@ public partial class HitResponseController : Node
     if (!IsInstanceValid(dummy.GetParent()))
     {
       if (IsInstanceValid(_hitFXLayer))
-        _hitFXLayer!.AddChild(dummy);
+        _hitFXLayer.AddChild(dummy);
       else
         AddChild(dummy);
     }

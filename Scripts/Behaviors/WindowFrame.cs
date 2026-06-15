@@ -13,7 +13,7 @@ public partial class WindowFrame : Control
 
   public override void _Draw()
   {
-    if (_parent is null)
+    if (!IsInstanceValid(_parent))
     {
       GD.PushWarning("[WindowFrame] No Parent");
       return;

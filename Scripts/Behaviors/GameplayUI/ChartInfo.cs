@@ -70,7 +70,7 @@ public partial class ChartInfo : Control
 
     _difficult?.Text = DifficultText;
 
-    if (_difficult is not null)
+    if (IsInstanceValid(_difficult))
     {
 
       // Calculate exact text dimensions
@@ -88,7 +88,7 @@ public partial class ChartInfo : Control
       _background?.Position = new Vector2(_difficult.Position.X - 10f, bgTopEdge);
 
       // Position pad directly below the background
-      if (_background is not null)
+      if (IsInstanceValid(_background))
       {
         _pad?.Position = new Vector2(_background.Position.X, _background.Position.Y + _background.Size.Y);
         _pad?.Size = new Vector2(_background.Size.X, PAD_HEIGHT);

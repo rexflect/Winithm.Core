@@ -84,7 +84,7 @@ public partial class PlayerCombo : Control
 
 
     float t = _pauseTimer / PAUSE_DURATION;
-    if (_pauseControl is not null)
+    if (IsInstanceValid(_pauseControl))
     {
       float yOffset = _pauseControl.Size.Y * t;
       _progressRect?.OffsetTop = yOffset;

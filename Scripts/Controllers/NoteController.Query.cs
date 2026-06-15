@@ -20,22 +20,26 @@ public partial class NoteController
   /// </summary>
   public IReadOnlyDictionary<string, WindowNoteState> GetRegisteredWindowStates() => WindowStates;
 
-  public bool TryGetNoteGlobalTransformInfo(string windowId, NoteData note, out NoteGlobalTransformInfo info)
+  public bool TryGetNoteGlobalTransformInfo(string windowId, NoteData note, out NoteGlobalTransformInfo? info)
   {
-    info = default;
+    info = null;
 
-    if (!WindowStates.TryGetValue(windowId, out var state)) return false;
+    if (!WindowStates.TryGetValue(windowId, out var state))
+    {
+      GD.PushWarning($"[NoteController] Window {windowId} not found or window is not registered or is destroyed.");
+      return false;
+    }
 
-    if (state.NoteVisualMap.TryGetValue(note, out var noteVisual) && noteVisual is not null && IsInstanceValid(noteVisual))
+    if (state.NoteVisualMap.TryGetValue(note, out var noteVisual) && IsInstanceValid(noteVisual))
     {
       float headHeight = noteVisual.NoteSize
         * Mathf.Min(noteVisual.PlayerAreaSize.X, noteVisual.PlayerAreaSize.Y)
         * Note.NOTE_HEAD_HEIGHT_RATIO;
 
-      Transform2D visualTransform = noteVisual.GetGlobalTransform();
-      Vector2 globalCenter = visualTransform * new Vector2(0, -headHeight * 0.5f);
+      var visualTransform = noteVisual.GetGlobalTransform();
+      var globalCenter = visualTransform * new Vector2(0, -headHeight * 0.5f);
 
-      info = new()
+      info = new NoteGlobalTransformInfo()
       {
         Position = globalCenter,
         Rotation = visualTransform.Rotation,
@@ -46,12 +50,16 @@ public partial class NoteController
       return true;
     }
 
-    if (!state.WindowData.Notes.TryGetNoteSide(note, out var noteSide)) return false;
+    if (!state.WindowData.Notes.TryGetNoteSide(note, out var noteSide))
+    {
+      GD.PushWarning($"[NoteController] Note {note.ID} not found in window {windowId}.");
+      return false;
+    }
 
-    Vector2 playerAreaSize = state.WindowVisual.PlayerAreaSize;
-    Vector2 windowSize = state.WindowVisual.WindowSize;
+    var playerAreaSize = state.WindowVisual.PlayerAreaSize;
+    var windowSize = state.WindowVisual.WindowSize;
     float viewportScale = ComputeViewportScale(playerAreaSize);
-    Vector2 scaledWindowSize = windowSize * viewportScale;
+    var scaledWindowSize = windowSize * viewportScale;
 
     float noteWidth = IsVerticalSide(noteSide)
       ? scaledWindowSize.X * note.Width
@@ -68,13 +76,19 @@ public partial class NoteController
       * Mathf.Min(playerAreaSize.X, playerAreaSize.Y)
       * Note.NOTE_HEAD_HEIGHT_RATIO;
 
-    Transform2D noteTransform = new(Mathf.DegToRad(rotationDegrees), localPosition);
+    var noteTransform = new Transform2D(Mathf.DegToRad(rotationDegrees), localPosition);
 
-    CanvasItem parentLayer = GetNoteParentLayer(state, note);
-    Transform2D parentTransform = parentLayer.GetGlobalTransform();
-    Vector2 globalPos = parentTransform * noteTransform * new Vector2(0, -fallbackHeadHeight * 0.5f);
+    var parentLayer = GetNoteParentLayer(state, note);
+    if (!IsInstanceValid(parentLayer))
+    {
+      GD.PushWarning($"[NoteController] Parent layer for note {note.ID} not found in window {windowId}.");
+      return false;
+    }
 
-    info = new()
+    var parentTransform = parentLayer.GetGlobalTransform();
+    var globalPos = parentTransform * noteTransform * new Vector2(0, -fallbackHeadHeight * 0.5f);
+
+    info = new NoteGlobalTransformInfo()
     {
       Position = globalPos,
       Rotation = parentTransform.Rotation + Mathf.DegToRad(rotationDegrees),

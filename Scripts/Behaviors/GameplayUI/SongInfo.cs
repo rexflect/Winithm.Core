@@ -110,7 +110,7 @@ public partial class SongInfo : Control
     _name?.Text = SongName;
     _bpm?.Text = $"BPM: {BPM}";
 
-    if (_name is not null && _bpm is not null)
+    if (IsInstanceValid(_name) && IsInstanceValid(_bpm))
     {
       float nameWidth = _name.Size.X;
       float bpmWidth = _bpm.Size.X;
@@ -120,7 +120,7 @@ public partial class SongInfo : Control
       float bgWidth = maxTextWidth + 20f; // 5px padding on left and right
 
       // Height matches song icon
-      if (_icon is not null)
+      if (IsInstanceValid(_icon))
       {
         _background?.Position = new Vector2(textStartX - 10f, _icon.OffsetTop);
         _background?.Size = new Vector2(bgWidth, _icon.Size.Y);

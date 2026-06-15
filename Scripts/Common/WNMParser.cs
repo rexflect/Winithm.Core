@@ -23,7 +23,7 @@ public static class WNMParser
 
     if (file is null)
     {
-      System.Diagnostics.Trace.TraceError($"[WNMParser] Failed to open file: {filePath}");
+      GD.PushError($"[WNMParser] Failed to open file: {filePath}");
       return data;
     }
 

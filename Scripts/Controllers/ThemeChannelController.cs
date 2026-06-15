@@ -9,12 +9,12 @@ namespace Winithm.Core.Controllers;
 [Tool]
 public partial class ThemeChannelController : Node
 {
-  private ThemeChannelManager _themeManager = null!;
+  private ThemeChannelManager? _themeManager;
   private readonly Dictionary<string, (double LastBeat, Color Color, float NoteAlpha)> _lastStates = [];
 
-  public void Initialize(ThemeChannelManager? manager)
+  public void Initialize(ThemeChannelManager manager)
   {
-    _themeManager = manager ?? new ThemeChannelManager();
+    _themeManager = manager;
 
     foreach (var tc in _themeManager)
     {
@@ -22,7 +22,7 @@ public partial class ThemeChannelController : Node
     }
   }
 
-  public bool HasThemeChannel(string id) => _themeManager.ContainsThemeChannel(id);
+  public bool? HasThemeChannel(string id) => _themeManager?.ContainsThemeChannel(id);
 
   public (Color WindowColor, float NoteA)? GetThemeColor(string id, double currentBeat)
   {
@@ -37,6 +37,12 @@ public partial class ThemeChannelController : Node
     string id, double currentBeat, bool _force = true
   )
   {
+    if (_themeManager is null)
+    {
+      GD.PushWarning("[ThemeChannelController] _themeManager is not initialized.");
+      return null;
+    }
+
     if (string.IsNullOrEmpty(id) || !_themeManager.ContainsThemeChannel(id))
       return null;
 

@@ -42,7 +42,7 @@ public partial class DigitRoller : Control
     _currentY = 0f;
     _targetY = 0f;
     _container?.Position = Vector2.Zero;
-    SetProcess(_container is not null);
+    SetProcess(IsInstanceValid(_container));
   }
 
   public override void _Process(double delta)
@@ -112,7 +112,7 @@ public partial class DigitRoller : Control
     _templateLabel?.AddThemeColorOverride("font_outline_color", outlineColor);
 
 
-    if (_container is null)
+    if (!IsInstanceValid(_container))
     {
       GD.PushWarning("[DigitRoller] No Container");
       return;

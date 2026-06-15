@@ -18,7 +18,7 @@ public static class WNCParser
     using var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Read);
     if (file is null)
     {
-      System.Diagnostics.Trace.TraceError($"[WNCParser] Failed to open file: {filePath}");
+      GD.PushError($"[WNCParser] Failed to open file: {filePath}");
       return;
     }
 

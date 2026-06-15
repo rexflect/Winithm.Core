@@ -80,7 +80,7 @@ public partial class PlayerScore : Control
 
   private void ApplyScoreToRollers(int score, bool instant)
   {
-    if (_scoreContainer is null) 
+    if (!IsInstanceValid(_scoreContainer)) 
     {
       GD.PushWarning("[PlayerScore] No Score Container");
       return;
