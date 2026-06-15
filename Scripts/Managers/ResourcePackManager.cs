@@ -35,7 +35,7 @@ public struct ResourcePack
 
 public partial class ResourcePackManager : Node
 {
-  public static ResourcePackManager? Instance { get; private set; }
+  public static ResourcePackManager Instance { get; private set; } = default!;
 
   public static NotePart ParseNotePart(string name)
   {

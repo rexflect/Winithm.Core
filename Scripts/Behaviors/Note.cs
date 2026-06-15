@@ -33,7 +33,7 @@ public partial class Note : Control, IPoolable
   [Export] public NoteType Type { get; set; } = NoteType.Tap;
   [Export] public float NoteSize { get; set; } = 1f;
   [Export] public float BodyHeight { get; set; } = 0f;
-  public ResourcePack ResourcePack { get; set; } = ResourcePackManager.Instance!.GetActiveResourcePack();
+  public ResourcePack ResourcePack { get; set; } = ResourcePackManager.Instance.GetActiveResourcePack();
 
   public static readonly float NOTE_HEAD_HEIGHT_RATIO = 0.0175f;
   public static readonly float NOTE_HEAD_OVERLAY_RATIO_SIZE = 1.2f;

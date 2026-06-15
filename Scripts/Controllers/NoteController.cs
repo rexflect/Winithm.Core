@@ -488,7 +488,7 @@ public partial class NoteController : Node
 
     var resourcePack = note.ResourcePack.HasValue
       ? note.ResourcePack.Value
-      : ResourcePackManager.Instance!.GetActiveResourcePack();
+      : ResourcePackManager.Instance.GetActiveResourcePack();
     noteVisual.SetNoteType(note.Type, resourcePack);
 
     // Highlight notes sharing the same start beat (chords)

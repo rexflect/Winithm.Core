@@ -43,7 +43,7 @@ public partial class HitResponseController : Node
     // Get resource pack (override by note, otherwise use active)
     var resourcePack = note.ResourcePack.HasValue
         ? note.ResourcePack.Value
-        : ResourcePackManager.Instance!.GetActiveResourcePack();
+        : ResourcePackManager.Instance.GetActiveResourcePack();
 
     if (resourcePack.SFX is not null && resourcePack.SFX.TryGetValue(note.Type, out var soundStream))
     {
@@ -79,7 +79,7 @@ public partial class HitResponseController : Node
 
     var resourcePack = note.ResourcePack.HasValue
         ? note.ResourcePack.Value
-        : ResourcePackManager.Instance!.GetActiveResourcePack();
+        : ResourcePackManager.Instance.GetActiveResourcePack();
 
     var scene = resourcePack.HitFXScene;
     if (!IsInstanceValid(scene))
