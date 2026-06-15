@@ -10,15 +10,14 @@ namespace Winithm.Core.Controllers;
 [Tool]
 public partial class WindowController : Node
 {
-  protected Metronome _metronome;
-  protected GroupController _groupController;
-  protected ThemeChannelController _themeController;
-  protected NoteController _noteController;
-  protected WindowManager _windowManager;
+  protected Metronome? _metronome;
+  protected GroupController? _groupController;
+  protected ThemeChannelController? _themeController;
+  protected NoteController? _noteController;
+  protected WindowManager? _windowManager;
 
-  private Control _objectsLayer;
-  private PackedScene _windowScene;
-
+  private Control? _objectsLayer;
+  private PackedScene _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/WindowVS.tscn");
   [Export] public Vector2 ScreenSize = new(1280, 720);
   [Export] public Vector2 PlayerAreaSize = new(1280, 720);
 
@@ -29,8 +28,8 @@ public partial class WindowController : Node
 
   private class WindowState
   {
-    public WindowVS Visual;
-    public WindowData Data;
+    public required WindowVS Visual;
+    public required WindowData Data;
     public ulong FrameSessionToken = 0;
   }
 
@@ -40,7 +39,7 @@ public partial class WindowController : Node
   private int _renderCursor = 0;
   private ulong _frameSessionToken = 1;
 
-  private NodePool<WindowVS> _windowPool;
+  private NodePool<WindowVS>? _windowPool;
 
   public void Initialize(
     Control objectsLayer,
@@ -51,9 +50,6 @@ public partial class WindowController : Node
     NoteController noteController
   )
   {
-    if (_windowScene == null)
-      _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/WindowVS.tscn");
-
     _windowPool = new NodePool<WindowVS>(this, _windowScene);
 
     _windowStates.Clear();
@@ -81,7 +77,14 @@ public partial class WindowController : Node
 
   public void ForceUpdate(double currentBeat, bool _force = true)
   {
-    if (_metronome is null || _windowManager is null) return;
+    if (_metronome is null
+      || _windowManager is null
+      || _windowPool is null
+      )
+    {
+      GD.PushError("[WindowController] Not initialized");
+      return;
+    }
 
     bool isBackward = currentBeat < _lastUpdateBeat;
     var maxEnds = _windowManager.MaxEndBeats;
@@ -105,6 +108,8 @@ public partial class WindowController : Node
     {
       var windowData = _windowManager[i];
 
+      if (windowData is null) continue;
+
       if (windowData.StartBeat.AbsoluteValue > currentBeat) break;
 
       float lifeCycleScale = CalculateLifeCycleScale(windowData, currentBeat);
@@ -120,20 +125,18 @@ public partial class WindowController : Node
       WindowVS windowVisual;
       if (!isActive)
       {
-        if (_windowScene is null) continue;
-
         windowVisual = _windowPool.Get();
         windowVisual.Name = string.IsNullOrEmpty(windowData.ID) ? "Window" : windowData.ID;
-        windowVisual.Pivot = new(windowData.AnchorX, windowData.AnchorY);
+        windowVisual.Pivot = new Vector2(windowData.AnchorX, windowData.AnchorY);
         windowVisual.Title = windowData.Title;
         windowVisual.Borderless = windowData.Borderless;
         windowVisual.TitleBarColor = TitleBarColor;
         windowVisual.TitleTextColor = TitleTextColor;
 
-        state = new() { Visual = windowVisual, Data = windowData };
+        state = new WindowState() { Visual = windowVisual, Data = windowData };
 
         _windowStates[windowData.ID] = state;
-        _noteController.RegisterWindow(windowData.ID, windowData, windowVisual);
+        _noteController?.RegisterWindow(windowData.ID, windowData, windowVisual);
 
         if (windowVisual.GetParent() != _objectsLayer)
           windowVisual.Reparent(_objectsLayer);
@@ -142,10 +145,10 @@ public partial class WindowController : Node
       }
       else
       {
-        windowVisual = state.Visual;
+        windowVisual = state?.Visual ?? _windowScene.Instantiate<WindowVS>();
       }
 
-      state.FrameSessionToken = _frameSessionToken;
+      state?.FrameSessionToken = _frameSessionToken;
 
       float x = EvaluateProperty(
         windowData, StoryboardProperty.X, currentBeat, windowData.InitX
@@ -161,14 +164,14 @@ public partial class WindowController : Node
       );
 
       if (windowData.StoryboardEvents is not null
-        && windowData.StoryboardEvents.TryGetValue(StoryboardProperty.Title, out var titleEvents) 
-        && titleEvents.Count > 0
+        && windowData.StoryboardEvents.TryGetValue(StoryboardProperty.Title, out var titleEvents)
+        && titleEvents?.Count > 0
       )
       {
         var titleVal = windowData.StoryboardEvents.Evaluate(
           StoryboardProperty.Title, currentBeat, new(windowData.Title)
         );
-        if (titleVal.Type is AnyValueType.String) windowVisual.Title = titleVal.StringValue;
+        if (titleVal.Type is AnyValueType.String) windowVisual.Title = titleVal.StringValue ?? string.Empty;
       }
 
       float animScale = Mathf.Lerp(0.95f, 1.0f, lifeCycleScale);
@@ -182,7 +185,7 @@ public partial class WindowController : Node
           _groupController.ForceGetGroupNode(windowData.GroupID, currentBeat)
           : _groupController.GetGroupNode(windowData.GroupID, currentBeat);
 
-        if (gNode is not null)
+        if (IsInstanceValid(gNode))
         {
           var gTrans = gNode.GlobalTransform;
           finalPos = gTrans * finalPos;
@@ -204,9 +207,12 @@ public partial class WindowController : Node
       var finalWindowColor = windowVisual.WindowColor;
       float finalNoteA = windowVisual.NoteOpacity;
 
-      if (_themeController is not null && !string.IsNullOrEmpty(windowData.ThemeChannelID) && _themeController.HasThemeChannel(windowData.ThemeChannelID))
+      if (_themeController is not null
+          && !string.IsNullOrEmpty(windowData.ThemeChannelID)
+          && (_themeController.HasThemeChannel(windowData.ThemeChannelID) ?? false)
+      )
       {
-        var themeColor = _themeController.GetThemeColor(windowData.ThemeChannelID, currentBeat);
+        var themeColor = _themeController?.GetThemeColor(windowData.ThemeChannelID, currentBeat);
         if (themeColor.HasValue)
         {
           finalWindowColor = themeColor.Value.WindowColor;
@@ -231,13 +237,13 @@ public partial class WindowController : Node
           windowData, StoryboardProperty.NoteA, currentBeat, windowData.InitNoteA
         );
 
-        finalWindowColor = new(r, g, b, a);
+        finalWindowColor = new Color(r, g, b, a);
         finalNoteA = noteA;
       }
 
       windowVisual.WindowColor = finalWindowColor;
       windowVisual.NoteOpacity = finalNoteA;
-      windowVisual.Modulate = new(1, 1, 1, lifeCycleScale);
+      windowVisual.Modulate = new Color(1, 1, 1, lifeCycleScale);
 
       windowVisual.ScreenSize = ScreenSize;
       windowVisual.PlayerAreaSize = PlayerAreaSize;
@@ -275,7 +281,7 @@ public partial class WindowController : Node
 
   public int GetTotalComboPassedInDestroyedWindows(double currentBeat)
   {
-    if (_windowManager == null || _windowManager.Count == 0) return 0;
+    if (_windowManager is null || _windowManager.Count == 0) return 0;
 
     var maxEnds = _windowManager.MaxEndBeats;
     int cursor = FindRenderCursor(maxEnds, currentBeat);
@@ -286,7 +292,7 @@ public partial class WindowController : Node
 
   private void CollectStaleWindows()
   {
-    List<string> staleIds = [];
+    var staleIds = new List<string>();
     foreach (var kvp in _windowStates)
     {
       if (kvp.Value.FrameSessionToken != _frameSessionToken)
@@ -297,9 +303,9 @@ public partial class WindowController : Node
 
     foreach (var id in staleIds)
     {
-      _windowPool.Release(_windowStates[id].Visual);
+      _windowPool?.Release(_windowStates[id].Visual);
       _windowStates.Remove(id);
-      _noteController.UnregisterWindow(id);
+      _noteController?.UnregisterWindow(id);
     }
   }
 
@@ -344,7 +350,7 @@ public partial class WindowController : Node
     {
       windowVisual.UnresponsiveOverlayOpacity = 0f;
       windowVisual.IsNotRespondingTitle = false;
-      windowVisual.WindowBody.Modulate = Colors.White;
+      windowVisual.WindowBody?.Modulate = Colors.White;
     }
     else if (currentBeat < windowData.UnresponsiveEndBeat)
     {
@@ -358,13 +364,13 @@ public partial class WindowController : Node
       float overlayOpacityVal = Mathf.Lerp(0, WindowVS.UnresponsiveOverlayTint.A, easingVal);
       float windowModulateVal = Mathf.Lerp(1, WindowVS.UnresponsiveWindowModulate.A, easingVal);
       windowVisual.UnresponsiveOverlayOpacity = overlayOpacityVal;
-      windowVisual.WindowBody.Modulate = new(1f, 1f, 1f, windowModulateVal);
+      windowVisual.WindowBody?.Modulate = new(1f, 1f, 1f, windowModulateVal);
     }
     else
     {
       windowVisual.IsNotRespondingTitle = true;
       windowVisual.UnresponsiveOverlayOpacity = WindowVS.UnresponsiveOverlayTint.A;
-      windowVisual.WindowBody.Modulate = WindowVS.UnresponsiveWindowModulate;
+      windowVisual.WindowBody?.Modulate = WindowVS.UnresponsiveWindowModulate;
     }
   }
 
@@ -383,6 +389,10 @@ public partial class WindowController : Node
     if (_metronome is not null)
     {
       windowData.ComputeAnimationWhenUnresponsive(_metronome);
+    }
+    else
+    {
+      GD.PushError("[WindowController] _metronome is not initialized to compute window animation");
     }
   }
 
@@ -484,10 +494,10 @@ public partial class WindowController : Node
     float defaultValue
   )
   {
-    if (windowData.StoryboardEvents == null || !windowData.StoryboardEvents.TryGetValue(propType, out _)) return defaultValue;
+    if (windowData.StoryboardEvents is null || !windowData.StoryboardEvents.TryGetValue(propType, out _)) return defaultValue;
 
     return windowData.StoryboardEvents.Evaluate(
-      propType, currentBeat, new(defaultValue)
+      propType, currentBeat, new AnyValue(defaultValue)
     ).X;
   }
 }
