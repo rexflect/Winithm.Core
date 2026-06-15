@@ -7,6 +7,7 @@ namespace Winithm.Core.Interfaces;
 /// <typeparam name="TProp">The property type (e.g. StoryboardProperty or string)</typeparam>
 /// </summary>
 public interface IStoryboardable<TProp>
+  where TProp : notnull
 {
   /// <summary>
   /// The mapped event sequences per property. Null by default to save memory.
