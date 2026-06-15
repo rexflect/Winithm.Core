@@ -14,6 +14,8 @@ public partial class HitFXDefault : HitFX
   public const float FXWidth = 0.75f;
   public const float OutlineThickness = 0.05f;
 
+  protected Color HitColor { get; private set; } = Colors.White;
+
   // ── Draw state ─────────────────────────────────────────────────────────────
   private float _outlineScale;
   private float _outlineAlpha;
@@ -24,7 +26,7 @@ public partial class HitFXDefault : HitFX
   // ── Particle node references (wired in _Ready via GetNode) ─────────────────
   // The scene is free to expose zero, one, or several GPUParticles2D nodes.
   // Here we only cache the single "Burst" node that ships with the default scene.
-  private GpuParticles2D _burst;
+  private GpuParticles2D? _burst;
 
   // ──────────────────────────────────────────────────────────────────────────
   // Godot lifecycle
