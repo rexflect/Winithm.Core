@@ -91,7 +91,7 @@ public static class WNCParser
             ParseWindowLine(trimmed, data.Windows, ref currentWindow, ref currentSpeedStep, data.ObjectFactory);
             break;
           default:
-            GD.PushWarning($"Unknown section: {currentSection}");
+            GD.PushWarning($"[WNCParser] Unknown section: {currentSection}");
             break;
         }
       }

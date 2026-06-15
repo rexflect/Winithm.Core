@@ -82,7 +82,7 @@ public partial class PlayerScore : Control
   {
     if (!IsInstanceValid(_scoreContainer)) 
     {
-      GD.PushWarning("[PlayerScore] No Score Container");
+      GD.PushWarning("[GameplayUI] PlayerScore: _scoreContainer is null");
       return;
     }
 

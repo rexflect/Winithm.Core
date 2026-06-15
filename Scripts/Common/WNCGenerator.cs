@@ -192,7 +192,7 @@ public static class WNCGenerator
     if (file is not null)
       file.StoreString(sb.ToString());
     else
-      GD.PushError($"Failed to open file for writing at: {filePath}");
+      GD.PushError($"[WNCGenerator] Failed to open file for writing at: {filePath}");
   }
 
   public static string GenerateEventLine(EventData evt, StoryboardProperty type, string customProperty = "", int indent = 2)

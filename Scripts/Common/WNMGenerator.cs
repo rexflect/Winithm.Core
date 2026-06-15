@@ -65,6 +65,6 @@ public static class WNMGenerator
     if (file is not null)
       file.StoreString(sb.ToString());
     else
-      GD.PushError($"Failed to open file for writing at: {filePath}");
+      GD.PushError($"[WNMGenerator] Failed to open file for writing at: {filePath}");
   }
 }

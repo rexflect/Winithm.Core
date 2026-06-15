@@ -170,12 +170,11 @@ public partial class Note : Control, IPoolable
 
       _bodyContainer?.Position = new Vector2(-bodyW / 2f, -BodyHeight - headH);
 
-      if (_bodyBase?.Texture is not null)
-      {
-        _bodyBase.Scale = new Vector2(headScale, headScale);
-        _bodyBase.Size = new Vector2(headScale > 0 ? bodyW / headScale : bodyW, headScale > 0 ? BodyHeight / headScale : BodyHeight);
-        _bodyBase.Position = Vector2.Zero;
-      }
+
+      _bodyBase?.Scale = new Vector2(headScale, headScale);
+      _bodyBase?.Size = new Vector2(headScale > 0 ? bodyW / headScale : bodyW, headScale > 0 ? BodyHeight / headScale : BodyHeight);
+      _bodyBase?.Position = Vector2.Zero;
+
     }
 
     // Save current state for next dirty check

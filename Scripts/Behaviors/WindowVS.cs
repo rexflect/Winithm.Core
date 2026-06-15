@@ -149,13 +149,11 @@ public partial class WindowVS : Control, IPoolable
       TitleBar?.Size = new Vector2(scaledSize.X, TitleBarHeight);
       TitleBar?.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
 
-      if (IsInstanceValid(WindowFrame) && IsInstanceValid(TitleBar))
-      {
-        WindowFrame.Visible = !Borderless;
-        WindowFrame.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
-        WindowFrame.Position = TitleBar.Position;
-        WindowFrame.QueueRedraw();
-      }
+      WindowFrame?.Visible = !Borderless;
+      WindowFrame?.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
+      WindowFrame?.Position = TitleBar?.Position ?? WindowFrame?.Position ?? Vector2.Zero;
+      WindowFrame?.QueueRedraw();
+      
 
       _lastState.Pivot = Pivot;
       _lastState.ScreenSize = ScreenSize;
