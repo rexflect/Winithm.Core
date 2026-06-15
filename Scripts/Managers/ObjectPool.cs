@@ -12,9 +12,9 @@ public class ObjectPool<T> : IDisposable where T : class
 {
   private readonly Stack<T> _stack;
   private readonly Func<T> _createFunc;
-  private readonly Action<T> _actionOnGet;
-  private readonly Action<T> _actionOnRelease;
-  private readonly Action<T> _actionOnDestroy;
+  private readonly Action<T>? _actionOnGet;
+  private readonly Action<T>? _actionOnRelease;
+  private readonly Action<T>? _actionOnDestroy;
   private readonly int _maxSize;
   private readonly bool _collectionCheck;
 
@@ -39,9 +39,9 @@ public class ObjectPool<T> : IDisposable where T : class
   /// <param name="maxSize">The maximum pool size. When the pool reaches the max size then any further instances returned to the pool will be ignored and can be garbage collected. This can be used to prevent the pool from growing to a huge size.</param>
   public ObjectPool(
       Func<T> createFunc,
-      Action<T> actionOnGet = null,
-      Action<T> actionOnRelease = null,
-      Action<T> actionOnDestroy = null,
+      Action<T>? actionOnGet = null,
+      Action<T>? actionOnRelease = null,
+      Action<T>? actionOnDestroy = null,
       bool collectionCheck = true,
       int defaultCapacity = 10,
       int maxSize = 10000)
@@ -49,7 +49,7 @@ public class ObjectPool<T> : IDisposable where T : class
     ArgumentNullException.ThrowIfNull(createFunc);
     ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxSize);
 
-    _stack = new(defaultCapacity);
+    _stack = new Stack<T>(defaultCapacity);
     _createFunc = createFunc;
     _actionOnGet = actionOnGet;
     _actionOnRelease = actionOnRelease;
@@ -85,7 +85,7 @@ public class ObjectPool<T> : IDisposable where T : class
   /// <summary>
   /// Gets a PooledObject which implements IDisposable so you can use it in a <c>using</c> block.
   /// </summary>
-  public PooledObject<T> Get(out T v) => new(v = Get(), this);
+  public PooledObject<T> Get(out T v) => new PooledObject<T>(v = Get(), this);
 
   /// <summary>
   /// Returns the instance back to the pool.

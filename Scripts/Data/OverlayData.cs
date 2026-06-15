@@ -11,30 +11,23 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class OverlayData : IStoryboardable<string>, IDeepCloneable<OverlayData>
 {
-  public event Action<OverlayData> OnLifeCycleChanged;
-  public event Action<OverlayData> OnUpdated;
+  public event Action<OverlayData>? OnLifeCycleChanged;
+  public event Action<OverlayData>? OnUpdated;
 
-  public string ID;
+  public string ID = "";
 
-  private BeatTime _startBeat;
-  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat == value) return; _startBeat = value; OnLifeCycleChanged?.Invoke(this); } }
-  private BeatTime _endBeat;
-  public BeatTime EndBeat { get => _endBeat; set { if (_endBeat == value) return; _endBeat = value; OnLifeCycleChanged?.Invoke(this); } }
+  public BeatTime StartBeat { get; set { if (field == value) return; field = value; OnLifeCycleChanged?.Invoke(this); } } = BeatTime.NaN;
+  public BeatTime EndBeat { get; set { if (field == value) return; field = value; OnLifeCycleChanged?.Invoke(this); } } = BeatTime.NaN;
 
-  private string _name;
-  public string Name { get => _name; set { if (_name == value) return; _name = value; OnUpdated?.Invoke(this); } }
+  public string Name { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
 
-  private string _shaderFile;
-  public string ShaderFile { get => _shaderFile; set { if (_shaderFile == value) return; _shaderFile = value; OnUpdated?.Invoke(this); } }
+  public string ShaderFile { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
 
-  private bool _affectsUI = false;
-  public bool AffectsUI { get => _affectsUI; set { if (_affectsUI == value) return; _affectsUI = value; OnUpdated?.Invoke(this); } }
+  public bool AffectsUI { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = false;
 
-  private int _layer = 0;
-  public int Layer { get => _layer; set { if (_layer == value) return; _layer = value; OnUpdated?.Invoke(this); } }
+  public int Layer { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0;
 
-  private int _subLayer = 0;
-  public int SubLayer { get => _subLayer; set { if (_subLayer == value) return; _subLayer = value; OnUpdated?.Invoke(this); } }
+  public int SubLayer { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0;
 
   /// <summary>Shader uniform definitions.</summary>
   public Dictionary<string, ShaderParamDef> ShaderParams { get; } = new();
@@ -66,7 +59,7 @@ public class OverlayData : IStoryboardable<string>, IDeepCloneable<OverlayData>
     foreach (var pair in InitParams)
       cloned.InitParams[pair.Key] = pair.Value;
 
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset);
+    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<string>();
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;
 
     return cloned;
@@ -100,4 +93,3 @@ public class OverlayData : IStoryboardable<string>, IDeepCloneable<OverlayData>
 
   private void BubbleStoryboard(StoryboardManager<string> sb) => OnUpdated?.Invoke(this);
 }
-

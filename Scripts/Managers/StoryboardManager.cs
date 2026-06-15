@@ -23,8 +23,9 @@ public class Cursor
 /// </summary>
 public class StoryboardManager<TProp>
   : IDeepCloneable<StoryboardManager<TProp>>, IObjectManager<TProp, List<EventData>>
+  where TProp : notnull
 {
-  public event Action<StoryboardManager<TProp>> OnUpdated;
+  public event Action<StoryboardManager<TProp>>? OnUpdated;
 
   private readonly Dictionary<TProp, List<EventData>> _eventCollection = [];
 
@@ -33,13 +34,13 @@ public class StoryboardManager<TProp>
   public IEnumerator<KeyValuePair<TProp, List<EventData>>> GetEnumerator() => _eventCollection.GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-  public List<EventData> this[TProp prop] => _eventCollection.TryGetValue(prop, out var list) ? list : null;
-  public List<EventData> this[int index] => _eventCollection.Values.ElementAtOrDefault(index);
+  public List<EventData>? this[TProp prop] => _eventCollection.TryGetValue(prop, out var list) ? list : null;
+  public List<EventData>? this[int index] => _eventCollection.Values.ElementAtOrDefault(index);
 
   public ICollection<TProp> Keys => _eventCollection.Keys;
   public ICollection<List<EventData>> Values => _eventCollection.Values;
 
-  public bool TryGetValue(TProp prop, out List<EventData> data) => _eventCollection.TryGetValue(prop, out data);
+  public bool TryGetValue(TProp prop, out List<EventData>? data) => _eventCollection.TryGetValue(prop, out data);
   public bool ContainsKey(TProp prop) => _eventCollection.ContainsKey(prop);
 
 
@@ -83,7 +84,7 @@ public class StoryboardManager<TProp>
     return newStoryboard;
   }
 
-  private readonly Dictionary<EventData, TProp> _eventKeyMap = new Dictionary<EventData, TProp>();
+  private readonly Dictionary<EventData, TProp> _eventKeyMap = [];
   private void SubscribeChangeEvent(TProp prop, EventData evt)
   {
     evt.OnStartBeatChanged -= HandleStartBeatChanged;
@@ -127,7 +128,7 @@ public class StoryboardManager<TProp>
   {
     if (!_eventCollection.TryGetValue(prop, out var list))
     {
-      list = new List<EventData>();
+      list = [];
       _eventCollection[prop] = list;
       _propertyCursors[prop] = new Cursor();
     }
@@ -144,11 +145,11 @@ public class StoryboardManager<TProp>
 
   public int[] AddEvents(TProp prop, IEnumerable<EventData> evts)
   {
-    if (!evts.Any()) return [];
+    if (!evts.Any()) return Array.Empty<int>();
 
     BeginUpdate();
 
-    int[] indices = new int[evts.Count()];
+    var indices = new int[evts.Count()];
     for (int i = 0; i < evts.Count(); i++)
       indices[i] = AddEvent(prop, evts.ElementAt(i));
 
@@ -276,7 +277,7 @@ public class StoryboardManager<TProp>
     return success;
   }
 
-  public EventData GetEvent(TProp prop, string id)
+  public EventData? GetEvent(TProp prop, string id)
   {
     if (string.IsNullOrEmpty(id)) return null;
 
@@ -284,13 +285,13 @@ public class StoryboardManager<TProp>
 
     var result = evts.FirstOrDefault(e => e.ID == id);
 
-    if (result == default) return null;
+    if (result is null) return null;
     return result;
   }
 
   public IReadOnlyList<EventData> GetEvents(TProp prop, IEnumerable<string> ids)
   {
-    if (!ids.Any()) return [];
+    if (!ids.Any()) return Array.Empty<EventData>();
 
     var result = new List<EventData>();
     if (_eventCollection.TryGetValue(prop, out var list))
@@ -301,7 +302,7 @@ public class StoryboardManager<TProp>
     return result;
   }
 
-  public EventData GetEvent(string id, out TProp prop)
+  public EventData? GetEvent(string id, out TProp? prop)
   {
     prop = default;
 
@@ -310,7 +311,7 @@ public class StoryboardManager<TProp>
     foreach (var pair in _eventCollection)
     {
       var result = pair.Value.FirstOrDefault(e => e.ID == id);
-      if (result != default)
+      if (result is not null)
       {
         prop = pair.Key;
         return result;

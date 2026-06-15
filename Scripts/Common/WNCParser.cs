@@ -24,12 +24,12 @@ public static class WNCParser
 
     string currentSection = "";
 
-    ComponentData currentComponent = null;
-    ThemeChannelData currentTheme = null;
-    GroupData currentGroup = null;
-    WindowData currentWindow = null;
-    OverlayData currentOverlay = null;
-    SpeedStepData currentSpeedStep = null;
+    ComponentData? currentComponent = null;
+    ThemeChannelData? currentTheme = null;
+    GroupData? currentGroup = null;
+    WindowData? currentWindow = null;
+    OverlayData? currentOverlay = null;
+    SpeedStepData? currentSpeedStep = null;
 
     data.Components.BeginUpdate();
     data.ThemeChannels.BeginUpdate();
@@ -56,7 +56,7 @@ public static class WNCParser
           currentSpeedStep?.StoryboardEvents?.EndUpdate();
           currentOverlay?.StoryboardEvents?.EndUpdate();
 
-          currentSection = line.Substring(1, line.Length - 2);
+          currentSection = line[1..^1];
           currentComponent = null;
           currentTheme = null;
           currentGroup = null;
@@ -145,15 +145,15 @@ public static class WNCParser
   // ── OVERLAYS ──
 
   private static void ParseOverlayLine(
-    string trimmed, OverlayManager overlays, ref OverlayData current, ObjectFactory factory
+    string trimmed, OverlayManager overlays, ref OverlayData? current, ObjectFactory factory
   )
   {
     if (trimmed.StartsWith("+ "))
     {
       current?.StoryboardEvents.EndUpdate();
 
-      current = new();
-      string[] parts = trimmed[2..].Split(
+      current = new OverlayData();
+      var parts = trimmed[2..].Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -168,12 +168,12 @@ public static class WNCParser
       {
         string p = parts[j];
         string key = (j - 1).ToString();
-        AnyValue val = p is "-"
-          ? new() { Type = AnyValueType.Inherited }
+        var val = p == "-"
+          ? new AnyValue() { Type = AnyValueType.Inherited }
           : AnyValue.Parse(p);
 
         current.InitParams[key] = val;
-        current.ShaderParams[key] = new(val.Type, val);
+        current.ShaderParams[key] = new ShaderParamDef(val.Type, val);
       }
       overlays.AddOverlay(current);
 
@@ -191,7 +191,7 @@ public static class WNCParser
       current.AffectsUI = ParserUtils.TryParseIntBool(affectsUI, out bool afui) ? afui : false;
     else if (ParserUtils.TryParseProperty(trimmed, "Layer:", out string layer))
     {
-      string[] parts = layer.Split(
+      var parts = layer.Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -210,19 +210,19 @@ public static class WNCParser
   // ── COMPONENTS ──
 
   private static void ParseComponentLine(
-      string trimmed, ComponentManager components, ref ComponentData current, ObjectFactory factory)
+      string trimmed, ComponentManager components, ref ComponentData? current, ObjectFactory factory)
   {
     if (trimmed.StartsWith("* "))
     {
       current?.StoryboardEvents.EndUpdate();
 
-      current = new();
-      string[] parts = trimmed[2..].Split(
+      current = new ComponentData();
+      var parts = trimmed[2..].Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
 
-      ComponentType type = ComponentType.Info;
+      var type = ComponentType.Info;
 
       if (parts.Length >= 1) type =
         ComponentData.ParseComponentType(parts[0]);
@@ -256,14 +256,14 @@ public static class WNCParser
   // ── THEME CHANNELS ──
 
   private static void ParseThemeChannelLine(
-      string trimmed, ThemeChannelManager themes, ref ThemeChannelData current, ObjectFactory factory)
+      string trimmed, ThemeChannelManager themes, ref ThemeChannelData? current, ObjectFactory factory)
   {
     if (trimmed.StartsWith("+ "))
     {
       current?.StoryboardEvents.EndUpdate();
 
-      current = new();
-      string[] parts = trimmed[2..].Split(
+      current = new ThemeChannelData();
+      var parts = trimmed[2..].Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -301,14 +301,14 @@ public static class WNCParser
 
   // ── GROUPS ──
 
-  private static void ParseGroupLine(string trimmed, GroupManager groups, ref GroupData current, ObjectFactory factory)
+  private static void ParseGroupLine(string trimmed, GroupManager groups, ref GroupData? current, ObjectFactory factory)
   {
     if (trimmed.StartsWith("+ "))
     {
       current?.StoryboardEvents.EndUpdate();
 
-      current = new();
-      string[] parts = trimmed[2..].Split(
+      current = new GroupData();
+      var parts = trimmed[2..].Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -351,8 +351,8 @@ public static class WNCParser
   private static void ParseWindowLine(
       string trimmed,
       WindowManager windows,
-      ref WindowData current,
-      ref SpeedStepData currentSpeedStep,
+      ref WindowData? current,
+      ref SpeedStepData? currentSpeedStep,
       ObjectFactory factory
   )
   {
@@ -363,9 +363,9 @@ public static class WNCParser
       currentSpeedStep?.StoryboardEvents.EndUpdate();
       current?.Notes?.EndUpdate();
 
-      current = new();
+      current = new WindowData();
       currentSpeedStep = null;
-      string[] parts = trimmed[2..].Split(
+      var parts = trimmed[2..].Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -402,7 +402,7 @@ public static class WNCParser
       current.Title = title;
     else if (ParserUtils.TryParseProperty(trimmed, "Flags:", out string flags))
     {
-      string[] parts = flags.Split(
+      var parts = flags.Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -413,7 +413,7 @@ public static class WNCParser
     }
     else if (ParserUtils.TryParseProperty(trimmed, "Layer:", out string layer))
     {
-      string[] parts = layer.Split(
+      var parts = layer.Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -422,7 +422,7 @@ public static class WNCParser
     }
     else if (ParserUtils.TryParseProperty(trimmed, "Anchor:", out string anchor))
     {
-      string[] parts = anchor.Split(
+      var parts = anchor.Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -440,8 +440,8 @@ public static class WNCParser
     {
       currentSpeedStep?.StoryboardEvents?.EndUpdate();
 
-      currentSpeedStep = new();
-      string[] parts = trimmed[2..].Split(
+      currentSpeedStep = new SpeedStepData();
+      var parts = trimmed[2..].Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -460,7 +460,7 @@ public static class WNCParser
 
       var side = NoteSide.Bottom;
 
-      string[] parts = trimmed.Trim()[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+      var parts = trimmed.Trim()[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
       if (parts.Length >= 1)
         currentNote.ID = parts[0];
@@ -533,7 +533,7 @@ public static class WNCParser
     if (parts.Count >= 6) evt.To = AnyValue.Parse(parts[5]);
     if (parts.Count >= 7)
     {
-      if (parts[6].Contains("|"))
+      if (parts[6].Contains('|'))
       {
         evt.Easing = EasingType.Bezier;
         evt.EasingBezier = AnyValue.Parse(parts[6]);

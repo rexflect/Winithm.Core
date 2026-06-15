@@ -10,28 +10,22 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class SongMetaData
 {
-  public float VERSION = 1f;
+  public Constants.Version.BuildVersion VERSION = Constants.Version.SONG_META_FORMAT_VERSION;
 
-  public event Action<SongMetaData> OnMetronomeUpdated;
-  public event Action<SongMetaData> OnUpdated;
+  public event Action<SongMetaData>? OnMetronomeUpdated;
+  public event Action<SongMetaData>? OnUpdated;
 
-  public string _id = "prototype.test";
-  public string ID { get => _id; set { if (_id == value) return; _id = value; OnUpdated?.Invoke(this); } }
+  public string ID { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = "prototype.test";
 
-  private string _name = "Unnamed";
-  public string Name { get => _name; set { if (_name == value) return; _name = value; OnUpdated?.Invoke(this); } }
+  public string Name { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = "Unnamed";
 
-  private string _nameAlt = "";
-  public string NameAlt { get => _nameAlt; set { if (_nameAlt == value) return; _nameAlt = value; OnUpdated?.Invoke(this); } }
+  public string NameAlt { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = "";
 
-  private string _artist = "Noname";
-  public string Artist { get => _artist; set { if (_artist == value) return; _artist = value; OnUpdated?.Invoke(this); } }
+  public string Artist { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = "Noname";
 
-  private string _artistAlt = "";
-  public string ArtistAlt { get => _artistAlt; set { if (_artistAlt == value) return; _artistAlt = value; OnUpdated?.Invoke(this); } }
+  public string ArtistAlt { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = "";
 
-  private string _tags = "Genreless";
-  public string Tags { get => _tags; set { if (_tags == value) return; _tags = value; OnUpdated?.Invoke(this); } }
+  public string Tags { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = "Genreless";
 
   public AudioResource Audio { get; } = new();
   public IllustrationResource Illustration { get; } = new();
@@ -44,9 +38,9 @@ public class SongMetaData
     Illustration.OnUpdated += (i) => OnUpdated?.Invoke(this);
   }
 
-  public void CopyFrom(SongMetaData other)
+  public void CopyFrom(SongMetaData? other)
   {
-    if (other == null) return;
+    if (other is null) return;
 
     ID = other.ID;
     Name = other.Name;
@@ -66,9 +60,9 @@ public class SongMetaData
     Illustration.IconSize = other.Illustration.IconSize;
 
     Charts.Clear();
-    foreach (ChartReference chart in other.Charts)
+    foreach (var chart in other.Charts)
     {
-      Charts.Add(new()
+      Charts.Add(new ChartReference()
       {
         ID = chart.ID,
         Index = chart.Index,
@@ -86,16 +80,14 @@ public class SongMetaData
 
 public class AudioResource
 {
-  public event Action<AudioResource> OnMetronomeUpdated;
-  public event Action<AudioResource> OnUpdated;
+  public event Action<AudioResource>? OnMetronomeUpdated;
+  public event Action<AudioResource>? OnUpdated;
 
   public string SongPath = "song.mp3";
-  public AudioStream SongStream;
+  public AudioStream? SongStream;
 
-  private double _previewStart = 0;
-  public double PreviewStart { get => _previewStart; set { if (_previewStart == value) return; _previewStart = value; OnUpdated?.Invoke(this); } }
-  private double _previewEnd = 15;
-  public double PreviewEnd { get => _previewEnd; set { if (_previewEnd == value) return; _previewEnd = value; OnUpdated?.Invoke(this); } }
+  public double PreviewStart { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0;
+  public double PreviewEnd { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 15;
 
   public Metronome Metronome = new();
 
@@ -107,17 +99,14 @@ public class AudioResource
 
 public class IllustrationResource
 {
-  public event Action<IllustrationResource> OnUpdated;
+  public event Action<IllustrationResource>? OnUpdated;
 
   public string IllustrationPath = "illustration.png";
-  public Texture2D IllustrationTexture;
+  public Texture2D IllustrationTexture = GD.Load<Texture2D>("res://Winithm.Core/Resources/Textures/song_placeholder_image.png");
 
-  private string _illustrator = "Noname";
-  public string Illustrator { get => _illustrator; set { if (_illustrator == value) return; _illustrator = value; OnUpdated?.Invoke(this); } }
-  private Vector2 _iconCenter = new(0.5f, 0.5f);
-  public Vector2 IconCenter { get => _iconCenter; set { if (_iconCenter == value) return; _iconCenter = value; OnUpdated?.Invoke(this); } }
-  private float _iconSize = 1f;
-  public float IconSize { get => _iconSize; set { if (_iconSize == value) return; _iconSize = value; OnUpdated?.Invoke(this); } }
+  public string Illustrator { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = "Noname";
+  public Vector2 IconCenter { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = new(0.5f, 0.5f);
+  public float IconSize { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
 }
 
 public class ChartReference
@@ -129,4 +118,3 @@ public class ChartReference
   public string Level = "1";
   public float Constant = 1f;
 }
-

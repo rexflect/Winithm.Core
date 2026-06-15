@@ -23,7 +23,7 @@ public class FrameCache
 public class SpeedStepManager :
   IDeepCloneable<SpeedStepManager>, IObjectManager<SpeedStepData>
 {
-  public event Action<SpeedStepManager> OnUpdated;
+  public event Action<SpeedStepManager>? OnUpdated;
 
   private readonly List<SpeedStepData> _speedStepCollection = [];
   private FrameCache _frameCache = new();
@@ -33,10 +33,10 @@ public class SpeedStepManager :
   public IEnumerator<SpeedStepData> GetEnumerator() => _speedStepCollection.GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-  public SpeedStepData this[int index] => _speedStepCollection.ElementAtOrDefault(index);
+  public SpeedStepData? this[int index] => _speedStepCollection.ElementAtOrDefault(index);
 
   public ICollection<SpeedStepData> Values => _speedStepCollection;
-  public bool TryGetValue(string id, out SpeedStepData value)
+  public bool TryGetValue(string id, out SpeedStepData? value)
   {
     value = GetSpeedStep(id);
     return value is not null;
@@ -100,7 +100,7 @@ public class SpeedStepManager :
     speedStep.OnUpdated -= HandleUpdated;
   }
 
-  private void HandleStartBeatChanged(SpeedStepData speedStep)
+  private void HandleStartBeatChanged(SpeedStepData speedStep, double prevStartBeat)
   {
     RemoveSpeedStep(speedStep);
     AddSpeedStep(speedStep);
@@ -127,7 +127,7 @@ public class SpeedStepManager :
 
     BeginUpdate();
 
-    int[] indices = new int[speedSteps.Count()];
+    var indices = new int[speedSteps.Count()];
     for (int i = 0; i < speedSteps.Count(); i++)
       indices[i] = AddSpeedStep(speedSteps.ElementAt(i));
 
@@ -190,13 +190,13 @@ public class SpeedStepManager :
   }
 
 
-  public SpeedStepData GetSpeedStep(string id)
+  public SpeedStepData? GetSpeedStep(string id)
   {
     if (string.IsNullOrEmpty(id)) return null;
 
     var speedStep = _speedStepCollection.FirstOrDefault(st => st.ID == id);
 
-    if (speedStep == default) return null;
+    if (speedStep is null) return null;
     return speedStep;
   }
 
@@ -214,13 +214,13 @@ public class SpeedStepManager :
     return result;
   }
 
-  public SpeedStepData GetFirst()
+  public SpeedStepData? GetFirst()
   {
     if (_speedStepCollection.Count == 0) return null;
     return _speedStepCollection[0];
   }
 
-  public SpeedStepData GetLast()
+  public SpeedStepData? GetLast()
   {
     if (_speedStepCollection.Count == 0) return null;
     return _speedStepCollection[_speedStepCollection.Count - 1];
@@ -263,7 +263,7 @@ public class SpeedStepManager :
   {
     if (Math.Abs(currentBeat - targetBeat) < 0.0001f) return 0f;
 
-    if (_frameCache is null) _frameCache = new();
+    if (_frameCache is null) _frameCache = new FrameCache();
     if (_frameCache.CachedBeat != currentBeat && !forceRebuild) BakeFrameCache(currentBeat);
 
     double laneStart = _speedStepCollection.Count > 0 ? _speedStepCollection[0].StartBeat.AbsoluteValue : 0.0;
@@ -325,7 +325,7 @@ public class SpeedStepManager :
 
   private static float EvaluateSpeed(SpeedStepData step, double currentBeat)
   {
-    return step.StoryboardEvents.Evaluate(StoryboardProperty.Speed, currentBeat, new(step.Multiplier)).X;
+    return step.StoryboardEvents.Evaluate(StoryboardProperty.Speed, currentBeat, new AnyValue(step.Multiplier)).X;
   }
 
   public int FindAddIndex(SpeedStepData speedStep)

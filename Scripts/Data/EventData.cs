@@ -10,32 +10,26 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class EventData : IDeepCloneable<EventData>
 {
-  public event Action<EventData> OnStartBeatChanged;
-  public event Action<EventData> OnUpdated;
+  public event Action<EventData>? OnStartBeatChanged;
+  public event Action<EventData>? OnUpdated;
 
-  public string ID;
+  public string ID = "";
 
-  private BeatTime _startBeat = BeatTime.NaN;
-  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat == value) return; _startBeat = value; OnStartBeatChanged?.Invoke(this); } }
+  public BeatTime StartBeat { get; set { if (field == value) return; field = value; OnStartBeatChanged?.Invoke(this); } } = BeatTime.NaN;
 
-  private double _length = 0;
-  public double Length { get => _length; set { if (_length == value) return; _length = value; OnUpdated?.Invoke(this); } }
+  public double Length { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0;
 
-  private AnyValue _from = new(0f);
-  public AnyValue From { get => _from; set { if (_from == value) return; _from = value; OnUpdated?.Invoke(this); } }
+  public AnyValue From { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = new(0f);
 
-  private AnyValue _to = new(0f);
-  public AnyValue To { get => _to; set { if (_to == value) return; _to = value; OnUpdated?.Invoke(this); } }
+  public AnyValue To { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = new(0f);
 
-  private EasingType _easing = EasingType.Linear;
-  public EasingType Easing { get => _easing; set { if (_easing == value) return; _easing = value; OnUpdated?.Invoke(this); } }
+  public EasingType Easing { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = EasingType.Linear;
 
-  private AnyValue _easingBezier = new(0f, 0f, 1f, 1f);
-  public AnyValue EasingBezier { get => _easingBezier; set { if (_easingBezier == value) return; _easingBezier = value; OnUpdated?.Invoke(this); } }
+  public AnyValue EasingBezier { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = new(0f, 0f, 1f, 1f);
 
   public EventData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
   {
-    return new()
+    return new EventData()
     {
       ID = objectFactory.GenerateUID(),
       StartBeat = StartBeat + (offset ?? BeatTime.Zero),

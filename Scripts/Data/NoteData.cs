@@ -19,42 +19,35 @@ public enum NoteType
 
 public class NoteData : IDeepCloneable<NoteData>
 {
-  public event Action<NoteData, double> OnStartBeatChanged;
-  public event Action<NoteData> OnInvalidate;
-  public event Action<NoteData> OnUpdated;
+  public event Action<NoteData, double>? OnStartBeatChanged;
+  public event Action<NoteData>? OnInvalidate;
+  public event Action<NoteData>? OnUpdated;
 
-  public string ID;
+  public string ID = "";
 
-  private NoteType _type = NoteType.Tap;
-  public NoteType Type { get => _type; set { if (_type == value) return; _type = value; OnInvalidate?.Invoke(this); } }
+  public NoteType Type { get; set { if (field == value) return; field = value; OnInvalidate?.Invoke(this); } } = NoteType.Tap;
 
-  private BeatTime _startBeat = BeatTime.NaN;
   public BeatTime StartBeat
   {
-    get => _startBeat;
+    get;
     set
     {
-      if (_startBeat == value) return;
-      double prevStartBeat = _startBeat.AbsoluteValue;
-      _startBeat = value;
+      if (field == value) return;
+      double prevStartBeat = field.AbsoluteValue;
+      field = value;
       OnStartBeatChanged?.Invoke(this, prevStartBeat);
     }
-  }
+  } = BeatTime.NaN;
 
-  private double _length = 0;
-  public double Length { get => _length; set { if (_length == value) return; _length = value; OnInvalidate?.Invoke(this); } }
+  public double Length { get; set { if (field == value) return; field = value; OnInvalidate?.Invoke(this); } } = 0;
 
-  private float _x = 0;
-  public float X { get => _x; set { if (_x == value) return; _x = value; OnUpdated?.Invoke(this); } }
+  public float X { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0;
 
-  private float _width = 1;
-  public float Width { get => _width; set { if (_width == value) return; _width = value; OnUpdated?.Invoke(this); } }
+  public float Width { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1;
 
-  private int _fakeType = 0;
-  public int FakeType { get => _fakeType; set { if (_fakeType == value) return; _fakeType = value; OnInvalidate?.Invoke(this); } }
+  public int FakeType { get; set { if (field == value) return; field = value; OnInvalidate?.Invoke(this); } } = 0;
 
-  private ResourcePack? _resourcePack;
-  public ResourcePack? ResourcePack { get => _resourcePack; set { if (Nullable.Equals(_resourcePack, value)) return; _resourcePack = value; OnUpdated?.Invoke(this); } }
+  public ResourcePack? ResourcePack { get; set { if (Nullable.Equals(field, value)) return; field = value; OnUpdated?.Invoke(this); } }
 
   public bool IsHittable => FakeType == 0;
   public bool IsMutedGhost => FakeType == 1;
@@ -63,10 +56,8 @@ public class NoteData : IDeepCloneable<NoteData>
   /// <summary>If note's lifecycle is bounded by the parent window.</summary>
   public bool IsLifecycleBounded = false;
 
-
   /// <summary>Gets or sets whether the note has been evaluated.</summary>
   public bool IsEvaluated = false;
-
 
   /// <summary>Gets or sets the session token for auto-fired notes.</summary>
   public ulong AutoFiredSessionToken = 0;
@@ -76,7 +67,6 @@ public class NoteData : IDeepCloneable<NoteData>
 
   /// <summary>Gets or sets the session token for consumed notes.</summary>
   public ulong ConsumedSessionToken = 0;
-
 
   /// <summary>Gets or sets whether the hold interaction is active.</summary>
   public bool IsHoldActive = false;
@@ -91,7 +81,7 @@ public class NoteData : IDeepCloneable<NoteData>
 
   public NoteData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
   {
-    return new()
+    return new NoteData()
     {
       ID = objectFactory.GenerateUID(),
       Type = Type,

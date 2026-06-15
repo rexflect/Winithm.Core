@@ -10,7 +10,7 @@ namespace Winithm.Core.Controllers;
 /// </summary>
 public partial class AudioController : Node
 {
-  public Metronome Metronome { get; private set; }
+  public Metronome? Metronome { get; private set; } = null;
 
   private readonly AudioStreamPlayer _player = new();
 
@@ -32,7 +32,7 @@ public partial class AudioController : Node
 
   public double CurrentTime => _clock - _minClock;
   public double CurrentTimeMs => CurrentTime * 1000d;
-  public double CurrentBeat => Metronome.ToBeat(_clock);
+  public double? CurrentBeat => Metronome?.ToBeat(_clock);
 
   public double Length => _player.Stream is { } s ? (double)s.GetLength() : 0d;
 
@@ -148,15 +148,17 @@ public partial class AudioController : Node
   /// The caller is responsible for passing a value in the valid chart range;
   /// this method clamps it to be safe.
   /// </summary>
-  public void SeekSeconds(double seconds)
+  public void SeekSeconds(double? seconds)
   {
-    _clock = seconds;
+    if (seconds is null) return;
+    
+    _clock = seconds.Value;
     ClampClock();
     RestartStream();
   }
 
   public void SeekMilliseconds(double ms) => SeekSeconds(ms / 1000d);
-  public void SeekBeat(double beat) => SeekSeconds(Metronome.ToSeconds(beat));
+  public void SeekBeat(double beat) => SeekSeconds(Metronome?.ToSeconds(beat));
 
   // ── Clock nudge (rewind animation while paused) ─────────────────────────────
 
@@ -179,8 +181,8 @@ public partial class AudioController : Node
 
   // ── Stream access ───────────────────────────────────────────────────────────
 
-  public AudioStream GetStream() => _player.Stream;
-  public void SetStream(AudioStream stream) => _player.Stream = stream;
+  public AudioStream? GetStream() => _player.Stream;
+  public void SetStream(AudioStream? stream) => _player.Stream = stream;
 
   // ── Private helpers ─────────────────────────────────────────────────────────
 

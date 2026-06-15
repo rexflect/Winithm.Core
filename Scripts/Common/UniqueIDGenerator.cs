@@ -20,7 +20,7 @@ public static class UniqueIDGenerator
       value /= 62;
     }
 
-    return new(idChars);
+    return new string(idChars);
   }
 
   /// <summary>Decodes a 6-char Base-62 ID back into its original integer seed.</summary>

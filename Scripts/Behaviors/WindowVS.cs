@@ -6,7 +6,7 @@ namespace Winithm.Core.Behaviors;
 public partial class WindowVS : Control, IPoolable
 {
   // --- Dirty tracking ---
-  private struct WindowState
+  private record struct WindowState
   {
     public Vector2 Pivot, ScreenSize, PlayerAreaSize, WindowSize;
     public Color TitleBarColor, TitleTextColor, WindowColor;
@@ -37,16 +37,16 @@ public partial class WindowVS : Control, IPoolable
   public bool IsNotRespondingTitle { get; set; }
 
   // --- Child references ---
-  public Control TitleBar { get; private set; }
-  public Control WindowBody { get; private set; }
-  public Control WindowFrame { get; private set; }
+  public Control? TitleBar { get; private set; }
+  public Control? WindowBody { get; private set; }
+  public Control? WindowFrame { get; private set; }
 
   // --- Runtime layers (Z-ordered inside WindowBody) ---
   // NoteLayer → UnfocusOverlay → FocusNoteLayer → UnresponsiveOverlay → HitFXLayer
-  public Control NoteLayer { get; private set; }
-  public Control UnfocusOverlay { get; private set; }
-  public Control FocusNoteLayer { get; private set; }
-  public Control UnresponsiveOverlay { get; private set; }
+  public Control? NoteLayer { get; private set; }
+  public Control? UnfocusOverlay { get; private set; }
+  public Control? FocusNoteLayer { get; private set; }
+  public Control? UnresponsiveOverlay { get; private set; }
 
   // --- Resources ---
   private static readonly Texture2D _iconTex = GD.Load<Texture2D>("res://icon.svg");
@@ -64,14 +64,14 @@ public partial class WindowVS : Control, IPoolable
 
   public override void _Ready()
   {
-    TitleBar = GetNode<Control>("TitleBar");
-    WindowBody = GetNode<Control>("WindowBody");
-    WindowFrame = GetNode<Control>("Frame");
+    TitleBar = GetNodeOrNull<Control>("TitleBar");
+    WindowBody = GetNodeOrNull<Control>("WindowBody");
+    WindowFrame = GetNodeOrNull<Control>("Frame");
 
-    NoteLayer = GetNode<Control>("WindowBody/NoteLayer");
-    UnfocusOverlay = GetNode<Control>("WindowBody/UnfocusOverlay");
-    FocusNoteLayer = GetNode<Control>("WindowBody/FocusNoteLayer");
-    UnresponsiveOverlay = GetNode<Control>("WindowBody/UnresponsiveOverlay");
+    NoteLayer = GetNodeOrNull<Control>("WindowBody/NoteLayer");
+    UnfocusOverlay = GetNodeOrNull<Control>("WindowBody/UnfocusOverlay");
+    FocusNoteLayer = GetNodeOrNull<Control>("WindowBody/FocusNoteLayer");
+    UnresponsiveOverlay = GetNodeOrNull<Control>("WindowBody/UnresponsiveOverlay");
 
     TitleBar.Draw += OnTitleBarDraw;
     WindowBody.Draw += OnWindowBodyDraw;
@@ -107,8 +107,6 @@ public partial class WindowVS : Control, IPoolable
   /// </summary>
   public void UpdateVisual()
   {
-    if (TitleBar is null || WindowBody is null) return;
-
     bool layoutDirty =
       Pivot != _lastState.Pivot ||
       ScreenSize != _lastState.ScreenSize ||
@@ -135,23 +133,23 @@ public partial class WindowVS : Control, IPoolable
         PlayerAreaSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
       ));
 
-      Vector2 scaledSize = WindowSize * viewScale;
+      var scaledSize = WindowSize * viewScale;
       TitleBarHeight = Mathf.Min(ScreenSize.X, ScreenSize.Y) * TitleBarHeightRatio;
 
       float totalHeight = scaledSize.Y + (!Borderless ? TitleBarHeight : 0f);
-      Vector2 bodyOffset = new(
+      var bodyOffset = new Vector2(
         -scaledSize.X * Pivot.X,
         -totalHeight * Pivot.Y + (!Borderless ? TitleBarHeight : 0f)
       );
 
-      WindowBody.Size = scaledSize;
-      WindowBody.Position = bodyOffset;
+      WindowBody?.Size = scaledSize;
+      WindowBody?.Position = bodyOffset;
 
-      TitleBar.Visible = !Borderless;
-      TitleBar.Size = new Vector2(scaledSize.X, TitleBarHeight);
-      TitleBar.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
+      TitleBar?.Visible = !Borderless;
+      TitleBar?.Size = new Vector2(scaledSize.X, TitleBarHeight);
+      TitleBar?.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
 
-      if (WindowFrame is not null)
+      if (WindowFrame is not null && TitleBar is not null)
       {
         WindowFrame.Visible = !Borderless;
         WindowFrame.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
@@ -168,7 +166,7 @@ public partial class WindowVS : Control, IPoolable
 
     if (titleBarDirty)
     {
-      TitleBar.QueueRedraw();
+      TitleBar?.QueueRedraw();
 
       _lastState.TitleBarColor = TitleBarColor;
       _lastState.TitleTextColor = TitleTextColor;
@@ -178,12 +176,12 @@ public partial class WindowVS : Control, IPoolable
 
     if (bodyDirty)
     {
-      WindowBody.QueueRedraw();
+      WindowBody?.QueueRedraw();
 
       // Apply NoteOpacity to layers containing notes
-      Color noteModulate = new(1f, 1f, 1f, NoteOpacity);
-      if (NoteLayer is not null) NoteLayer.Modulate = noteModulate;
-      if (FocusNoteLayer is not null) FocusNoteLayer.Modulate = noteModulate;
+      var noteModulate = new Color(1f, 1f, 1f, NoteOpacity);
+      NoteLayer?.Modulate = noteModulate;
+      FocusNoteLayer?.Modulate = noteModulate;
 
       _lastState.WindowColor = WindowColor;
       _lastState.NoteOpacity = NoteOpacity;
@@ -194,7 +192,7 @@ public partial class WindowVS : Control, IPoolable
 
   private void OnTitleBarDraw()
   {
-    if (Borderless) return;
+    if (Borderless || TitleBar is null) return;
 
     float w = TitleBar.Size.X;
     float h = TitleBar.Size.Y;
@@ -222,7 +220,7 @@ public partial class WindowVS : Control, IPoolable
     string titleText =
       IsNotRespondingTitle ? (Title ?? "") + " (Not Responding)" : (Title ?? "");
     string displayTitle = "";
-    if (showClose && fontReady && titleText.Length > 0)
+    if (showClose && fontReady && titleText.Length > 0 && _fontFile is not null)
     {
       float avail = w - iconWidth - threeBtns - 10f;
 
@@ -255,7 +253,7 @@ public partial class WindowVS : Control, IPoolable
       currentX += iconSize + margin;
     }
 
-    if (!string.IsNullOrEmpty(displayTitle))
+    if (!string.IsNullOrEmpty(displayTitle) && _fontFile is not null)
     {
       float ascent = _fontFile.GetAscent(fontSize);
       Vector2 textPos = new(
@@ -297,7 +295,7 @@ public partial class WindowVS : Control, IPoolable
     };
 
     // Background only — notes and overlays live in Z-ordered layers above
-    WindowBody.DrawRect(new Rect2(Vector2.Zero, WindowBody.Size), bgColor);
+    WindowBody?.DrawRect(new Rect2(Vector2.Zero, WindowBody.Size), bgColor);
   }
 
   private void OnUnfocusOverlayDraw()
@@ -307,7 +305,7 @@ public partial class WindowVS : Control, IPoolable
       A = UnFocusOverlayOpacity
     };
 
-    UnfocusOverlay.DrawRect(
+    UnfocusOverlay?.DrawRect(
       new Rect2(Vector2.Zero, UnfocusOverlay.Size),
       unfocusColor
     );
@@ -320,7 +318,7 @@ public partial class WindowVS : Control, IPoolable
       A = UnresponsiveOverlayOpacity
     };
 
-    UnresponsiveOverlay.DrawRect(
+    UnresponsiveOverlay?.DrawRect(
       new Rect2(Vector2.Zero, UnresponsiveOverlay.Size),
       unresponsiveColor
     );

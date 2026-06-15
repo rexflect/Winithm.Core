@@ -10,16 +10,24 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneable<SpeedStepData>
 {
-  public event Action<SpeedStepData> OnStartBeatChanged;
-  public event Action<SpeedStepData> OnUpdated;
+  public event Action<SpeedStepData, double>? OnStartBeatChanged;
+  public event Action<SpeedStepData>? OnUpdated;
 
-  public string ID;
+  public string ID = "";
 
-  private BeatTime _startBeat = BeatTime.NaN;
-  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat == value) return; _startBeat = value; OnStartBeatChanged?.Invoke(this); } }
+  public BeatTime StartBeat
+  {
+    get;
+    set
+    {
+      if (field == value) return;
+      double prevStartBeat = field.AbsoluteValue;
+      field = value;
+      OnStartBeatChanged?.Invoke(this, prevStartBeat);
+    }
+  } = BeatTime.NaN;
 
-  private float _multiplier = 1f;
-  public float Multiplier { get => _multiplier; set { if (_multiplier == value) return; _multiplier = value; OnUpdated?.Invoke(this); } }
+  public float Multiplier { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
 
   public StoryboardManager<StoryboardProperty> StoryboardEvents { get; set; } = new();
 
@@ -38,7 +46,7 @@ public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneable
     cloned.ID = objectFactory.GenerateUID();
     cloned.StartBeat = StartBeat + (offset ?? BeatTime.Zero);
     cloned.Multiplier = Multiplier;
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset);
+    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
 
     // Re-wire bubbling to the cloned StoryboardEvents
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;
@@ -49,4 +57,3 @@ public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneable
   // Named delegate for clean subscribe/unsubscribe in DeepClone
   private void BubbleStoryboard(StoryboardManager<StoryboardProperty> sb) => OnUpdated?.Invoke(this);
 }
-

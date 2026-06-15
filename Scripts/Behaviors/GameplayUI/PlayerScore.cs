@@ -4,7 +4,7 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class PlayerScore : Control
 {
-  public struct LastState
+  public record struct LastState
   {
     public Color TextColor, TextOutLineColor, CompBackgroundColor;
   }
@@ -16,11 +16,11 @@ public partial class PlayerScore : Control
 
   private LastState _lastState = new();
 
-  private HBoxContainer _scoreContainer;
-  private Label _accuracyLabel;
-  private ColorRect _background;
-  private ColorRect _padLeft;
-  private ColorRect _padRight;
+  private HBoxContainer? _scoreContainer;
+  private Label? _accuracyLabel;
+  private ColorRect? _background;
+  private ColorRect? _padLeft;
+  private ColorRect? _padRight;
 
   public override void _Ready()
   {
@@ -29,7 +29,7 @@ public partial class PlayerScore : Control
     _background = GetNodeOrNull<ColorRect>("Background");
     _padLeft = GetNodeOrNull<ColorRect>("PadLeft");
     _padRight = GetNodeOrNull<ColorRect>("PadRight");
-    
+
     UpdateVisual();
   }
 
@@ -45,22 +45,14 @@ public partial class PlayerScore : Control
 
   private void UpdateColor()
   {
-    if (_accuracyLabel is not null)
-    {
-      _accuracyLabel.AddThemeColorOverride("font_color", TextColor);
-      _accuracyLabel.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-    }
 
-    if (_scoreContainer is not null)
-    {
-      foreach (Node child in _scoreContainer.GetChildren())
-      {
-        if (child is DigitRoller roller)
-        {
-          roller.UpdateColor(TextColor, TextOutLineColor);
-        }
-      }
-    }
+    _accuracyLabel?.AddThemeColorOverride("font_color", TextColor);
+    _accuracyLabel?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
+
+
+    foreach (Node child in _scoreContainer?.GetChildren() ?? [])
+      if (child is DigitRoller roller)
+        roller.UpdateColor(TextColor, TextOutLineColor);
 
     if (_background is { Material: ShaderMaterial mat })
     {
@@ -68,11 +60,8 @@ public partial class PlayerScore : Control
       mat.SetShaderParameter("stripe_color", new Color(0f, 0f, 0f, 0f));
     }
 
-    if (_padLeft is not null && _padRight is not null)
-    {
-      _padLeft.Color = TextColor;
-      _padRight.Color = TextColor;
-    }
+    _padLeft?.Color = TextColor;
+    _padRight?.Color = TextColor;
 
     _lastState.TextColor = TextColor;
     _lastState.TextOutLineColor = TextOutLineColor;
@@ -81,8 +70,7 @@ public partial class PlayerScore : Control
 
   public void SetAccuracy(float accuracy)
   {
-    if (_accuracyLabel is not null)
-      _accuracyLabel.Text = $"{accuracy * 100:F2}%";
+    _accuracyLabel?.Text = $"{accuracy * 100:F2}%";
   }
 
   public void SetScore(int score, bool instant)

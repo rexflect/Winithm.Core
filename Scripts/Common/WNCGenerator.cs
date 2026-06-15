@@ -2,7 +2,6 @@ using Godot;
 using System.Linq;
 using System.Text;
 using Winithm.Core.Data;
-using Winithm.Core.Managers;
 
 namespace Winithm.Core.Common;
 
@@ -196,7 +195,7 @@ public static class WNCGenerator
       GD.PushError($"Failed to open file for writing at: {filePath}");
   }
 
-  public static string GenerateEventLine(EventData evt, StoryboardProperty type, string customProperty = null, int indent = 2)
+  public static string GenerateEventLine(EventData evt, StoryboardProperty type, string customProperty = "", int indent = 2)
   {
     string easingStr = evt.Easing is EasingType.Bezier ? evt.EasingBezier.ToString() : evt.Easing.ToString();
     string propStr = StoryboardPropertyExtension.FormatEventProperty(type, customProperty);

@@ -20,11 +20,11 @@ public partial class Note : Control, IPoolable
 
   // --- Child references (assigned in _Ready) ---
   // References to scene nodes assigned during initialization
-  private Control _headContainer;
-  private NinePatchRect _headBase;
-  private TextureRect _headOverlay;
-  private Control _bodyContainer;
-  private NinePatchRect _bodyBase;
+  private Control? _headContainer;
+  private NinePatchRect? _headBase;
+  private TextureRect? _headOverlay;
+  private Control? _bodyContainer;
+  private NinePatchRect? _bodyBase;
 
   // --- Properties set by NoteManager ---
   // Configurable properties typically managed by NoteManager
@@ -33,7 +33,7 @@ public partial class Note : Control, IPoolable
   [Export] public NoteType Type { get; set; } = NoteType.Tap;
   [Export] public float NoteSize { get; set; } = 1f;
   [Export] public float BodyHeight { get; set; } = 0f;
-  public ResourcePack ResourcePack { get; set; } = ResourcePackManager.Instance.GetActiveResourcePack();
+  public ResourcePack ResourcePack { get; set; } = ResourcePackManager.Instance!.GetActiveResourcePack();
 
   public static readonly float NOTE_HEAD_HEIGHT_RATIO = 0.0175f;
   public static readonly float NOTE_HEAD_OVERLAY_RATIO_SIZE = 1.2f;
@@ -44,12 +44,12 @@ public partial class Note : Control, IPoolable
   // Initialize node references and perform initial visual update
   public override void _Ready()
   {
-    _headContainer = GetNode<Control>("Head");
-    _headBase = GetNode<NinePatchRect>("Head/Base");
-    _headOverlay = GetNode<TextureRect>("Head/Overlay");
+    _headContainer = GetNodeOrNull<Control>("Head");
+    _headBase = GetNodeOrNull<NinePatchRect>("Head/Base");
+    _headOverlay = GetNodeOrNull<TextureRect>("Head/Overlay");
 
-    _bodyContainer = GetNode<Control>("Body");
-    _bodyBase = GetNode<NinePatchRect>("Body/Base");
+    _bodyContainer = GetNodeOrNull<Control>("Body");
+    _bodyBase = GetNodeOrNull<NinePatchRect>("Body/Base");
 
     UpdateVisual();
   }
@@ -59,7 +59,7 @@ public partial class Note : Control, IPoolable
 
   public void OnDespawn() { }
 
-  private Texture2D GetTextureSafe(NoteType type, NotePart part)
+  private Texture2D? GetTextureSafe(NoteType type, NotePart part)
   {
     if (ResourcePack.TEX?.TryGetValue(type, out var parts) is true
         && parts.TryGetValue(part, out var tex))
@@ -77,26 +77,26 @@ public partial class Note : Control, IPoolable
     Type = type;
     ResourcePack = resourcePack;
 
-    _bodyContainer.Visible = Type is NoteType.Hold;
+    _bodyContainer?.Visible = Type is NoteType.Hold;
 
-    _headBase.PatchMarginLeft = ResourcePack.Config.NinePatchHeadMarginH;
-    _headBase.PatchMarginRight = ResourcePack.Config.NinePatchHeadMarginH;
-    _headBase.PatchMarginTop = 0;
-    _headBase.PatchMarginBottom = 0;
+    _headBase?.PatchMarginLeft = ResourcePack.Config.NinePatchHeadMarginH;
+    _headBase?.PatchMarginRight = ResourcePack.Config.NinePatchHeadMarginH;
+    _headBase?.PatchMarginTop = 0;
+    _headBase?.PatchMarginBottom = 0;
 
-    _bodyBase.PatchMarginLeft = ResourcePack.Config.NinePatchBodyMarginH;
-    _bodyBase.PatchMarginRight = ResourcePack.Config.NinePatchBodyMarginH;
-    _bodyBase.PatchMarginTop = ResourcePack.Config.NinePatchBodyMarginV;
-    _bodyBase.PatchMarginBottom = ResourcePack.Config.NinePatchBodyMarginV;
+    _bodyBase?.PatchMarginLeft = ResourcePack.Config.NinePatchBodyMarginH;
+    _bodyBase?.PatchMarginRight = ResourcePack.Config.NinePatchBodyMarginH;
+    _bodyBase?.PatchMarginTop = ResourcePack.Config.NinePatchBodyMarginV;
+    _bodyBase?.PatchMarginBottom = ResourcePack.Config.NinePatchBodyMarginV;
 
     NoteType headType = Type is NoteType.Hold ? NoteType.Tap : Type;
 
-    _headBase.Texture = GetTextureSafe(headType, NotePart.Base);
-    _headOverlay.Texture = GetTextureSafe(headType, NotePart.Overlay);
+    _headBase?.Texture = GetTextureSafe(headType, NotePart.Base);
+    _headOverlay?.Texture = GetTextureSafe(headType, NotePart.Overlay);
 
     if (Type is NoteType.Hold)
     {
-      _bodyBase.Texture = GetTextureSafe(NoteType.Hold, NotePart.Base);
+      _bodyBase?.Texture = GetTextureSafe(NoteType.Hold, NotePart.Base);
     }
 
     // Force update visual since texture changed
@@ -106,7 +106,7 @@ public partial class Note : Control, IPoolable
 
   public void SetNoteHighlighting(bool active)
   {
-    if (_headBase.Material is ShaderMaterial shaderMaterial)
+    if (_headBase?.Material is ShaderMaterial shaderMaterial)
     {
       shaderMaterial.SetShaderParameter("is_highlighted", active);
       shaderMaterial.SetShaderParameter(
@@ -118,12 +118,12 @@ public partial class Note : Control, IPoolable
   // Recalculates sizes and positions of all components based on current properties
   public void UpdateVisual()
   {
-    float minScale = MathF.Min(PlayerAreaSize.X, PlayerAreaSize.Y);
+    float minScale = Mathf.Min(PlayerAreaSize.X, PlayerAreaSize.Y);
     float headH = NoteSize * minScale * NOTE_HEAD_HEIGHT_RATIO;
     float headW = MathF.Max(Width, headH * 2f);
 
     float headScale = 1f;
-    if (_headBase.Texture is { } headTex && headTex.GetSize().Y > 0)
+    if (_headBase?.Texture is { } headTex && headTex.GetSize().Y > 0)
     {
       headScale = headH / headTex.GetSize().Y;
     }
@@ -141,24 +141,24 @@ public partial class Note : Control, IPoolable
     if (headDirty)
     {
       // Update head component layout
-      _headContainer.Position = new(-headW / 2f, -headH);
+      _headContainer?.Position = new(-headW / 2f, -headH);
 
-      if (_headBase.Texture is { } baseTex)
+      if (_headBase?.Texture is { } baseTex)
       {
-        _headBase.Scale = new(headScale, headScale);
-        _headBase.Size = new(headW / headScale, baseTex.GetSize().Y);
+        _headBase.Scale = new Vector2(headScale, headScale);
+        _headBase.Size = new Vector2(headW / headScale, baseTex.GetSize().Y);
         _headBase.Position = Vector2.Zero;
       }
 
-      if (_headOverlay.Texture is { } overlayTex)
+      if (_headOverlay?.Texture is { } overlayTex)
       {
         float overlaySize = headH * NOTE_HEAD_OVERLAY_RATIO_SIZE;
         float texW = overlayTex.GetSize().X;
         float texH = overlayTex.GetSize().Y;
 
-        _headOverlay.Scale = new(texW > 0 ? overlaySize / texW : 0f, texH > 0 ? overlaySize / texH : 0f);
-        _headOverlay.Size = new(texW, texH);
-        _headOverlay.Position = new(headW / 2f - overlaySize / 2f, headH / 2f - overlaySize / 2f);
+        _headOverlay.Scale = new Vector2(texW > 0 ? overlaySize / texW : 0f, texH > 0 ? overlaySize / texH : 0f);
+        _headOverlay.Size = new Vector2(texW, texH);
+        _headOverlay.Position = new Vector2(headW / 2f - overlaySize / 2f, headH / 2f - overlaySize / 2f);
       }
     }
 
@@ -168,18 +168,18 @@ public partial class Note : Control, IPoolable
       float bodyWidthOffset = minScale * BODY_TO_HEAD_WIDTH_OFFSET;
       float bodyW = MathF.Max(headW - bodyWidthOffset, 0f);
 
-      _bodyContainer.Position = new(-bodyW / 2f, -BodyHeight - headH);
+      _bodyContainer?.Position = new Vector2(-bodyW / 2f, -BodyHeight - headH);
 
-      if (_bodyBase.Texture is not null)
+      if (_bodyBase?.Texture is not null)
       {
-        _bodyBase.Scale = new(headScale, headScale);
-        _bodyBase.Size = new(headScale > 0 ? bodyW / headScale : bodyW, headScale > 0 ? BodyHeight / headScale : BodyHeight);
+        _bodyBase.Scale = new Vector2(headScale, headScale);
+        _bodyBase.Size = new Vector2(headScale > 0 ? bodyW / headScale : bodyW, headScale > 0 ? BodyHeight / headScale : BodyHeight);
         _bodyBase.Position = Vector2.Zero;
       }
     }
 
     // Save current state for next dirty check
-    _lastState = new()
+    _lastState = new NoteState()
     {
       PlayerAreaSize = PlayerAreaSize,
       Width = Width,

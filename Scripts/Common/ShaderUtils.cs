@@ -3,16 +3,10 @@ using System.Text.RegularExpressions;
 
 namespace Winithm.Core.Common;
 
-public struct ShaderParamDef
+public struct ShaderParamDef(AnyValueType type, AnyValue defaultValue)
 {
-  public AnyValueType Type;
-  public AnyValue DefaultValue;
-
-  public ShaderParamDef(AnyValueType type, AnyValue defaultValue)
-  {
-    Type = type;
-    DefaultValue = defaultValue;
-  }
+  public AnyValueType Type = type;
+  public AnyValue DefaultValue = defaultValue;
 }
 
 /// <summary>
@@ -20,18 +14,18 @@ public struct ShaderParamDef
 /// </summary>
 public struct ShaderUniform
 {
-  public string Name;
-  public string Type;
+  public required string Name;  
+  public required string Type;
   /// <summary>
   /// Hint string as written in source, e.g. "hint_range(0.0, 1.0)" or "source_color".
   /// Null when no hint is present.
   /// </summary>
-  public string Hint;
+  public string? Hint;
   /// <summary>
   /// Raw default value as written in source, e.g. "1.0", "vec4(1.0)", "true".
   /// Null when no default is specified.
   /// </summary>
-  public string RawDefaultValue;
+  public string? RawDefaultValue;
 
   public override readonly string ToString() =>
     $"{Type} {Name}" +
@@ -57,7 +51,7 @@ public static partial class ShaderUtils
   /// <summary>
   /// Maps a GDShader type name to its corresponding AnyValueType.
   /// </summary>
-  public static AnyValueType GlslTypeToAnyValueType(string gdType) =>
+  public static AnyValueType GDShaderTypeToAnyValueType(string gdType) =>
     gdType switch
     {
       "float" => AnyValueType.Float,

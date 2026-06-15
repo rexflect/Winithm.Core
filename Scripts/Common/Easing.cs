@@ -192,37 +192,46 @@ public static class EasingFunctions
     if (string.IsNullOrWhiteSpace(text))
       return EasingType.Linear;
 
-    return text.Trim() switch
+    return text.Trim().ToLowerInvariant() switch
     {
-      "Liner" => EasingType.Linear,
-      "SineIn" => EasingType.SineIn,
-      "SineOut" => EasingType.SineOut,
-      "SineInOut" => EasingType.SineInOut,
-      "CubicIn" => EasingType.CubicIn,
-      "CubicOut" => EasingType.CubicOut,
-      "CubicInOut" => EasingType.CubicInOut,
-      "QuadIn" => EasingType.QuadIn,
-      "QuadOut" => EasingType.QuadOut,
-      "QuadInOut" => EasingType.QuadInOut,
-      "ExpoIn" => EasingType.ExpoIn,
-      "ExpoOut" => EasingType.ExpoOut,
-      "ExpoInOut" => EasingType.ExpoInOut,
-      "CircIn" => EasingType.CircIn,
-      "CircOut" => EasingType.CircOut,
-      "CircInOut" => EasingType.CircInOut,
-      "BackIn" => EasingType.BackIn,
-      "BackOut" => EasingType.BackOut,
-      "BackInOut" => EasingType.BackInOut,
-      "ElasticIn" => EasingType.ElasticIn,
-      "ElasticOut" => EasingType.ElasticOut,
-      "ElasticInOut" => EasingType.ElasticInOut,
-      "BounceIn" => EasingType.BounceIn,
-      "BounceOut" => EasingType.BounceOut,
-      "BounceInOut" => EasingType.BounceInOut,
+      "linear" => EasingType.Linear,
+      "sinein" => EasingType.SineIn,
+      "sineout" => EasingType.SineOut,
+      "sineinout" => EasingType.SineInOut,
+
+      "cubicin" => EasingType.CubicIn,
+      "cubicout" => EasingType.CubicOut,
+      "cubicinout" => EasingType.CubicInOut,
+
+      "quadin" => EasingType.QuadIn,
+      "quadout" => EasingType.QuadOut,
+      "quadinout" => EasingType.QuadInOut,
+
+      "expoin" => EasingType.ExpoIn,
+      "expoout" => EasingType.ExpoOut,
+      "expoinout" => EasingType.ExpoInOut,
+
+      "circin" => EasingType.CircIn,
+      "circout" => EasingType.CircOut,
+      "circinout" => EasingType.CircInOut,
+
+      "backin" => EasingType.BackIn,
+      "backout" => EasingType.BackOut,
+      "backinout" => EasingType.BackInOut,
+
+      "elasticin" => EasingType.ElasticIn,
+      "elasticout" => EasingType.ElasticOut,
+      "elasticinout" => EasingType.ElasticInOut,
+
+      "bouncein" => EasingType.BounceIn,
+      "bounceout" => EasingType.BounceOut,
+      "bounceinout" => EasingType.BounceInOut,
+
       // Alias support
-      "EaseIn" => EasingType.CubicIn,
-      "EaseOut" => EasingType.CubicOut,
-      "EaseInOut" => EasingType.CubicInOut,
+      "easein" => EasingType.CubicIn,
+      "easeout" => EasingType.CubicOut,
+      "easeinout" => EasingType.CubicInOut,
+
       _ => LogUnknownAndReturnLinear(text),
     };
   }
@@ -241,27 +250,35 @@ public static class EasingFunctions
       EasingType.SineIn => "SineIn",
       EasingType.SineOut => "SineOut",
       EasingType.SineInOut => "SineInOut",
+
       EasingType.CubicIn => "CubicIn",
       EasingType.CubicOut => "CubicOut",
       EasingType.CubicInOut => "CubicInOut",
+
       EasingType.QuadIn => "QuadIn",
       EasingType.QuadOut => "QuadOut",
       EasingType.QuadInOut => "QuadInOut",
+
       EasingType.ExpoIn => "ExpoIn",
       EasingType.ExpoOut => "ExpoOut",
       EasingType.ExpoInOut => "ExpoInOut",
+
       EasingType.CircIn => "CircIn",
       EasingType.CircOut => "CircOut",
       EasingType.CircInOut => "CircInOut",
+
       EasingType.BackIn => "BackIn",
       EasingType.BackOut => "BackOut",
       EasingType.BackInOut => "BackInOut",
+
       EasingType.ElasticIn => "ElasticIn",
       EasingType.ElasticOut => "ElasticOut",
       EasingType.ElasticInOut => "ElasticInOut",
+
       EasingType.BounceIn => "BounceIn",
       EasingType.BounceOut => "BounceOut",
       EasingType.BounceInOut => "BounceInOut",
+      
       _ => throw new ArgumentOutOfRangeException(nameof(easingType), easingType, null),
     };
   }

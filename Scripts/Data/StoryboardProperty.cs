@@ -51,7 +51,7 @@ public static class StoryboardPropertyExtension
 
   public static string FormatEventProperty(StoryboardProperty type, string customProperty)
   {
-    if (type == StoryboardProperty.Custom) return customProperty;
+    if (type is StoryboardProperty.Custom) return customProperty;
     return type switch
     {
       StoryboardProperty.X => "Move_X",

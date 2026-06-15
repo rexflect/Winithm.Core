@@ -20,22 +20,22 @@ public static class WinithmIO
     if (!FileAccess.FileExists(metaDataFilePath))
     {
       GD.PushError($"[WinithmIO] Metadata file missing: {metaDataFilePath}");
-      return new();
+      return new ChartData();
     }
 
     // Load shared chart metadata
-    SongMetaData songMetaData = WNMParser.Parse(metaDataFilePath);
+    var songMetaData = WNMParser.Parse(metaDataFilePath);
 
     string chartFilePath = levelDir.PathJoin(songID).PathJoin(chartID + CHART_DATA_FILE);
 
     if (!FileAccess.FileExists(chartFilePath))
     {
       GD.PushError($"[WinithmIO] Chart data file missing: {chartFilePath}");
-      return new();
+      return new ChartData();
     }
 
     // Load chart data
-    ChartData data = new() { SongMetaData = songMetaData };
+    var data = new ChartData() { SongMetaData = songMetaData };
     WNCParser.Parse(chartFilePath, data);
     data.Windows.ComputeAllAnimations();
     return data;
@@ -48,10 +48,10 @@ public static class WinithmIO
     if (!FileAccess.FileExists(chartFilePath))
     {
       GD.PushError($"[WinithmIO] Chart data file missing: {chartFilePath}");
-      return new();
+      return new ChartData();
     }
 
-    ChartData data = new() { SongMetaData = songMetaData };
+    var data = new ChartData() { SongMetaData = songMetaData };
     WNCParser.Parse(chartFilePath, data);
     data.Windows.ComputeAllAnimations();
     return data;
@@ -72,7 +72,6 @@ public static class WinithmIO
         data.SongMetaData
     );
 
-    // Fixed: Replaced PlusFile with PathJoin
     WNCGenerator.Generate(
         songDir.PathJoin(data.ChartMetadata.ChartID + CHART_DATA_FILE),
         data

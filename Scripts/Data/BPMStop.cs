@@ -10,26 +10,21 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class BPMStop : IDeepCloneable<BPMStop>
 {
-  public event Action<BPMStop> OnStartBeatChanged;
-  public event Action<BPMStop> OnInvalidate;
-  public event Action<BPMStop> OnUpdated;
+  public event Action<BPMStop>? OnStartBeatChanged;
+  public event Action<BPMStop>? OnInvalidate;
+  public event Action<BPMStop>? OnUpdated;
 
-  private BeatTime _startBeat = BeatTime.Zero;
-  public BeatTime StartBeat { get => _startBeat; set { if (_startBeat == value) return; _startBeat = value; OnStartBeatChanged?.Invoke(this); OnInvalidate?.Invoke(this); } }
+  public BeatTime StartBeat { get => field; set { if (field == value) return; field = value; OnStartBeatChanged?.Invoke(this); OnInvalidate?.Invoke(this); } } = BeatTime.Zero;
 
-  private float _bpm = 120;
-  public float BPM { get => _bpm; set { if (_bpm == value) return; _bpm = value; OnInvalidate?.Invoke(this); } }
+  public float BPM { get => field; set { if (field == value) return; field = value; OnInvalidate?.Invoke(this); } } = 120f;
 
-  private int _timeSignatureNum = 4;
-  public int TimeSignatureNum { get => _timeSignatureNum; set { if (_timeSignatureNum == value) return; _timeSignatureNum = value; OnUpdated?.Invoke(this); } }
+  public int TimeSignatureNum { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 4;
 
-  private int _timeSignatureDen = 4;
-  public int TimeSignatureDen { get => _timeSignatureDen; set { if (_timeSignatureDen == value) return; _timeSignatureDen = value; OnUpdated?.Invoke(this); } }
+  public int TimeSignatureDen { get => field; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 4;
 
   public double StartTimeSeconds;
 
   public float BeatsPerSecond => BPM / 60f;
-
 
   public static readonly BPMStop NaN = new()
   {
@@ -50,7 +45,7 @@ public class BPMStop : IDeepCloneable<BPMStop>
 
   public BPMStop DeepClone(ObjectFactory objectFactory, BeatTime? offset)
   {
-    return new()
+    return new BPMStop()
     {
       StartBeat = StartBeat + (offset ?? BeatTime.Zero),
       BPM = BPM,
@@ -66,20 +61,16 @@ public class BPMStop : IDeepCloneable<BPMStop>
 /// </summary>
 public class BaseBPM
 {
-  public event Action<BaseBPM> OnInvalidate;
-  public event Action<BaseBPM> OnUpdated;
+  public event Action<BaseBPM>? OnInvalidate;
+  public event Action<BaseBPM>? OnUpdated;
 
-  private double _baseOffsetSeconds = 0;
-  public double BaseOffsetSeconds { get => _baseOffsetSeconds; set { if (_baseOffsetSeconds == value) return; _baseOffsetSeconds = value; OnInvalidate?.Invoke(this); } }
+  public double BaseOffsetSeconds { get => field; set { if (field == value) return; field = value; OnInvalidate?.Invoke(this); } } = 0;
 
-  private float _initialBPM = 120;
-  public float InitialBPM { get => _initialBPM; set { if (_initialBPM == value) return; _initialBPM = value; OnInvalidate?.Invoke(this); } }
+  public float InitialBPM { get; set { if (field == value) return; field = value; OnInvalidate?.Invoke(this); } } = 120f;
 
-  private int _timeSignatureNum = 4;
-  public int TimeSignatureNum { get => _timeSignatureNum; set { if (_timeSignatureNum == value) return; _timeSignatureNum = value; OnUpdated?.Invoke(this); } }
+  public int TimeSignatureNum { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 4;
 
-  private int _timeSignatureDen = 4;
-  public int TimeSignatureDen { get => _timeSignatureDen; set { if (_timeSignatureDen == value) return; _timeSignatureDen = value; OnUpdated?.Invoke(this); } }
+  public int TimeSignatureDen { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 4;
 
   public float BeatsPerSecond => InitialBPM / 60f;
 

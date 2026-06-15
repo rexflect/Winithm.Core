@@ -35,7 +35,7 @@ public struct ResourcePack
 
 public partial class ResourcePackManager : Node
 {
-  public static ResourcePackManager Instance { get; private set; }
+  public static ResourcePackManager? Instance { get; private set; }
 
   public static NotePart ParseNotePart(string name)
   {
@@ -61,15 +61,25 @@ public partial class ResourcePackManager : Node
 
   public static readonly string RESOURCE_PACKS_PATH = "res://Winithm.Core/Resources/ResourcePacks";
   
-  private Dictionary<string, ResourcePack> _resourcePacks;
+  private Dictionary<string, ResourcePack>? _resourcePacks;
   private ResourcePack _activeResourcePack;
-  private string _activeResourcePackName = "default";
 
   public string ActiveResourcePackName
   {
-    get => _activeResourcePackName;
-    set => SetActiveResourcePack(value);
-  }
+    get;
+    set
+    {
+      if (_resourcePacks is not null && _resourcePacks.TryGetValue(value, out var pack))
+      {
+        field = value;
+        _activeResourcePack = pack;
+      }
+      else
+      {
+        GD.PushError($"[NoteResourceManager] Skin pack not found: {value}");
+      }
+    }
+  } = "default";
 
   public override void _Ready()
   {
@@ -82,7 +92,7 @@ public partial class ResourcePackManager : Node
       return;
     }
 
-    _resourcePacks = new(StringComparer.OrdinalIgnoreCase);
+    _resourcePacks = [with(StringComparer.OrdinalIgnoreCase)];
 
     foreach (string resourcePackName in resourcePacksDir.GetDirectories())
     {
@@ -92,7 +102,7 @@ public partial class ResourcePackManager : Node
         TEX = [],
         SFX = [],
         VFX = new(),
-        HitFXScene = null,
+        HitFXScene = new(),
         Config = new()
         {
           Particle = false,
@@ -110,7 +120,7 @@ public partial class ResourcePackManager : Node
       _resourcePacks[resourcePackName] = resourcePack;
     }
 
-    SetActiveResourcePack(_activeResourcePackName);
+    ActiveResourcePackName = "default";
   }
 
   private static void LoadConfig(string path, ref ResourcePack resourcePack)
@@ -125,14 +135,14 @@ public partial class ResourcePackManager : Node
       while (!file.EofReached())
       {
         string line = file.GetLine().Trim();
-        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#')) continue;
 
         // Faster parsing with IndexOf instead of allocating array from Split
         int delimiterIdx = line.IndexOf('=');
         if (delimiterIdx == -1) continue;
 
-        string key = line.Substring(0, delimiterIdx).Trim();
-        string val = line.Substring(delimiterIdx + 1).Trim();
+        string key = line[..delimiterIdx].Trim();
+        string val = line[(delimiterIdx + 1)..].Trim();
 
         switch (key)
         {
@@ -148,9 +158,6 @@ public partial class ResourcePackManager : Node
           case "ninePatchBodyMarginV":
             resourcePack.Config.NinePatchBodyMarginV = int.TryParse(val, out int mv) ? mv : 0;
             break;
-          case "highlightColor":
-          case "highlightSpread":
-            break; // Deprecated: glow color is now derived from texture average
           case "highlightSize":
             resourcePack.Config.HighlightSize = float.TryParse(val, out float sz) ? sz : 0.75f;
             break;
@@ -175,7 +182,7 @@ public partial class ResourcePackManager : Node
 
   private static Color StringToColor(string str)
   {
-    string[] parts = str.Split('|', StringSplitOptions.RemoveEmptyEntries);
+    var parts = str.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
     float r = 0, g = 0, b = 0, a = 1;
 
@@ -206,16 +213,17 @@ public partial class ResourcePackManager : Node
       string ntStr = fileNameWOExt[..underscoreIdx];
       string tpStr = fileNameWOExt[(underscoreIdx + 1)..];
 
-      NoteType noteType = NoteData.ParseNoteType(ntStr);
-      NotePart texturePart = ParseNotePart(tpStr);
+      var noteType = NoteData.ParseNoteType(ntStr);
+      var texturePart = ParseNotePart(tpStr);
 
       // Initialize dictionary lazy to prevent KeyNotFoundException
-      if (!resourcePack.TEX.ContainsKey(noteType))
+      if (!resourcePack.TEX.TryGetValue(noteType, out var value))
       {
-        resourcePack.TEX[noteType] = [];
+        value = [];
+        resourcePack.TEX[noteType] = value;
       }
 
-      resourcePack.TEX[noteType][texturePart] = GD.Load<Texture2D>(filePath);
+      value[texturePart] = GD.Load<Texture2D>(filePath);
     }
   }
 
@@ -231,7 +239,7 @@ public partial class ResourcePackManager : Node
       string filePath = path + "/" + fileName;
       string fileNameWOExt = System.IO.Path.GetFileNameWithoutExtension(fileName);
 
-      NoteType noteType = NoteData.ParseNoteType(fileNameWOExt);
+      var noteType = NoteData.ParseNoteType(fileNameWOExt);
       var audioStream = GD.Load<AudioStream>(filePath);
       AudioStreamUtils.ClampStreamLoop(audioStream);
       resourcePack.SFX[noteType] = audioStream;
@@ -251,20 +259,11 @@ public partial class ResourcePackManager : Node
 
   public void SetActiveResourcePack(string resourcePackName)
   {
-    // TryGetValue acts directly without double lookup (ContainsKey + Indexer)
-    if (_resourcePacks.TryGetValue(resourcePackName, out ResourcePack pack))
-    {
-      _activeResourcePackName = resourcePackName;
-      _activeResourcePack = pack; // Cache current pack object
-    }
-    else
-    {
-      GD.PushError($"[NoteResourceManager] Skin pack not found: {resourcePackName}");
-    }
+    ActiveResourcePackName = resourcePackName;
   }
 
   // Direct memory access without dictionary lookup guarantees O(1) high performance calls
   public ResourcePack GetActiveResourcePack() => _activeResourcePack;
 
-  public IEnumerable<ResourcePack> GetAllResourcePacks() => _resourcePacks.Values;
+  public IEnumerable<ResourcePack>? GetAllResourcePacks() => _resourcePacks?.Values;
 }

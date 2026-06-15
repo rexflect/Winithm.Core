@@ -8,9 +8,8 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class ChartData
 {
-  public event Action<ChartData> OnMetaDataUpdated;
-
-  public event Action<ChartData> OnChartUpdated;
+  public event Action<ChartData>? OnMetaDataUpdated;
+  public event Action<ChartData>? OnChartUpdated;
 
   // Metadata
   public SongMetaData SongMetaData = new();

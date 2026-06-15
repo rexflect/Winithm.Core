@@ -5,7 +5,7 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class PlayerCombo : Control
 {
-  public struct LastState
+  public record struct LastState
   {
     public Color TextColor, TextOutLineColor, CompBackgroundColor;
   }
@@ -17,11 +17,11 @@ public partial class PlayerCombo : Control
 
   private LastState _lastState = new();
 
-  private Label _comboLabel;
-  private Label _statusLabel;
-  private Control _pauseControl;
-  private ColorRect _progressRect;
-  private ColorRect _background;
+  private Label? _comboLabel;
+  private Label? _statusLabel;
+  private Control? _pauseControl;
+  private ColorRect? _progressRect;
+  private ColorRect? _background;
 
   public enum PauseAnimState { Idle, Draining, Filling }
   private PauseAnimState _pauseState = PauseAnimState.Idle;
@@ -39,7 +39,7 @@ public partial class PlayerCombo : Control
     _pauseControl = GetNodeOrNull<Control>("Pause");
     _progressRect = _pauseControl?.GetNodeOrNull<ColorRect>("Progess");
     _background = GetNodeOrNull<ColorRect>("Background");
-    
+
     UpdateVisual();
   }
 
@@ -52,15 +52,15 @@ public partial class PlayerCombo : Control
       _comboColorTimer -= dt;
       if (_comboColorTimer < 0f) _comboColorTimer = 0f;
 
-      float t = 1f - (_comboColorTimer / COMBO_COLOR_DURATION);
+      float tm = 1f - (_comboColorTimer / COMBO_COLOR_DURATION);
 
       var inverted = new Color(1f - TextColor.R, 1f - TextColor.G, 1f - TextColor.B, TextColor.A);
 
-      if (_progressRect is not null) _progressRect.Color = inverted.Lerp(TextColor, t);
+      _progressRect?.Color = inverted.Lerp(TextColor, tm);
     }
-    else if (_progressRect is not null)
+    else
     {
-      _progressRect.Color = TextColor;
+      _progressRect?.Color = TextColor;
     }
 
     if (_pauseState == PauseAnimState.Draining)
@@ -82,12 +82,13 @@ public partial class PlayerCombo : Control
       }
     }
 
-    if (_progressRect is not null && _pauseControl is not null)
+
+    float t = _pauseTimer / PAUSE_DURATION;
+    if (_pauseControl is not null)
     {
-      float t = _pauseTimer / PAUSE_DURATION;
       float yOffset = _pauseControl.Size.Y * t;
-      _progressRect.OffsetTop = yOffset;
-      _progressRect.OffsetBottom = yOffset;
+      _progressRect?.OffsetTop = yOffset;
+      _progressRect?.OffsetBottom = yOffset;
     }
   }
 
@@ -103,21 +104,16 @@ public partial class PlayerCombo : Control
 
   private void UpdateColor()
   {
-    if (_comboLabel is not null)
-    {
-      _comboLabel.AddThemeColorOverride("font_color", TextColor);
-      _comboLabel.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-    }
-    if (_statusLabel is not null)
-    {
-      _statusLabel.AddThemeColorOverride("font_color", TextColor);
-      _statusLabel.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-    }
 
-    if (_progressRect is not null && _pauseState == PauseAnimState.Idle)
-    {
-      _progressRect.Color = TextColor;
-    }
+    _comboLabel?.AddThemeColorOverride("font_color", TextColor);
+    _comboLabel?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
+
+    _statusLabel?.AddThemeColorOverride("font_color", TextColor);
+    _statusLabel?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
+
+
+    _progressRect?.Color = TextColor;
+
 
     if (_background is { Material: ShaderMaterial mat })
     {
@@ -132,7 +128,7 @@ public partial class PlayerCombo : Control
 
   public void SetCombo(int combo, bool instant)
   {
-    if (_comboLabel is not null) _comboLabel.Text = $"x{combo}";
+    _comboLabel?.Text = $"x{combo}";
     if (combo == _currentComboValue) return;
     _currentComboValue = combo;
 
@@ -143,9 +139,7 @@ public partial class PlayerCombo : Control
 
   public void SetStatus(ScoreEngine.CompletionStatus status)
   {
-    if (_statusLabel is null) return;
-
-    _statusLabel.Text = status switch
+    _statusLabel?.Text = status switch
     {
       ScoreEngine.CompletionStatus.AT => "AUTOPLAY!",
       ScoreEngine.CompletionStatus.AP => "ALL PERFECT!",

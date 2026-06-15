@@ -4,7 +4,7 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class ChartInfo : Control
 {
-  public struct LastState
+  public record struct LastState
   {
     public string DifficultText;
     public Color TextColor, TextOutLineColor, CompBackgroundColor;
@@ -20,9 +20,9 @@ public partial class ChartInfo : Control
 
   private LastState _lastState = new();
 
-  private Label _difficult;
-  private ColorRect _background;
-  private ColorRect _pad;
+  private Label? _difficult;
+  private ColorRect? _background;
+  private ColorRect? _pad;
 
   public override void _Ready()
   {
@@ -47,11 +47,10 @@ public partial class ChartInfo : Control
 
   private void UpdateColor()
   {
-    if (_difficult is not null)
-    {
-      _difficult.AddThemeColorOverride("font_color", TextColor);
-      _difficult.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-    }
+
+    _difficult?.AddThemeColorOverride("font_color", TextColor);
+    _difficult?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
+
 
     if (_background is { Material: ShaderMaterial mat })
     {
@@ -59,8 +58,7 @@ public partial class ChartInfo : Control
       mat.SetShaderParameter("stripe_color", new Color(0f, 0f, 0f, 0f)); // Transparent
     }
 
-    if (_pad is not null)
-      _pad.Color = TextColor;
+    _pad?.Color = TextColor;
 
     _lastState.TextColor = TextColor;
     _lastState.TextOutLineColor = TextOutLineColor;
@@ -69,35 +67,34 @@ public partial class ChartInfo : Control
 
   private void UpdateInfo()
   {
+
+    _difficult?.Text = DifficultText;
+
     if (_difficult is not null)
     {
-      _difficult.Text = DifficultText;
 
+      // Calculate exact text dimensions
+      float textWidth = _difficult.Size.X;
+      float textHeight = _difficult.Size.Y;
+
+      // Set background size with 10px padding on all sides
+      float bgWidth = textWidth + 20f;
+      float bgHeight = textHeight + 20f - PAD_HEIGHT;
+      _background?.Size = new Vector2(bgWidth, bgHeight);
+
+      // Align background to the right edge of the label
+      float bgTopEdge = _difficult.Position.Y - 10f;
+
+      _background?.Position = new Vector2(_difficult.Position.X - 10f, bgTopEdge);
+
+      // Position pad directly below the background
       if (_background is not null)
       {
-        // Calculate exact text dimensions
-        float textWidth = _difficult.Size.X;
-        float textHeight = _difficult.Size.Y;
-
-        // Set background size with 10px padding on all sides
-        float bgWidth = textWidth + 20f;
-        float bgHeight = textHeight + 20f - PAD_HEIGHT;
-        _background.Size = new(bgWidth, bgHeight);
-
-        // Align background to the right edge of the label
-        float labelRightEdge = _difficult.Position.X + _difficult.Size.X;
-        float bgTopEdge = _difficult.Position.Y - 10f;
-
-        _background.Position = new(_difficult.Position.X - 10f, bgTopEdge);
-
-        // Position pad directly below the background
-        if (_pad is not null)
-        {
-          _pad.Position = new(_background.Position.X, _background.Position.Y + _background.Size.Y);
-          _pad.Size = new(_background.Size.X, PAD_HEIGHT);
-        }
+        _pad?.Position = new Vector2(_background.Position.X, _background.Position.Y + _background.Size.Y);
+        _pad?.Size = new Vector2(_background.Size.X, PAD_HEIGHT);
       }
     }
+
 
     _lastState.DifficultText = DifficultText;
   }

@@ -16,12 +16,11 @@ public partial class HitFX : Node2D, IPoolable
 
   protected HitResultType ResultType { get; private set; }
   protected NoteType NoteType { get; private set; }
-  protected Color HitColor { get; set; } = Colors.White;
   protected float NoteWidth { get; private set; }
   protected Vector2 PlayerAreaSize { get; private set; }
   protected float Elapsed => _elapsed;
 
-  private Action<HitFX> _onFinished;
+  private Action<HitFX>? _onFinished;
   private float _duration;
   private float _elapsed;
   private bool _playing;

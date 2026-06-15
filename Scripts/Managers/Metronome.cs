@@ -13,7 +13,7 @@ namespace Winithm.Core.Managers;
 /// </summary>
 public class Metronome : IObjectManager<BPMStop>
 {
-  public event Action<Metronome> OnUpdated;
+  public event Action<Metronome>? OnUpdated;
 
   public BaseBPM BaseBPM { get; private set; } = new()
   {
@@ -28,10 +28,10 @@ public class Metronome : IObjectManager<BPMStop>
   public IEnumerator<BPMStop> GetEnumerator() => _bPMStops.GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-  public BPMStop this[int index] => _bPMStops.ElementAtOrDefault(index);
+  public BPMStop? this[int index] => _bPMStops.ElementAtOrDefault(index);
   public ICollection<BPMStop> Values => _bPMStops;
 
-  public bool TryGetValue(string id, out BPMStop value)
+  public bool TryGetValue(string id, out BPMStop? value)
   {
     value = null;
     return false;
@@ -189,7 +189,7 @@ public class Metronome : IObjectManager<BPMStop>
 
     BeginUpdate();
 
-    int[] indices = new int[bPMStops.Count()];
+    var indices = new int[bPMStops.Count()];
     for (int i = 0; i < bPMStops.Count(); i++)
       indices[i] = AddBPMStop(bPMStops.ElementAt(i));
 

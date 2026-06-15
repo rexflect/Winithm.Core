@@ -9,16 +9,16 @@ namespace Winithm.Core.Controllers;
 [Tool]
 public partial class ThemeChannelController : Node
 {
-  private ThemeChannelManager _themeManager;
+  private ThemeChannelManager _themeManager = null!;
   private readonly Dictionary<string, (double LastBeat, Color Color, float NoteAlpha)> _lastStates = [];
 
-  public void Initialize(ThemeChannelManager manager)
+  public void Initialize(ThemeChannelManager? manager)
   {
-    _themeManager = manager ?? new();
+    _themeManager = manager ?? new ThemeChannelManager();
 
     foreach (var tc in _themeManager)
     {
-      _lastStates[tc.ID] = (-1f, new(tc.InitR, tc.InitG, tc.InitB, tc.InitA), tc.InitNoteA);
+      _lastStates[tc.ID] = (-1f, new Color(tc.InitR, tc.InitG, tc.InitB, tc.InitA), tc.InitNoteA);
     }
   }
 
@@ -41,6 +41,7 @@ public partial class ThemeChannelController : Node
       return null;
 
     var tc = _themeManager.GetThemeChannel(id);
+    if (tc is null) return null;
 
     float r = EvaluateProperty(tc, StoryboardProperty.ColorR, currentBeat, tc.InitR);
     float g = EvaluateProperty(tc, StoryboardProperty.ColorG, currentBeat, tc.InitG);
@@ -48,7 +49,7 @@ public partial class ThemeChannelController : Node
     float a = EvaluateProperty(tc, StoryboardProperty.ColorA, currentBeat, tc.InitA);
     float noteA = EvaluateProperty(tc, StoryboardProperty.NoteA, currentBeat, tc.InitNoteA);
 
-    Color color = new(r, g, b, a);
+    var color = new Color(r, g, b, a);
     _lastStates[id] = (currentBeat, color, noteA);
 
     return (color, noteA);

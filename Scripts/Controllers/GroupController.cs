@@ -9,13 +9,13 @@ namespace Winithm.Core.Controllers;
 [Tool]
 public partial class GroupController : Node
 {
-  private GroupManager _groupManager;
+  private GroupManager? _groupManager;
   private readonly Dictionary<string, Node2D> _groupNodes = [];
   private readonly Dictionary<string, double> _lastUpdateBeat = [];
 
   public void Initialize(GroupManager manager)
   {
-    _groupManager = manager ?? new();
+    _groupManager = manager;
 
     foreach (var node in _groupNodes.Values)
     {
@@ -31,8 +31,8 @@ public partial class GroupController : Node
       var node = new Node2D
       {
         Name = string.IsNullOrEmpty(g.ID) ? "Group" : g.ID,
-        Position = new(g.InitX, g.InitY),
-        Scale = new(g.InitScaleX, g.InitScaleY),
+        Position = new Vector2(g.InitX, g.InitY),
+        Scale = new Vector2(g.InitScaleX, g.InitScaleY),
         RotationDegrees = g.InitRotation
       };
 
@@ -55,7 +55,7 @@ public partial class GroupController : Node
     }
   }
 
-  public Node2D GetGroupNode(string id, double currentBeat)
+  public Node2D? GetGroupNode(string id, double currentBeat)
   {
     if (Mathf.Abs((float)(_lastUpdateBeat[id] - currentBeat)) <= 0.0001f)
       return _groupNodes[id];
@@ -63,12 +63,14 @@ public partial class GroupController : Node
     return ForceGetGroupNode(id, currentBeat, false);
   }
 
-  public Node2D ForceGetGroupNode(string id, double currentBeat, bool _force = true)
+  public Node2D? ForceGetGroupNode(string id, double currentBeat, bool _force = true)
   {
-    if (string.IsNullOrEmpty(id) || !_groupManager.ContainsGroup(id))
+    if (string.IsNullOrEmpty(id) || !(_groupManager?.ContainsGroup(id) ?? false))
       return null;
 
-    var g = _groupManager.GetGroup(id);
+    var g = _groupManager?.GetGroup(id);
+    if (g is null) return null;
+
     if (!string.IsNullOrEmpty(g.ParentGroupID))
     {
       if (_force) ForceGetGroupNode(g.ParentGroupID, currentBeat);
@@ -84,8 +86,8 @@ public partial class GroupController : Node
     float scaleY = EvaluateProperty(g, StoryboardProperty.ScaleY, currentBeat, g.InitScaleY);
     float rotation = EvaluateProperty(g, StoryboardProperty.Rotation, currentBeat, g.InitRotation);
 
-    node.Position = new(x, y);
-    node.Scale = new(scale * scaleX, scale * scaleY);
+    node.Position = new Vector2(x, y);
+    node.Scale = new Vector2(scale * scaleX, scale * scaleY);
     node.RotationDegrees = rotation;
 
     _lastUpdateBeat[id] = currentBeat;
@@ -93,12 +95,12 @@ public partial class GroupController : Node
     return node;
   }
 
-  private float EvaluateProperty(GroupData g, StoryboardProperty prop, double beat, float defaultValue)
+  private static float EvaluateProperty(GroupData g, StoryboardProperty prop, double beat, float defaultValue)
   {
     if (g.StoryboardEvents is null || !g.StoryboardEvents.TryGetValue(prop, out _))
       return defaultValue;
 
-    return g.StoryboardEvents.Evaluate(prop, beat, new(defaultValue)).X;
+    return g.StoryboardEvents.Evaluate(prop, beat, new AnyValue(defaultValue)).X;
   }
 }
 

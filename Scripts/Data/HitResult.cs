@@ -79,9 +79,9 @@ public struct HitResult
       weight = Constants.HitResult.ResultWeight[HitResultType.Miss];
     }
 
-    if (note.Type == NoteType.Hold) weight *= 2f;
+    if (note.Type is NoteType.Hold) weight *= 2f;
 
-    return new() { Weight = weight, OffsetMs = offsetMs, Note = note, Type = type };
+    return new HitResult() { Weight = weight, OffsetMs = offsetMs, Note = note, Type = type };
   }
 
   /// <summary>Drag notes: within 160ms = auto 1.0.</summary>
@@ -98,7 +98,6 @@ public struct HitResult
       HitResultType.Perfect
       : HitResultType.Miss;
 
-    return new() { Weight = weight, OffsetMs = offsetMs, Note = note, Type = type };
+    return new HitResult() { Weight = weight, OffsetMs = offsetMs, Note = note, Type = type };
   }
 }
-

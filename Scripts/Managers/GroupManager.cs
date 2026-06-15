@@ -12,7 +12,7 @@ namespace Winithm.Core.Managers;
 /// </summary>
 public class GroupManager : IObjectManager<GroupData>
 {
-  public event Action<GroupManager> OnUpdated;
+  public event Action<GroupManager>? OnUpdated;
 
   private readonly Dictionary<string, GroupData> _groupCollection = [];
   public int Count => _groupCollection.Count;
@@ -20,13 +20,13 @@ public class GroupManager : IObjectManager<GroupData>
   public IEnumerator<GroupData> GetEnumerator() => _groupCollection.Values.GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-  public GroupData this[string id] => _groupCollection.TryGetValue(id, out var g) ? g : null;
-  public GroupData this[int index] => _groupCollection.Values.ElementAtOrDefault(index);
+  public GroupData? this[string id] => _groupCollection.TryGetValue(id, out var g) ? g : null;
+  public GroupData? this[int index] => _groupCollection.Values.ElementAtOrDefault(index);
 
   public ICollection<string> Keys => _groupCollection.Keys;
   public ICollection<GroupData> Values => _groupCollection.Values;
 
-  public bool TryGetValue(string id, out GroupData data) => _groupCollection.TryGetValue(id, out data);
+  public bool TryGetValue(string id, out GroupData? data) => _groupCollection.TryGetValue(id, out data);
 
   private int _updateLockCount = 0;
 
@@ -101,7 +101,7 @@ public class GroupManager : IObjectManager<GroupData>
     return success;
   }
 
-  public GroupData GetGroup(string id)
+  public GroupData? GetGroup(string id)
   {
     if (string.IsNullOrEmpty(id)) return null;
 

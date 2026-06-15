@@ -23,11 +23,11 @@ public class NodePool<T> : ObjectPool<T> where T : Node
   /// <param name="maxSize">Max stack size (objects beyond this are queued free).</param>
   public NodePool(
       Node parent,
-      PackedScene scene = null,
-      Func<T> createFunc = null,
-      Action<T> actionOnGet = null,
-      Action<T> actionOnRelease = null,
-      Action<T> actionOnDestroy = null,
+      PackedScene? scene = null,
+      Func<T>? createFunc = null,
+      Action<T>? actionOnGet = null,
+      Action<T>? actionOnRelease = null,
+      Action<T>? actionOnDestroy = null,
       bool collectionCheck = true,
       int defaultCapacity = 10,
       int maxSize = 10000)

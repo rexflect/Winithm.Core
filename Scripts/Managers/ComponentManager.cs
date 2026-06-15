@@ -20,7 +20,7 @@ public enum ComponentType
 /// </summary>
 public class ComponentManager : IObjectManager<ComponentType, ComponentData>
 {
-  public event Action<ComponentManager> OnUpdated;
+  public event Action<ComponentManager>? OnUpdated;
 
   private readonly Dictionary<ComponentType, ComponentData> _componentDictionary = [];
 
@@ -29,22 +29,22 @@ public class ComponentManager : IObjectManager<ComponentType, ComponentData>
   public IEnumerator<KeyValuePair<ComponentType, ComponentData>> GetEnumerator() => _componentDictionary.GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => _componentDictionary.GetEnumerator();
 
-  public ComponentData this[ComponentType type] => _componentDictionary.TryGetValue(type, out var c) ? c : null;
-  public ComponentData this[int index] => Enumerable.ElementAtOrDefault(_componentDictionary.Values, index);
+  public ComponentData? this[ComponentType type] => _componentDictionary.TryGetValue(type, out var c) ? c : null;
+  public ComponentData? this[int index] => Enumerable.ElementAtOrDefault(_componentDictionary.Values, index);
 
   public ICollection<ComponentType> Keys => _componentDictionary.Keys;
   public ICollection<ComponentData> Values => _componentDictionary.Values;
 
   public bool ContainsKey(ComponentType key) => _componentDictionary.ContainsKey(key);
-  public bool TryGetValue(ComponentType type, out ComponentData data) => _componentDictionary.TryGetValue(type, out data);
+  public bool TryGetValue(ComponentType type, out ComponentData? data) => _componentDictionary.TryGetValue(type, out data);
 
   public ComponentManager()
   {
     BeginUpdate();
-    SetComponent(ComponentType.Info, new());
-    SetComponent(ComponentType.Difficulty, new());
-    SetComponent(ComponentType.Combo, new());
-    SetComponent(ComponentType.Score, new());
+    SetComponent(ComponentType.Info, new ComponentData());
+    SetComponent(ComponentType.Difficulty, new ComponentData());
+    SetComponent(ComponentType.Combo, new ComponentData());
+    SetComponent(ComponentType.Score, new ComponentData());
     EndUpdate();
   }
 

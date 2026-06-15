@@ -10,26 +10,20 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class ThemeChannelData : IStoryboardable<StoryboardProperty>, IDeepCloneable<ThemeChannelData>
 {
-  public event Action<ThemeChannelData> OnUpdated;
+  public event Action<ThemeChannelData>? OnUpdated;
 
-  public string ID;
-  private string _name;
-  public string Name { get => _name; set { if (_name == value) return; _name = value; OnUpdated?.Invoke(this); } }
+  public string ID = "";
+  public string Name { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
 
-  private float _initR = 0f;
-  public float InitR { get => _initR; set { if (_initR == value) return; _initR = value; OnUpdated?.Invoke(this); } }
+  public float InitR { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
 
-  private float _initG = 0f;
-  public float InitG { get => _initG; set { if (_initG == value) return; _initG = value; OnUpdated?.Invoke(this); } }
+  public float InitG { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
 
-  private float _initB = 0f;
-  public float InitB { get => _initB; set { if (_initB == value) return; _initB = value; OnUpdated?.Invoke(this); } }
+  public float InitB { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
 
-  private float _initA = 1f;
-  public float InitA { get => _initA; set { if (_initA == value) return; _initA = value; OnUpdated?.Invoke(this); } }
+  public float InitA { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
 
-  private float _initNoteA = 1f;
-  public float InitNoteA { get => _initNoteA; set { if (_initNoteA == value) return; _initNoteA = value; OnUpdated?.Invoke(this); } }
+  public float InitNoteA { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
 
   public StoryboardManager<StoryboardProperty> StoryboardEvents { get; set; } = new();
 
@@ -52,7 +46,7 @@ public class ThemeChannelData : IStoryboardable<StoryboardProperty>, IDeepClonea
     cloned.InitB = InitB;
     cloned.InitA = InitA;
     cloned.InitNoteA = InitNoteA;
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset);
+    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
 
     // Re-wire bubbling to the cloned StoryboardEvents
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;

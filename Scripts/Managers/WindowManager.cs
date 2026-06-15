@@ -11,9 +11,9 @@ namespace Winithm.Core.Managers;
 /// </summary>
 public class WindowManager : IObjectManager<WindowData>
 {
-  public event Action<WindowManager> OnUpdated;
+  public event Action<WindowManager>? OnUpdated;
 
-  private Metronome _metronome;
+  private Metronome? _metronome;
 
   /// <summary>
   /// Collection of windows sorted by StartBeat.
@@ -27,9 +27,9 @@ public class WindowManager : IObjectManager<WindowData>
 
   public ICollection<WindowData> Values => _windowCollection;
 
-  public WindowData this[int index] => _windowCollection.ElementAtOrDefault(index);
+  public WindowData? this[int index] => _windowCollection.ElementAtOrDefault(index);
 
-  public bool TryGetValue(string id, out WindowData value)
+  public bool TryGetValue(string id, out WindowData? value)
   {
     value = GetWindow(id);
     return value is not null;
@@ -281,7 +281,7 @@ public class WindowManager : IObjectManager<WindowData>
     if (string.IsNullOrEmpty(id)) return false;
 
     var windowData = _windowCollection.FirstOrDefault(w => w.ID == id);
-    if (windowData == default) return false;
+    if (windowData is null) return false;
 
     UnsubscribeChangeEvent(windowData);
     _windowCollection.Remove(windowData);
@@ -308,13 +308,13 @@ public class WindowManager : IObjectManager<WindowData>
   // Fetch Methods
   // ==========================================
 
-  public WindowData GetWindow(string id)
+  public WindowData? GetWindow(string id)
   {
     if (string.IsNullOrEmpty(id)) return null;
 
     var result = _windowCollection.FirstOrDefault(w => w.ID == id);
 
-    if (result == default) return null;
+    if (result is null) return null;
 
     return result;
   }

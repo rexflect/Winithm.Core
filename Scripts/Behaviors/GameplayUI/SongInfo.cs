@@ -4,7 +4,7 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class SongInfo : Control
 {
-  public struct LastState
+  public record struct LastState
   {
     public Color TextColor, TextOutLineColor, CompBackgroundColor;
     public string SongName;
@@ -19,18 +19,19 @@ public partial class SongInfo : Control
   [Export] public Color CompBackgroundColor = new(0.25f, 0.25f, 0.25f);
   [Export] public string SongName = "Song Name";
   [Export] public float BPM = 120f;
-  [Export] public Texture2D SongIcon =
+  [Export]
+  public Texture2D SongIcon =
     GD.Load<Texture2D>("res://Winithm.Core/Resources/Textures/song_placeholder_image.png");
   [Export] public Vector2 IconCenter = new(0.5f, 0.5f);
   [Export] public float IconSize = 1f;
 
   private LastState _lastState = new();
 
-  private TextureRect _icon;
-  private Label _name;
-  private Label _bpm;
-  private ColorRect _background;
-  private AtlasTexture _atlasTex;
+  private TextureRect? _icon;
+  private Label? _name;
+  private Label? _bpm;
+  private ColorRect? _background;
+  private AtlasTexture? _atlasTex;
 
   public override void _Ready()
   {
@@ -61,16 +62,13 @@ public partial class SongInfo : Control
 
   private void UpdateColor()
   {
-    if (_name is not null)
-    {
-      _name.AddThemeColorOverride("font_color", TextColor);
-      _name.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-    }
-    if (_bpm is not null)
-    {
-      _bpm.AddThemeColorOverride("font_color", TextColor);
-      _bpm.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-    }
+
+    _name?.AddThemeColorOverride("font_color", TextColor);
+    _name?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
+
+
+    _bpm?.AddThemeColorOverride("font_color", TextColor);
+    _bpm?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
 
     if (_background is { Material: ShaderMaterial mat })
     {
@@ -85,29 +83,22 @@ public partial class SongInfo : Control
 
   private void UpdateIcon()
   {
-    if (_icon is not null)
+    _atlasTex = new AtlasTexture
     {
-      if (SongIcon is not null)
-      {
-        _atlasTex ??= new();
-        _atlasTex.Atlas = SongIcon;
+      Atlas = SongIcon
+    };
 
-        var texSize = SongIcon.GetSize();
-        float minDim = Mathf.Min(texSize.X, texSize.Y);
-        float zoom = Mathf.Max(0.01f, IconSize);
-        float cropSize = minDim / zoom;
+    var texSize = SongIcon.GetSize();
+    float minDim = Mathf.Min(texSize.X, texSize.Y);
+    float zoom = Mathf.Max(0.01f, IconSize);
+    float cropSize = minDim / zoom;
 
-        var centerPx = new Vector2(texSize.X * IconCenter.X, texSize.Y * IconCenter.Y);
-        var topLeft = centerPx - new Vector2(cropSize / 2f, cropSize / 2f);
+    var centerPx = new Vector2(texSize.X * IconCenter.X, texSize.Y * IconCenter.Y);
+    var topLeft = centerPx - new Vector2(cropSize / 2f, cropSize / 2f);
 
-        _atlasTex.Region = new(topLeft, new(cropSize, cropSize));
-        _icon.Texture = _atlasTex;
-      }
-      else
-      {
-        _icon.Texture = null;
-      }
-    }
+    _atlasTex.Region = new Rect2(topLeft, new Vector2(cropSize, cropSize));
+    _icon?.Texture = _atlasTex;
+
 
     _lastState.SongIcon = SongIcon;
     _lastState.IconCenter = IconCenter;
@@ -116,16 +107,10 @@ public partial class SongInfo : Control
 
   private void UpdateInfo()
   {
-    if (_name is not null)
-    {
-      _name.Text = SongName;
-    }
-    if (_bpm is not null)
-    {
-      _bpm.Text = $"BPM: {BPM}";
-    }
+    _name?.Text = SongName;
+    _bpm?.Text = $"BPM: {BPM}";
 
-    if (_background is not null && _name is not null && _bpm is not null)
+    if (_name is not null && _bpm is not null)
     {
       float nameWidth = _name.Size.X;
       float bpmWidth = _bpm.Size.X;
@@ -135,12 +120,10 @@ public partial class SongInfo : Control
       float bgWidth = maxTextWidth + 20f; // 5px padding on left and right
 
       // Height matches song icon
-      _background.Position = new(textStartX - 10f, _icon is not null ? _icon.OffsetTop : -50f);
-      _background.Size = new(bgWidth, _icon is not null ? _icon.Size.Y : 50f);
-
-      if (_background.Material is ShaderMaterial mat)
+      if (_icon is not null)
       {
-        mat.SetShaderParameter("rect_size", _background.Size);
+        _background?.Position = new Vector2(textStartX - 10f, _icon.OffsetTop);
+        _background?.Size = new Vector2(bgWidth, _icon.Size.Y);
       }
     }
 

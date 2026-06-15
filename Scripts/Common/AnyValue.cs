@@ -1,3 +1,4 @@
+using Godot;
 using System;
 using System.Globalization;
 
@@ -21,7 +22,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
   public float Y;
   public float Z;
   public float W;
-  public string StringValue;
+  public string? StringValue;
   public AnyValueType Type;
 
   public AnyValue(float x)
@@ -85,21 +86,23 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
   /// <summary>Parses string to AnyValue. Vector delimiter is '|'.</summary>
   public static AnyValue Parse(string text)
   {
-    if (string.IsNullOrWhiteSpace(text)) return new("");
+    if (string.IsNullOrWhiteSpace(text)) return new AnyValue("");
 
     text = text.Trim();
 
     // Inheritance marker
-    if (text is "-") return new() { Type = AnyValueType.Inherited };
+    if (text is "-") return new AnyValue() { Type = AnyValueType.Inherited };
 
     // Pipe-separated vector
-    if (text.Contains("|"))
+    if (text.Contains('|'))
     {
-      string[] parts = text.Split('|');
+      var parts = text.Split('|');
       int count = Math.Min(parts.Length, 4);
 
-      ReadOnlySpan<AnyValueType> vecTypes = [AnyValueType.Float, AnyValueType.Vec2, AnyValueType.Vec3, AnyValueType.Vec4];
-      AnyValue result = new() { Type = vecTypes[Math.Min(count - 1, 3)] };
+      var vecTypes = new ReadOnlySpan<AnyValueType>(
+        [AnyValueType.Float, AnyValueType.Vec2, AnyValueType.Vec3, AnyValueType.Vec4]
+      );
+      var result = new AnyValue() { Type = vecTypes[Math.Min(count - 1, 3)] };
 
       if (count > 0) float.TryParse(parts[0].Trim(), NumberStyles.Float, ParserUtils.INV, out result.X);
       if (count > 1) float.TryParse(parts[1].Trim(), NumberStyles.Float, ParserUtils.INV, out result.Y);
@@ -111,17 +114,17 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     // Boolean
     if (ParserUtils.TryParseBool(text, out bool bValue))
     {
-      return new(bValue);
+      return new AnyValue(bValue);
     }
 
     // Plain number (float)
     if (ParserUtils.TryParseFloat(text, out float fValue))
     {
-      return new(fValue);
+      return new AnyValue(fValue);
     }
 
     // String
-    return new(text.Trim('\"'));
+    return new AnyValue(text.Trim('\"'));
   }
 
   /// <summary>Linearly interpolates numeric types. Non-numeric types snap at t >= 1.</summary>
@@ -142,7 +145,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     int sizeTo = ComponentCount(to.Type);
     int maxSize = Math.Max(sizeFrom, sizeTo);
 
-    AnyValue result = new()
+    var result = new AnyValue()
     {
       // Determine resulting type based on max component count
       Type = maxSize switch
@@ -163,14 +166,14 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     return result;
   }
 
-  public readonly Godot.Color ToGodotColor(float alpha = 1f)
+  public readonly Color ToGodotColor(float alpha = 1f)
   {
-    if (Type is AnyValueType.Vec4) return new(X, Y, Z, W);
-    return new(X, Y, Z, alpha);
+    if (Type is AnyValueType.Vec4) return new Color(X, Y, Z, W);
+    return new Color(X, Y, Z, alpha);
   }
 
-  public readonly Godot.Vector2 ToGodotVector2() => new(X, Y);
-  public readonly Godot.Vector3 ToGodotVector3() => new(X, Y, Z);
+  public readonly Vector2 ToGodotVector2() => new(X, Y);
+  public readonly Vector3 ToGodotVector3() => new(X, Y, Z);
 
   public override readonly string ToString()
   {
@@ -203,7 +206,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     return SquaredMagnitude(this).CompareTo(SquaredMagnitude(other));
   }
 
-  public readonly int CompareTo(object obj)
+  public readonly int CompareTo(object? obj)
   {
     if (obj is null) return 1;
     if (obj is AnyValue other) return CompareTo(other);
@@ -222,7 +225,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     };
   }
 
-  public override readonly bool Equals(object obj)
+  public override readonly bool Equals(object? obj)
   {
     if (obj is AnyValue other) return Equals(other);
     return false;
@@ -268,7 +271,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
   public static AnyValue operator +(AnyValue a, AnyValue b)
   {
     AssertNumeric(a); AssertNumeric(b);
-    AnyValue r = MakeResultShell(a, b);
+    var r = MakeResultShell(a, b);
     int n = ComponentCount(r.Type);
     if (n >= 1) r.X = a.X + b.X;
     if (n >= 2) r.Y = a.Y + b.Y;
@@ -281,7 +284,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
   public static AnyValue operator -(AnyValue a, AnyValue b)
   {
     AssertNumeric(a); AssertNumeric(b);
-    AnyValue r = MakeResultShell(a, b);
+    var r = MakeResultShell(a, b);
     int n = ComponentCount(r.Type);
     if (n >= 1) r.X = a.X - b.X;
     if (n >= 2) r.Y = a.Y - b.Y;
@@ -296,7 +299,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
 
     if (ComponentCount(a.Type) == 1 && ComponentCount(b.Type) > 1)
     {
-      AnyValue r = b;
+      var r = b;
       int n = ComponentCount(b.Type);
       if (n >= 1) r.X = b.X * a.X;
       if (n >= 2) r.Y = b.Y * a.X;
@@ -306,7 +309,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     }
     if (ComponentCount(b.Type) == 1 && ComponentCount(a.Type) > 1)
     {
-      AnyValue r = a;
+      var r = a;
       int n = ComponentCount(a.Type);
       if (n >= 1) r.X = a.X * b.X;
       if (n >= 2) r.Y = a.Y * b.X;
@@ -315,7 +318,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
       return r;
     }
 
-    AnyValue shell = MakeResultShell(a, b);
+    var shell = MakeResultShell(a, b);
     int count = ComponentCount(shell.Type);
     if (count >= 1) shell.X = a.X * b.X;
     if (count >= 2) shell.Y = a.Y * b.Y;
@@ -331,7 +334,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
     if (ComponentCount(b.Type) == 1)
     {
       if (b.X == 0f) throw new DivideByZeroException("[AnyValue] Cannot divide by zero scalar.");
-      AnyValue r = a;
+      var r = a;
       int count = ComponentCount(a.Type);
       if (count >= 1) r.X = a.X / b.X;
       if (count >= 2) r.Y = a.Y / b.X;
@@ -340,7 +343,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
       return r;
     }
 
-    AnyValue shell = MakeResultShell(a, b);
+    var shell = MakeResultShell(a, b);
     int n = ComponentCount(shell.Type);
     if (n >= 1) { if (b.X == 0f) throw new DivideByZeroException("[AnyValue] Division by zero in X component."); shell.X = a.X / b.X; }
     if (n >= 2) { if (b.Y == 0f) throw new DivideByZeroException("[AnyValue] Division by zero in Y component."); shell.Y = a.Y / b.Y; }
@@ -353,7 +356,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
   public static AnyValue operator -(AnyValue a)
   {
     AssertNumeric(a);
-    AnyValue r = a;
+    var r = a;
     r.X = -a.X; r.Y = -a.Y; r.Z = -a.Z; r.W = -a.W;
     return r;
   }
@@ -376,7 +379,7 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
   private static AnyValue MakeResultShell(AnyValue a, AnyValue b)
   {
     int maxSize = Math.Max(ComponentCount(a.Type), ComponentCount(b.Type));
-    return new()
+    return new AnyValue()
     {
       Type = maxSize switch
       {
@@ -388,8 +391,6 @@ public struct AnyValue : IComparable, IComparable<AnyValue>, IEquatable<AnyValue
       }
     };
   }
-
-
 
   /// <summary>
   /// Returns the squared magnitude (dot product with itself) for ordering purposes.

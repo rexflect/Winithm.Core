@@ -10,29 +10,22 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class GroupData : IStoryboardable<StoryboardProperty>, IDeepCloneable<GroupData>
 {
-  public event Action<GroupData> OnUpdated;
+  public event Action<GroupData>? OnUpdated;
 
-  public string ID;
-  private string _name;
-  public string Name { get => _name; set { if (_name == value) return; _name = value; OnUpdated?.Invoke(this); } }
+  public string ID = "";
+  public string Name { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
 
-  private string _parentGroupID;
-  public string ParentGroupID { get => _parentGroupID; set { if (_parentGroupID == value) return; _parentGroupID = value; OnUpdated?.Invoke(this); } }
+  public string ParentGroupID { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
 
-  private float _initX = 0f;
-  public float InitX { get => _initX; set { if (_initX == value) return; _initX = value; OnUpdated?.Invoke(this); } }
+  public float InitX { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
 
-  private float _initY = 0f;
-  public float InitY { get => _initY; set { if (_initY == value) return; _initY = value; OnUpdated?.Invoke(this); } }
+  public float InitY { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
 
-  private float _initScaleX = 1f;
-  public float InitScaleX { get => _initScaleX; set { if (_initScaleX == value) return; _initScaleX = value; OnUpdated?.Invoke(this); } }
+  public float InitScaleX { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
 
-  private float _initScaleY = 1f;
-  public float InitScaleY { get => _initScaleY; set { if (_initScaleY == value) return; _initScaleY = value; OnUpdated?.Invoke(this); } }
+  public float InitScaleY { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
 
-  private float _initRotation = 0f;
-  public float InitRotation { get => _initRotation; set { if (_initRotation == value) return; _initRotation = value; OnUpdated?.Invoke(this); } }
+  public float InitRotation { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
 
   public StoryboardManager<StoryboardProperty> StoryboardEvents { get; set; } = new();
 
@@ -56,7 +49,7 @@ public class GroupData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Gro
     cloned.InitScaleX = InitScaleX;
     cloned.InitScaleY = InitScaleY;
     cloned.InitRotation = InitRotation;
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset);
+    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
 
     // Re-wire bubbling to the cloned StoryboardEvents
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;

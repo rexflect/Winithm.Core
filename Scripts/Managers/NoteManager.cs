@@ -23,13 +23,13 @@ public enum NoteSide
 public class NoteManager :
   IDeepCloneable<NoteManager>, IObjectManager<NoteSide, List<NoteData>>
 {
-  public event Action<double> OnNoteAddedAtBeat;
-  public event Action<double> OnNoteRemovedAtBeat;
+  public event Action<double>? OnNoteAddedAtBeat;
+  public event Action<double>? OnNoteRemovedAtBeat;
 
-  public event Action<NoteManager> OnLifeCycleChanged;
-  public event Action<NoteManager> OnUpdated;
+  public event Action<NoteManager>? OnLifeCycleChanged;
+  public event Action<NoteManager>? OnUpdated;
 
-  private WindowData _windowData;
+  private WindowData? _windowData;
 
   private readonly Dictionary<NoteSide, List<NoteData>> _noteCollection = [];
 
@@ -38,13 +38,13 @@ public class NoteManager :
   public IEnumerator<KeyValuePair<NoteSide, List<NoteData>>> GetEnumerator() => _noteCollection.GetEnumerator();
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-  public List<NoteData> this[NoteSide side] => _noteCollection.TryGetValue(side, out var list) ? list : null;
-  public List<NoteData> this[int index] => _noteCollection.Values.ElementAtOrDefault(index);
+  public List<NoteData>? this[NoteSide side] => _noteCollection.TryGetValue(side, out var list) ? list : null;
+  public List<NoteData>? this[int index] => _noteCollection.Values.ElementAtOrDefault(index);
 
   public ICollection<NoteSide> Keys => _noteCollection.Keys;
   public ICollection<List<NoteData>> Values => _noteCollection.Values;
 
-  public bool TryGetValue(NoteSide side, out List<NoteData> data) => _noteCollection.TryGetValue(side, out data);
+  public bool TryGetValue(NoteSide side, out List<NoteData>? data) => _noteCollection.TryGetValue(side, out data);
 
   public bool ContainsKey(NoteSide side) => _noteCollection.ContainsKey(side);
 
@@ -122,7 +122,7 @@ public class NoteManager :
 
   public void SetWindowData(WindowData windowData)
   {
-    _windowData = windowData ?? throw new ArgumentNullException(nameof(windowData));
+    _windowData = windowData;
     RequestRecompute();
     NotifyChanged();
   }
@@ -146,8 +146,8 @@ public class NoteManager :
     }
 
     TotalNoteCount = 0;
-    BeatTime prevExpectedEndCloseBeat = ExpectedEndCloseBeat;
-    BeatTime prevWindowEndBeat = _windowData.EndBeat;
+    var prevExpectedEndCloseBeat = ExpectedEndCloseBeat;
+    var prevWindowEndBeat = _windowData.EndBeat;
 
     ExpectedStartFocusBeat = _windowData.UnFocus ? _windowData.StartBeat : BeatTime.Min;
     ExpectedEndCloseBeat = _windowData.EndBeat;
@@ -156,7 +156,7 @@ public class NoteManager :
     {
       TotalNoteCount += notes.Count;
 
-      foreach (NoteData note in notes)
+      foreach (var note in notes)
       {
         if (note.Type is NoteType.Focus && note.IsHittable)
         {
@@ -442,7 +442,7 @@ public class NoteManager :
     return success;
   }
 
-  public NoteData GetNote(NoteSide side, string id)
+  public NoteData? GetNote(NoteSide side, string id)
   {
     if (string.IsNullOrEmpty(id)) return null;
 
@@ -450,7 +450,7 @@ public class NoteManager :
 
     var result = notes.FirstOrDefault((n) => n.ID == id);
 
-    if (result == default) return null;
+    if (result is null) return null;
     return result;
   }
 
@@ -467,7 +467,7 @@ public class NoteManager :
     return result;
   }
 
-  public NoteData GetNote(string id)
+  public NoteData? GetNote(string id)
   {
     if (string.IsNullOrEmpty(id)) return null;
 

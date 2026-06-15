@@ -12,7 +12,7 @@ namespace Winithm.Core.Managers;
 /// </summary>
 public class OverlayManager : IObjectManager<OverlayData>
 {
-  public event Action<OverlayManager> OnUpdated;
+  public event Action<OverlayManager>? OnUpdated;
 
 
   /// <summary>
@@ -25,10 +25,10 @@ public class OverlayManager : IObjectManager<OverlayData>
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 
-  public OverlayData this[int index] => _overlayCollection.ElementAtOrDefault(index);
+  public OverlayData? this[int index] => _overlayCollection.ElementAtOrDefault(index);
 
   public ICollection<OverlayData> Values => _overlayCollection;
-  public bool TryGetValue(string id, out OverlayData value)
+  public bool TryGetValue(string id, out OverlayData? value)
   {
     value = GetOverlay(id);
     return value is not null;
@@ -154,7 +154,7 @@ public class OverlayManager : IObjectManager<OverlayData>
     if (string.IsNullOrEmpty(id)) return false;
 
     var overlay = _overlayCollection.FirstOrDefault(o => o.ID == id);
-    if (overlay == default) return false;
+    if (overlay is null) return false;
 
     UnsubscribeChangeEvent(overlay);
     _overlayCollection.Remove(overlay);
@@ -180,13 +180,13 @@ public class OverlayManager : IObjectManager<OverlayData>
   // Fetch Methods
   // ==========================================
 
-  public OverlayData GetOverlay(string id)
+  public OverlayData? GetOverlay(string id)
   {
     if (string.IsNullOrEmpty(id)) return null;
 
     var result = _overlayCollection.FirstOrDefault(o => o.ID == id);
 
-    if (result == default) return null;
+    if (result is null) return null;
 
     return result;
   }

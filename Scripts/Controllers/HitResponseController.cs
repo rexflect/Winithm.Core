@@ -8,15 +8,15 @@ namespace Winithm.Core.Controllers;
 
 public partial class HitResponseController : Node
 {
-  private Control _hitFXLayer;
-  private NoteController _noteController;
+  private Control? _hitFXLayer;
+  private NoteController? _noteController;
 
-  [Export] public Vector2 PlayerAreaSize { set; get; } = new(1280, 720);
+  [Export] public Vector2 PlayerAreaSize { set; get; } = new Vector2(1280, 720);
   [Export] public float HitSoundVolume { set; get; } = 0.5f;
 
   private readonly Dictionary<PackedScene, NodePool<HitFX>> _hitFXPools = [];
   private readonly Dictionary<HitFX, PackedScene> _sceneByInstance = [];
-  private NodePool<AudioStreamPlayer> _hitSoundPool;
+  private NodePool<AudioStreamPlayer>? _hitSoundPool;
 
   // ─────────────────────────────────────────────────────────────────────────
   public void Initialize(Control hitFXLayer, NoteController noteController)
@@ -38,7 +38,7 @@ public partial class HitResponseController : Node
     if (note is null) return;
 
     // Get resource pack (override by note, otherwise use active)
-    ResourcePack resourcePack = note.ResourcePack.HasValue
+    var resourcePack = note.ResourcePack.HasValue
         ? note.ResourcePack.Value
         : ResourcePackManager.Instance.GetActiveResourcePack();
 
@@ -46,7 +46,7 @@ public partial class HitResponseController : Node
     {
       if (soundStream is null) return;
 
-      AudioStreamPlayer player = GetHitSoundPool().Get();
+      var player = GetHitSoundPool().Get();
       player.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
       player.Stream = soundStream;
       player.Play();
@@ -59,18 +59,18 @@ public partial class HitResponseController : Node
     if (!IsInstanceValid(_noteController) || note is null || !IsInstanceValid(_hitFXLayer))
       return;
 
-    if (!_noteController.TryGetNoteGlobalTransformInfo(windowId, note, out var info))
+    if (!_noteController!.TryGetNoteGlobalTransformInfo(windowId, note, out var info))
       return;
 
-    ResourcePack resourcePack = note.ResourcePack.HasValue
+    var resourcePack = note.ResourcePack.HasValue
         ? note.ResourcePack.Value
         : ResourcePackManager.Instance.GetActiveResourcePack();
 
-    PackedScene scene = resourcePack.HitFXScene;
+    var scene = resourcePack.HitFXScene;
     if (scene is null) return;
 
-    NodePool<HitFX> pool = GetHitFXPool(scene);
-    HitFX fx = pool.Get();
+    var pool = GetHitFXPool(scene);
+    var fx = pool.Get();
     _sceneByInstance[fx] = scene;
 
     // Reparent to the global HitFXLayer
@@ -83,7 +83,7 @@ public partial class HitResponseController : Node
 
     // NOT the canvas transform; it does not account for CanvasLayer offset.
     // Use GetScreenTransform() (Godot 4) for correct canvas-to-local conversion.
-    fx.Position = _hitFXLayer.GetScreenTransform().AffineInverse() * info.Position;
+    fx.Position = _hitFXLayer!.GetScreenTransform().AffineInverse() * info.Position;
     fx.Rotation = info.Rotation;
     fx.ZIndex = 0;
 
@@ -100,13 +100,13 @@ public partial class HitResponseController : Node
   // ─────────────────────────────────────────────────────────────────────────
   public void Prewarm(ResourcePack resourcePack)
   {
-    PackedScene scene = resourcePack.HitFXScene;
+    var scene = resourcePack.HitFXScene;
     if (scene is null) return;
 
-    NodePool<HitFX> pool = GetHitFXPool(scene); // Instantiates defaultCapacity nodes
+    var pool = GetHitFXPool(scene); // Instantiates defaultCapacity nodes
 
     // Force shader compilation to prevent first-hit stutter
-    HitFX dummy = pool.Get();
+    var dummy = pool.Get();
     _sceneByInstance[dummy] = scene;
 
     // RequestHitFX(), so Position assignment is harmless but Play() might
@@ -142,7 +142,7 @@ public partial class HitResponseController : Node
   {
     base._ExitTree();
 
-    foreach (NodePool<HitFX> pool in _hitFXPools.Values)
+    foreach (var pool in _hitFXPools.Values)
       pool.Dispose();
 
     _hitSoundPool?.Dispose();
@@ -156,11 +156,11 @@ public partial class HitResponseController : Node
     if (_hitSoundPool is not null)
       return _hitSoundPool;
 
-    _hitSoundPool = new(
+    _hitSoundPool = new NodePool<AudioStreamPlayer>(
         parent: this,
         createFunc: () =>
         {
-          AudioStreamPlayer player = new();
+          var player = new AudioStreamPlayer();
           AddChild(player);
           player.Finished += () => ReleaseHitSound(player);
           return player;
@@ -192,10 +192,10 @@ public partial class HitResponseController : Node
   // ─────────────────────────────────────────────────────────────────────────
   private NodePool<HitFX> GetHitFXPool(PackedScene scene)
   {
-    if (_hitFXPools.TryGetValue(scene, out NodePool<HitFX> existing))
+    if (_hitFXPools.TryGetValue(scene, out var existing))
       return existing;
 
-    NodePool<HitFX> pool = new(
+    var pool = new NodePool<HitFX>(
         parent: this,
         createFunc: () =>
         {

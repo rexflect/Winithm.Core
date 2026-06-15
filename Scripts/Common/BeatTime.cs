@@ -6,7 +6,7 @@ namespace Winithm.Core.Common;
 /// <summary>
 /// Deterministic timing format: B:N/D (Base beat + Numerator/Denominator).
 /// </summary>
-public struct BeatTime(int beat, int numerator, int denominator)
+public readonly struct BeatTime(int beat, int numerator, int denominator)
   : IComparable, IComparable<BeatTime>, IEquatable<BeatTime>
 {
   public int Beat { get; } = beat;
@@ -86,7 +86,7 @@ public struct BeatTime(int beat, int numerator, int denominator)
     if (denominator < 0)
       return false;
 
-    result = new(beat, numerator, denominator);
+    result = new BeatTime(beat, numerator, denominator);
     return true;
   }
 
@@ -155,7 +155,7 @@ public struct BeatTime(int beat, int numerator, int denominator)
     return (ln * rd).CompareTo(rn * ld);
   }
 
-  public readonly int CompareTo(object obj)
+  public readonly int CompareTo(object? obj)
   {
     if (obj == null)
       return 1;
@@ -168,7 +168,7 @@ public struct BeatTime(int beat, int numerator, int denominator)
 
   public readonly bool Equals(BeatTime other) => CompareTo(other) == 0;
 
-  public override bool Equals(object obj)
+  public override bool Equals(object? obj)
   {
     if (obj is BeatTime other)
       return Equals(other);
@@ -229,23 +229,23 @@ public struct BeatTime(int beat, int numerator, int denominator)
       return Zero;
 
     // Reduce to lowest terms.
-    BigInteger gcd = BigInteger.GreatestCommonDivisor(BigInteger.Abs(n), d);
+    var gcd = BigInteger.GreatestCommonDivisor(BigInteger.Abs(n), d);
     n /= gcd;
     d /= gcd;
 
     // Whole number result.
     if (d.IsOne)
-      return new((int)n, 0, 0);
+      return new BeatTime((int)n, 0, 0);
 
     // Split into beat + positive remainder (floor division).
-    BigInteger beat = BigInteger.DivRem(n, d, out BigInteger remainder);
+    var beat = BigInteger.DivRem(n, d, out BigInteger remainder);
     if (remainder.Sign < 0)
     {
       beat -= BigInteger.One;
       remainder += d;
     }
 
-    return new((int)beat, (int)remainder, (int)d);
+    return new BeatTime((int)beat, (int)remainder, (int)d);
   }
 }
 

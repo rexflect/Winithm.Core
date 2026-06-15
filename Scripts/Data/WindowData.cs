@@ -11,71 +11,37 @@ namespace Winithm.Core.Data;
 /// </summary>
 public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneable<WindowData>
 {
-  public event Action<WindowData> OnLifeCycleChanged;
-  public event Action<WindowData> OnUnFocusChanged;
-  public event Action<WindowData> OnUnResponsiveChanged;
-  public event Action<WindowData> OnUpdated;
+  public event Action<WindowData>? OnLifeCycleChanged;
+  public event Action<WindowData>? OnUnFocusChanged;
+  public event Action<WindowData>? OnUnResponsiveChanged;
+  public event Action<WindowData>? OnUpdated;
 
-  public string ID;
-  private string _name;
-  public string Name { get => _name; set { if (_name == value) return; _name = value; OnUpdated?.Invoke(this); } }
-
-  private string _title;
-  public string Title { get => _title; set { if (_title == value) return; _title = value; OnUpdated?.Invoke(this); } }
-
-  private int _layer = 0;
-  public int Layer { get => _layer; set { if (_layer == value) return; _layer = value; OnUpdated?.Invoke(this); } }
-
-  private int _subLayer = 0;
-  public int SubLayer { get => _subLayer; set { if (_subLayer == value) return; _subLayer = value; OnUpdated?.Invoke(this); } }
-
-  private float _anchorX = 0.5f;
-  public float AnchorX { get => _anchorX; set { if (_anchorX == value) return; _anchorX = value; OnUpdated?.Invoke(this); } }
-
-  private float _anchorY = 0.5f;
-  public float AnchorY { get => _anchorY; set { if (_anchorY == value) return; _anchorY = value; OnUpdated?.Invoke(this); } }
-
-  private string _groupID;
-  public string GroupID { get => _groupID; set { if (_groupID == value) return; _groupID = value; OnUpdated?.Invoke(this); } }
-
-  private string _themeChannelID;
-  public string ThemeChannelID { get => _themeChannelID; set { if (_themeChannelID == value) return; _themeChannelID = value; OnUpdated?.Invoke(this); } }
+  public string ID = "";
+  public string Name { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
+  public string Title { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
+  public int Layer { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0;
+  public int SubLayer { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0;
+  public float AnchorX { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0.5f;
+  public float AnchorY { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0.5f;
+  public string GroupID { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
+  public string ThemeChannelID { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = string.Empty;
 
   // Window Flags
-  private bool _borderless = false;
-  public bool Borderless { get => _borderless; set { if (_borderless == value) return; _borderless = value; OnUpdated?.Invoke(this); } }
-
-  private bool _unFocus = false;
-  public bool UnFocus { get => _unFocus; set { if (_unFocus == value) return; _unFocus = value; OnUnFocusChanged?.Invoke(this); } }
+  public bool Borderless { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = false;
+  public bool UnFocus { get; set { if (field == value) return; field = value; OnUnFocusChanged?.Invoke(this); } } = false;
 
   // Transform init values
-  private float _initX = 640f;
-  public float InitX { get => _initX; set { if (_initX == value) return; _initX = value; OnUpdated?.Invoke(this); } }
-
-  private float _initY = 360f;
-  public float InitY { get => _initY; set { if (_initY == value) return; _initY = value; OnUpdated?.Invoke(this); } }
-
-  private float _initScaleX = 300f;
-  public float InitScaleX { get => _initScaleX; set { if (_initScaleX == value) return; _initScaleX = value; OnUpdated?.Invoke(this); } }
-
-  private float _initScaleY = 500f;
-  public float InitScaleY { get => _initScaleY; set { if (_initScaleY == value) return; _initScaleY = value; OnUpdated?.Invoke(this); } }
+  public float InitX { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 640f;
+  public float InitY { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 360f;
+  public float InitScaleX { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 300f;
+  public float InitScaleY { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 500f;
 
   // Color init values
-  private float _initR = 0f;
-  public float InitR { get => _initR; set { if (_initR == value) return; _initR = value; OnUpdated?.Invoke(this); } }
-
-  private float _initG = 0f;
-  public float InitG { get => _initG; set { if (_initG == value) return; _initG = value; OnUpdated?.Invoke(this); } }
-
-  private float _initB = 0f;
-  public float InitB { get => _initB; set { if (_initB == value) return; _initB = value; OnUpdated?.Invoke(this); } }
-
-  private float _initA = 1f;
-  public float InitA { get => _initA; set { if (_initA == value) return; _initA = value; OnUpdated?.Invoke(this); } }
-
-  private float _initNoteA = 1f;
-  public float InitNoteA { get => _initNoteA; set { if (_initNoteA == value) return; _initNoteA = value; OnUpdated?.Invoke(this); } }
+  public float InitR { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
+  public float InitG { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
+  public float InitB { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 0f;
+  public float InitA { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
+  public float InitNoteA { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 1f;
 
   public StoryboardManager<StoryboardProperty> StoryboardEvents { get; set; } = new();
   public SpeedStepManager SpeedSteps { get; set; } = new();
@@ -87,14 +53,13 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Wi
   /// <summary>
   /// Gets or sets whether the window transitions to an unresponsive state.
   /// </summary>
-  private bool _unresponsive = false;
-  public bool Unresponsive { get => _unresponsive; set { if (_unresponsive == value) return; _unresponsive = value; OnUnResponsiveChanged?.Invoke(this); } }
+  public bool Unresponsive { get; set { if (field == value) return; field = value; OnUnResponsiveChanged?.Invoke(this); } } = false;
 
   /// <summary>
   /// List of focusable periods. Each period has a Start and End beat.
   /// A period with End == double.NaN means it is currently active (not yet ended).
   /// </summary>
-  public List<(double Start, double End)> FocusablePeriods = new();
+  public List<(double Start, double End)> FocusablePeriods = [];
 
   /// <summary>
   /// Pre-computed animation timestamps.
@@ -184,9 +149,9 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Wi
     cloned.EndBeat = EndBeat + (offset ?? BeatTime.Zero);
 
     // Clone sub-managers
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset);
-    cloned.SpeedSteps = SpeedSteps?.DeepClone(objectFactory, offset);
-    cloned.Notes = Notes?.DeepClone(objectFactory, offset);
+    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
+    cloned.SpeedSteps = SpeedSteps?.DeepClone(objectFactory, offset) ?? new SpeedStepManager();
+    cloned.Notes = Notes?.DeepClone(objectFactory, offset) ?? new NoteManager();
 
     // Re-wire sub-manager bubbling to the new clone
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;
@@ -214,12 +179,12 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Wi
     }
 
     if (
-      SpeedSteps.GetFirst().StartBeat != StartBeat ||
-      SpeedSteps.GetLast().StartBeat != EndBeat
+      SpeedSteps.GetFirst()?.StartBeat != StartBeat ||
+      SpeedSteps.GetLast()?.StartBeat != EndBeat
     )
     {
-      StartBeat = SpeedSteps.GetFirst().StartBeat;
-      EndBeat = SpeedSteps.GetLast().StartBeat;
+      StartBeat = SpeedSteps.GetFirst()?.StartBeat ?? StartBeat;
+      EndBeat = SpeedSteps.GetLast()?.StartBeat ?? StartBeat;
 
       OnLifeCycleChanged?.Invoke(this);
       return;

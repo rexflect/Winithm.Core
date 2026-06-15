@@ -29,7 +29,7 @@ public static class WNMParser
 
     string currentSection = "";
     string currentResource = "";
-    ChartReference currentChart = null;
+    ChartReference? currentChart = null;
 
     data.Audio.Metronome.BeginUpdate();
 
@@ -106,7 +106,7 @@ public static class WNMParser
 
     if (trimmed.StartsWith("+ ") && currentResource == "Song")
     {
-      string[] parts = trimmed[2..].Split(
+      var parts = trimmed[2..].Split(
         ' ',
         StringSplitOptions.RemoveEmptyEntries
       );
@@ -138,7 +138,7 @@ public static class WNMParser
         }
         if (ParserUtils.TryParseProperty(trimmed, "Preview Range:", out string previewRange))
         {
-          string[] parts = previewRange.Split(
+          var parts = previewRange.Split(
             ' ',
             StringSplitOptions.RemoveEmptyEntries
           );
@@ -150,7 +150,7 @@ public static class WNMParser
         }
         if (ParserUtils.TryParseProperty(trimmed, "Base BPM:", out string bpmBase))
         {
-          string[] parts = bpmBase.Split(
+          var parts = bpmBase.Split(
             ' ',
             StringSplitOptions.RemoveEmptyEntries
           );
@@ -180,7 +180,7 @@ public static class WNMParser
         }
         else if (ParserUtils.TryParseProperty(trimmed, "Icon Center:", out string center))
         {
-          string[] parts = center.Split(
+          var parts = center.Split(
             ' ',
             StringSplitOptions.RemoveEmptyEntries
           );
@@ -189,7 +189,7 @@ public static class WNMParser
             float IconCenterX = ParserUtils.TryParseFloat(parts[0], out float x) ? x : 0.5f;
             float IconCenterY = ParserUtils.TryParseFloat(parts[1], out float y) ? y : 0.5f;
 
-            meta.Illustration.IconCenter = new(IconCenterX, IconCenterY);
+            meta.Illustration.IconCenter = new Vector2(IconCenterX, IconCenterY);
           }
         }
         else if (ParserUtils.TryParseProperty(trimmed, "Icon Size:", out string size))
@@ -198,14 +198,14 @@ public static class WNMParser
     }
   }
 
-  private static ChartReference ParseChartReferenceLine(
-      string line, List<ChartReference> charts, ChartReference current)
+  private static ChartReference? ParseChartReferenceLine(
+      string line, List<ChartReference> charts, ChartReference? current)
   {
     string trimmed = line.TrimStart();
 
     if (trimmed.StartsWith("+ "))
     {
-      current = new();
+      current = new ChartReference();
       charts.Add(current);
       if (ParserUtils.TryParseProperty(trimmed[2..], "ID:", out string id))
         current.ID = id;
