@@ -391,9 +391,7 @@ public partial class WindowController : Node
       windowData.ComputeAnimationWhenUnresponsive(_metronome);
     }
     else
-    {
       GD.PushError("[WindowController] _metronome is not initialized to compute window animation");
-    }
   }
 
   public void AddStartFocusable(string windowId, double currentBeat)

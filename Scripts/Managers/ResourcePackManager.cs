@@ -75,9 +75,7 @@ public partial class ResourcePackManager : Node
         _activeResourcePack = pack;
       }
       else
-      {
         GD.PushError($"[NoteResourceManager] Skin pack not found: {value}");
-      }
     }
   } = "default";
 

@@ -90,9 +90,7 @@ public partial class PlayerCombo : Control
       _progressRect?.OffsetTop = yOffset;
       _progressRect?.OffsetBottom = yOffset;
     } else
-    {
       GD.PushWarning("[GameplayUI] PlayerCombo: _pauseControl is null");
-    }
   }
 
   public void UpdateVisual()

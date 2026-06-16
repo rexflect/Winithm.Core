@@ -93,13 +93,9 @@ public partial class ChartInfo : Control
         _pad?.Position = new Vector2(_background.Position.X, _background.Position.Y + _background.Size.Y);
         _pad?.Size = new Vector2(_background.Size.X, PAD_HEIGHT);
       } else
-      {
         GD.PushWarning("[GameplayUI] ChartInfo: _background is null");
-      }
     } else
-    {
       GD.PushWarning("[GameplayUI] ChartInfo: _difficult is null");
-    }
 
 
     _lastState.DifficultText = DifficultText;

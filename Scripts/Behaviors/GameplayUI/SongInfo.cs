@@ -126,13 +126,9 @@ public partial class SongInfo : Control
         _background?.Size = new Vector2(bgWidth, _icon.Size.Y);
       } 
       else
-      {
         GD.PushWarning("[GameplayUI] SongInfo: _icon is null");
-      }
     } else
-    {
       GD.PushWarning("[GameplayUI] SongInfo: _name or _bpm is null");
-    }
 
     _lastState.SongName = SongName;
     _lastState.BPM = BPM;
