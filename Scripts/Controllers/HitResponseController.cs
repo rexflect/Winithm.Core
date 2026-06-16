@@ -27,10 +27,10 @@ public partial class HitResponseController : Node
 
   // ─────────────────────────────────────────────────────────────────────────
 
-  public void RequestHitResponse(string windowId, NoteData note, HitResult result)
+  public void RequestHitResponse(string windowId, NoteData note, HitResult result, bool withSfx)
   {
     RequestHitFX(windowId, note, result);
-    RequestHitSound(note);
+    if (withSfx) RequestHitSound(note);
   }
 
   private void RequestHitSound(NoteData note)
