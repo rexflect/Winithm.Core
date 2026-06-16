@@ -16,7 +16,7 @@ public partial class DigitRoller : Control
   private float _targetY;
 
   // Must match custom_minimum_size.y on the template Label in the scene.
-  private const float ItemHeight = 33f;
+  private const float ItemHeight = 37f;
 
   // ──────────────────────────────────────────────────────────────────────────
   // Godot lifecycle
