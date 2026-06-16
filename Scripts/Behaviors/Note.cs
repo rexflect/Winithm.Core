@@ -71,7 +71,9 @@ public partial class Note : Control, IPoolable
 
   public void SetNoteType(NoteType type, ResourcePack resourcePack)
   {
-    bool isDirty = Type != type || !ReferenceEquals(ResourcePack.TEX, resourcePack.TEX);
+    bool isDirty = Type != type
+                  || !ReferenceEquals(ResourcePack.TEX, resourcePack.TEX)
+                  || (_headBase != null && _headBase.Texture == null);
     if (!isDirty) return;
 
     Type = type;
