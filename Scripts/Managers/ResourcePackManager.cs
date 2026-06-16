@@ -12,7 +12,7 @@ public enum NotePart
   Overlay
 }
 
-public struct ResourcePackConfig
+public record struct ResourcePackConfig
 {
   public bool Particle;
   public float HighlightSize;
@@ -24,7 +24,7 @@ public struct ResourcePackConfig
   public bool HitFXAdditiveBlending;
 }
 
-public struct ResourcePack
+public record struct ResourcePack
 {
   public Dictionary<NoteType, Dictionary<NotePart, Texture2D>> TEX;
   public Dictionary<NoteType, AudioStream> SFX;

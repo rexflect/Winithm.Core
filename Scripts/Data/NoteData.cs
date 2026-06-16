@@ -47,7 +47,7 @@ public class NoteData : IDeepCloneable<NoteData>
 
   public int FakeType { get; set { if (field == value) return; field = value; OnInvalidate?.Invoke(this); } } = 0;
 
-  public ResourcePack? ResourcePack { get; set { if (Nullable.Equals(field, value)) return; field = value; OnUpdated?.Invoke(this); } }
+  public ResourcePack ResourcePack { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = ResourcePackManager.Instance.GetActiveResourcePack();
 
   public bool IsHittable => FakeType == 0;
   public bool IsMutedGhost => FakeType == 1;
