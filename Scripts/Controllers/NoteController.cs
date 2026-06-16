@@ -209,16 +209,16 @@ public partial class NoteController : Node
       // Render visible notes
       for (int i = renderCursor; i < noteList.Count; i++)
       {
-        var note = noteList[i];
+        var noteData = noteList[i];
 
-        double noteStartBeat = note.StartBeat.AbsoluteValue;
-        double noteEndBeat = noteStartBeat + note.Length;
+        double noteStartBeat = noteData.StartBeat.AbsoluteValue;
+        double noteEndBeat = noteStartBeat + noteData.Length;
 
         // Skip consumed notes
-        if (note.ConsumedSessionToken == state.ConsumeSessionToken) continue;
+        if (noteData.ConsumedSessionToken == state.ConsumeSessionToken) continue;
 
         // Hold notes should disappear immediately when playback reaches their tail
-        if (note.Type is NoteType.Hold && currentBeat >= noteEndBeat) continue;
+        if (noteData.Type is NoteType.Hold && currentBeat >= noteEndBeat) continue;
 
         float headOffsetPx = state.WindowData.SpeedSteps.GetVisualOffset(
           currentBeat, noteStartBeat
@@ -227,20 +227,20 @@ public partial class NoteController : Node
         // Notes beyond viewport: all subsequent are even further (sorted by StartBeat)
         if (headOffsetPx > viewportLengthPx + offScreenMarginPx) break;
 
-        float tailOffsetPx = (note.Length == 0 || note.Type is not NoteType.Hold)
+        float tailOffsetPx = (noteData.Length == 0 || noteData.Type is not NoteType.Hold)
           ? headOffsetPx
           : state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * pixelsPerBeat * viewportScale;
 
-        if (!state.NoteVisualMap.TryGetValue(note, out var noteVisual))
-          noteVisual = SpawnNote(state, note);
+        if (!state.NoteVisualMap.TryGetValue(noteData, out var noteVisual))
+          noteVisual = SpawnNote(state, noteData);
 
-        noteVisual?.Modulate = note.IsEvaluated ? NOTE_COLOR_EVALUATED : NOTE_COLOR_DEFAULT;
+        noteVisual?.Modulate = noteData.IsEvaluated ? NOTE_COLOR_EVALUATED : NOTE_COLOR_DEFAULT;
 
         PositionNoteVisual(
-          side, note, noteVisual, headOffsetPx, tailOffsetPx, state
+          side, noteData, noteVisual, headOffsetPx, tailOffsetPx, state
         );
 
-        note.LastSeenFrameSessionToken = state.FrameSessionToken;
+        noteData.LastSeenFrameSessionToken = state.FrameSessionToken;
       }
     }
 
@@ -375,7 +375,7 @@ public partial class NoteController : Node
   // Spawn & Pool
   // =============================================
 
-  private Note? SpawnNote(WindowNoteState state, NoteData note)
+  private Note? SpawnNote(WindowNoteState state, NoteData noteData)
   {
     if (_notePool is null)
     {
@@ -385,15 +385,23 @@ public partial class NoteController : Node
 
     var noteVisual = _notePool.Get();
 
-    var parentLayer = GetNoteParentLayer(state, note);
+    var parentLayer = GetNoteParentLayer(state, noteData);
 
-    if (noteVisual.GetParent() != parentLayer)
+    var currentParent = noteVisual.GetParent();
+
+    if (currentParent == null)
+    {
+      parentLayer?.AddChild(noteVisual);
+    }
+    else if (currentParent != parentLayer)
+    {
       noteVisual.Reparent(parentLayer);
+    }
 
     // Newer notes render on top
     parentLayer?.MoveChild(noteVisual, parentLayer.GetChildCount() - 1);
 
-    state.NoteVisualMap[note] = noteVisual;
+    state.NoteVisualMap[noteData] = noteVisual;
     return noteVisual;
   }
 
@@ -443,7 +451,7 @@ public partial class NoteController : Node
 
   private void PositionNoteVisual(
     NoteSide side,
-    NoteData note,
+    NoteData noteData,
     Note? noteVisual,
     float headOffsetPx,
     float tailOffsetPx,
@@ -466,7 +474,7 @@ public partial class NoteController : Node
       ) * Note.NOTE_HEAD_HEIGHT_RATIO;
     float bodyHeight = 0f;
 
-    if (note.Type is NoteType.Hold)
+    if (noteData.Type is NoteType.Hold)
     {
       bodyHeight = Mathf.Max(0f, tailOffsetPx - headOffsetPx - headHeight);
       if (headOffsetPx < 0f)
@@ -478,25 +486,25 @@ public partial class NoteController : Node
 
     // Width depends on whether the note sits on a vertical or horizontal edge
     float noteWidth = IsVerticalSide(side)
-      ? scaledWindowSize.X * note.Width
-      : scaledWindowSize.Y * note.Width;
+      ? scaledWindowSize.X * noteData.Width
+      : scaledWindowSize.Y * noteData.Width;
 
     noteVisual.Width = noteWidth;
     noteVisual.NoteSize = PlayerNoteSize;
     noteVisual.PlayerAreaSize = playerAreaSize;
     noteVisual.BodyHeight = bodyHeight;
 
-    var resourcePack = note.ResourcePack.HasValue
-      ? note.ResourcePack.Value
+    var resourcePack = noteData.ResourcePack.HasValue
+      ? noteData.ResourcePack.Value
       : ResourcePackManager.Instance.GetActiveResourcePack();
-    noteVisual.SetNoteType(note.Type, resourcePack);
+    noteVisual.SetNoteType(noteData.Type, resourcePack);
 
     // Highlight notes sharing the same start beat (chords)
-    ApplyChordHighlight(note, noteVisual);
+    ApplyChordHighlight(noteData, noteVisual);
 
     // Lateral position: Note X is a proportion of the available free space (0 to 1).
     // Left edge = X * (1 - Width). The note is drawn centered at (Left edge + Width/2)
-    float lateralPosition = note.X * (1f - note.Width) + note.Width / 2f;
+    float lateralPosition = noteData.X * (1f - noteData.Width) + noteData.Width / 2f;
 
     var (notePosition, noteRotationDegrees) = ComputeNoteLocalPositionAndRotation(
       side, scaledWindowSize, lateralPosition, headOffsetPx
@@ -507,7 +515,7 @@ public partial class NoteController : Node
     noteVisual.UpdateVisual();
   }
 
-  private void ApplyChordHighlight(NoteData note, Note noteVisual)
+  private void ApplyChordHighlight(NoteData noteData, Note noteVisual)
   {
     if (!NoteHighlightSimulation)
     {
@@ -521,7 +529,7 @@ public partial class NoteController : Node
       return;
     }
 
-    double startBeat = note.StartBeat.AbsoluteValue;
+    double startBeat = noteData.StartBeat.AbsoluteValue;
     if (_windowManager.ChordNoteMap.TryGetValue(startBeat, out var count))
       noteVisual.SetNoteHighlighting(count >= 2);
   }
