@@ -51,7 +51,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_e2j1j")
-CompBackgroundColor = Color(0.74509805, 0.74509805, 0.74509805, 1)
 
 [node name="SongInfoTransform" type="Control" parent="." unique_id=1245442107]
 layout_mode = 1
