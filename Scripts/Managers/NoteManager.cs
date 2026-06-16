@@ -505,6 +505,30 @@ public class NoteManager :
 
   public IReadOnlyDictionary<NoteSide, List<NoteData>> GetAllNotes() => _noteCollection;
 
+  public int GetComboPassedAtBeat(double currentBeat)
+  {
+    if (ComboPrefixSum.Length == 0) return 0;
+
+    int left = 0, right = ComboEventBeats.Length - 1;
+    int best = -1;
+
+    while (left <= right)
+    {
+      int mid = left + (right - left) / 2;
+      if (ComboEventBeats[mid] <= currentBeat)
+      {
+        best = mid;
+        left = mid + 1;
+      }
+      else
+      {
+        right = mid - 1;
+      }
+    }
+
+    return best >= 0 ? ComboPrefixSum[best] : 0;
+  }
+
   // ==========================================
   // Operations
   // ==========================================

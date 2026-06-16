@@ -104,32 +104,7 @@ public partial class NoteController
     int total = 0;
     foreach (var state in WindowStates.Values)
     {
-      var comboBeats = state.WindowData.Notes.ComboEventBeats;
-      var comboPrefix = state.WindowData.Notes.ComboPrefixSum;
-
-      if (comboBeats is null || comboBeats.Length == 0) continue;
-
-      int left = 0, right = comboBeats.Length - 1;
-      int best = -1;
-
-      while (left <= right)
-      {
-        int mid = left + (right - left) / 2;
-        if (comboBeats[mid] <= currentBeat)
-        {
-          best = mid;
-          left = mid + 1;
-        }
-        else
-        {
-          right = mid - 1;
-        }
-      }
-
-      if (best >= 0)
-      {
-        total += comboPrefix[best];
-      }
+      total += state.WindowData.Notes.GetComboPassedAtBeat(currentBeat);
     }
     return total;
   }
