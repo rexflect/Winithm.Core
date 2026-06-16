@@ -33,7 +33,7 @@ public partial class Note : Control, IPoolable
   [Export] public NoteType Type { get; set; } = NoteType.Tap;
   [Export] public float NoteSize { get; set; } = 1f;
   [Export] public float BodyHeight { get; set; } = 0f;
-  public ResourcePack ResourcePack { get; set; } = ResourcePackManager.Instance.GetActiveResourcePack();
+  public ResourcePack? ResourcePack { get; set; } = null;
 
   public static readonly float NOTE_HEAD_HEIGHT_RATIO = 0.0175f;
   public static readonly float NOTE_HEAD_OVERLAY_RATIO_SIZE = 1.2f;
@@ -61,7 +61,7 @@ public partial class Note : Control, IPoolable
 
   private Texture2D? GetTextureSafe(NoteType type, NotePart part)
   {
-    if (ResourcePack.TEX?.TryGetValue(type, out var parts) is true
+    if (ResourcePack?.TEX.TryGetValue(type, out var parts) is true
         && parts.TryGetValue(part, out var tex))
     {
       return tex;
@@ -72,8 +72,7 @@ public partial class Note : Control, IPoolable
   public void SetNoteType(NoteType type, ResourcePack resourcePack)
   {
     bool isDirty = Type != type
-                  || !ReferenceEquals(ResourcePack.TEX, resourcePack.TEX)
-                  || (_headBase != null && _headBase.Texture == null);
+                  || !ReferenceEquals(ResourcePack?.TEX, resourcePack.TEX);
     if (!isDirty) return;
 
     Type = type;
@@ -81,15 +80,15 @@ public partial class Note : Control, IPoolable
 
     _bodyContainer?.Visible = Type is NoteType.Hold;
 
-    _headBase?.PatchMarginLeft = ResourcePack.Config.NinePatchHeadMarginH;
-    _headBase?.PatchMarginRight = ResourcePack.Config.NinePatchHeadMarginH;
+    _headBase?.PatchMarginLeft = resourcePack.Config.NinePatchHeadMarginH;
+    _headBase?.PatchMarginRight = resourcePack.Config.NinePatchHeadMarginH;
     _headBase?.PatchMarginTop = 0;
     _headBase?.PatchMarginBottom = 0;
 
-    _bodyBase?.PatchMarginLeft = ResourcePack.Config.NinePatchBodyMarginH;
-    _bodyBase?.PatchMarginRight = ResourcePack.Config.NinePatchBodyMarginH;
-    _bodyBase?.PatchMarginTop = ResourcePack.Config.NinePatchBodyMarginV;
-    _bodyBase?.PatchMarginBottom = ResourcePack.Config.NinePatchBodyMarginV;
+    _bodyBase?.PatchMarginLeft = resourcePack.Config.NinePatchBodyMarginH;
+    _bodyBase?.PatchMarginRight = resourcePack.Config.NinePatchBodyMarginH;
+    _bodyBase?.PatchMarginTop = resourcePack.Config.NinePatchBodyMarginV;
+    _bodyBase?.PatchMarginBottom = resourcePack.Config.NinePatchBodyMarginV;
 
     NoteType headType = Type is NoteType.Hold ? NoteType.Tap : Type;
 
@@ -108,11 +107,17 @@ public partial class Note : Control, IPoolable
 
   public void SetNoteHighlighting(bool active)
   {
+    if (ResourcePack is null)
+    {
+      GD.PushWarning("[Note] ResourcePack is not setted");
+      return;
+    }
+
     if (_headBase?.Material is ShaderMaterial shaderMaterial)
     {
       shaderMaterial.SetShaderParameter("is_highlighted", active);
       shaderMaterial.SetShaderParameter(
-        "glow_radius", BASE_HIGHTLIGHTING_SIZE * ResourcePack.Config.HighlightSize
+        "glow_radius", BASE_HIGHTLIGHTING_SIZE * ResourcePack.Value.Config.HighlightSize
       );
     }
   }
@@ -122,7 +127,9 @@ public partial class Note : Control, IPoolable
   {
     float minScale = Mathf.Min(PlayerAreaSize.X, PlayerAreaSize.Y);
     float headH = NoteSize * minScale * NOTE_HEAD_HEIGHT_RATIO;
-    float headW = MathF.Max(Width, headH * 2f);
+
+    // 1. Remove minimum width limit to allow shrinking to 0
+    float headW = MathF.Max(Width, 0f);
 
     float headScale = 1f;
     if (_headBase?.Texture is { } headTex && headTex.GetSize().Y > 0)
@@ -147,8 +154,21 @@ public partial class Note : Control, IPoolable
 
       if (_headBase?.Texture is { } baseTex)
       {
-        _headBase.Scale = new Vector2(headScale, headScale);
-        _headBase.Size = new Vector2(headW / headScale, baseTex.GetSize().Y);
+        float targetLogicW = headScale > 0 ? headW / headScale : headW;
+        float minSafeW = _headBase.PatchMarginLeft + _headBase.PatchMarginRight;
+
+        // 2. Prevent NinePatch distortion by scaling X-axis if width < margins
+        if (targetLogicW < minSafeW && minSafeW > 0)
+        {
+          _headBase.Size = new Vector2(minSafeW, baseTex.GetSize().Y);
+          _headBase.Scale = new Vector2(headScale * (targetLogicW / minSafeW), headScale);
+        }
+        else
+        {
+          _headBase.Size = new Vector2(targetLogicW, baseTex.GetSize().Y);
+          _headBase.Scale = new Vector2(headScale, headScale);
+        }
+
         _headBase.Position = Vector2.Zero;
       }
 
@@ -172,9 +192,22 @@ public partial class Note : Control, IPoolable
 
       _bodyContainer?.Position = new Vector2(-bodyW / 2f, -BodyHeight - headH);
 
+      float targetLogicW = headScale > 0 ? bodyW / headScale : bodyW;
+      float targetLogicH = headScale > 0 ? BodyHeight / headScale : BodyHeight;
+      float minSafeW = _bodyBase?.PatchMarginLeft + _bodyBase?.PatchMarginRight ?? headW;
 
-      _bodyBase?.Scale = new Vector2(headScale, headScale);
-      _bodyBase?.Size = new Vector2(headScale > 0 ? bodyW / headScale : bodyW, headScale > 0 ? BodyHeight / headScale : BodyHeight);
+      // 3. Apply the same squish logic to the body NinePatch
+      if (targetLogicW < minSafeW && minSafeW > 0)
+      {
+        _bodyBase?.Size = new Vector2(minSafeW, targetLogicH);
+        _bodyBase?.Scale = new Vector2(headScale * (targetLogicW / minSafeW), headScale);
+      }
+      else
+      {
+        _bodyBase?.Size = new Vector2(targetLogicW, targetLogicH);
+        _bodyBase?.Scale = new Vector2(headScale, headScale);
+      }
+
       _bodyBase?.Position = Vector2.Zero;
 
     }

@@ -494,9 +494,7 @@ public partial class NoteController : Node
     noteVisual.PlayerAreaSize = playerAreaSize;
     noteVisual.BodyHeight = bodyHeight;
 
-    var resourcePack = noteData.ResourcePack.HasValue
-      ? noteData.ResourcePack.Value
-      : ResourcePackManager.Instance.GetActiveResourcePack();
+    var resourcePack = noteData.ResourcePack ?? ResourcePackManager.Instance.GetActiveResourcePack();
     noteVisual.SetNoteType(noteData.Type, resourcePack);
 
     // Highlight notes sharing the same start beat (chords)
