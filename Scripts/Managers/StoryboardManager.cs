@@ -397,39 +397,31 @@ public class StoryboardManager<TProp>
   }
 
   private int AdvanceCursor(TProp prop, double currentBeat)
-  {
+{
     var events = _eventCollection[prop];
     var cursor = _propertyCursors[prop];
 
     int n = events.Count;
-    int last = Math.Min(cursor.LastIndex, n - 1);
+    int last = Math.Clamp(cursor.LastIndex, 0, n - 1);
 
-    // --- Scrubbing detection via neighbor window ---
-    double lowerBound = last > 0
-      ? events[last - 1].StartBeat.AbsoluteValue
-      : double.NegativeInfinity;
+    double currentEventStart = events[last].StartBeat.AbsoluteValue;
 
-    double upperBound = last < n - 1
-      ? events[last + 1].StartBeat.AbsoluteValue
-      : double.PositiveInfinity;
-
-    if (currentBeat < lowerBound || currentBeat > upperBound)
+    // Scrubbing: beat lùi về trước cursor hiện tại
+    if (currentBeat < currentEventStart)
     {
-      // Playhead is outside the expected neighborhood → scrubbing / seek detected.
-      int idx = FindLastStarted(prop, currentBeat);
-      cursor.LastIndex = Math.Max(0, idx);
-      return idx;
+        if (last == 0) { cursor.LastIndex = 0; return -1; }
+        int idx = FindLastStarted(prop, currentBeat);
+        cursor.LastIndex = Math.Max(0, idx);
+        return idx;
     }
 
-    // --- Normal forward walk ---
+    // Forward walk bình thường
     while (last + 1 < n && events[last + 1].StartBeat.AbsoluteValue <= currentBeat)
-      last++;
+        last++;
 
     cursor.LastIndex = last;
-
-    // Return -1 when currentBeat is still before the very first event
     return events[last].StartBeat.AbsoluteValue <= currentBeat ? last : -1;
-  }
+}
 
   private int FindLastStarted(TProp prop, double currentBeat)
   {
