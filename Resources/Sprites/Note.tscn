@@ -9,12 +9,6 @@ shader_parameter/is_highlighted = false
 shader_parameter/glow_intensity = 1.5
 shader_parameter/glow_radius = 6.0
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
-shader = ExtResource("2_shader")
-shader_parameter/is_highlighted = false
-shader_parameter/glow_intensity = 1.5
-shader_parameter/glow_radius = 6.0
-
 [node name="Note" type="Control" unique_id=1006967786]
 material = SubResource("ShaderMaterial_2vsp2")
 layout_mode = 3
@@ -33,7 +27,6 @@ layout_mode = 0
 anchors_preset = 0
 
 [node name="Base" type="NinePatchRect" parent="Head" unique_id=2054169787]
-material = SubResource("ShaderMaterial_glow")
 layout_mode = 0
 
 [node name="Overlay" type="TextureRect" parent="Head" unique_id=461630709]
