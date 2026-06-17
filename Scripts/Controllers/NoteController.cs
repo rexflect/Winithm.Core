@@ -377,7 +377,11 @@ public partial class NoteController : Node
 
   private Note? SpawnNote(WindowNoteState state, NoteData noteData)
   {
-    if (_notePool is null) return null;
+    if (_notePool is null)
+    {
+      GD.PushWarning("[NoteController] Note pool is not created with Note.tscn.");
+      return null;
+    }
 
     var noteVisual = _notePool.Get();
     var parentLayer = GetNoteParentLayer(state, noteData);
