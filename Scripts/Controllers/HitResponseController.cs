@@ -140,7 +140,7 @@ public partial class HitResponseController : Node
     }
 
     dummy.Position = PlayerAreaSize; // Off-screen position
-    dummy.Modulate = new Color(1f, 1f, 1f, 0.01f); // Nearly invisible – avoids flash
+    _hitFXLayer?.Modulate = Colors.White with { A = 0.001f }; // Nearly invisible – avoids flash
 
     dummy.Play(
         HitResultType.Perfect,
@@ -154,6 +154,8 @@ public partial class HitResponseController : Node
           ReleaseHitFX(fx);
         }
     );
+
+    _hitFXLayer?.Modulate = Colors.White; // Nearly invisible – avoids flash
   }
 
   // ─────────────────────────────────────────────────────────────────────────

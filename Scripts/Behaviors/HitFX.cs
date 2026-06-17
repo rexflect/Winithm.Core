@@ -49,7 +49,7 @@ public partial class HitFX : Node2D, IPoolable
     Visible = true;
     SetProcess(true);
 
-    ApplyBlendModeRecursive(this, additiveBlending);
+    ApplyBlendMode(additiveBlending);
     OnHitFXStarted();
   }
 
@@ -124,13 +124,9 @@ public partial class HitFX : Node2D, IPoolable
     cb?.Invoke(this);
   }
 
-  /// <summary>
-  /// Recursively sets the blend mode on every CanvasItem that owns its own
-  /// material (i.e. does not inherit from its parent).
-  /// </summary>
-  private static void ApplyBlendModeRecursive(Node node, bool additive)
+  private void ApplyBlendMode(bool additive)
   {
-    if (node is CanvasItem ci && !ci.UseParentMaterial)
+    if (this is CanvasItem ci)
     {
       var mode = additive
           ? CanvasItemMaterial.BlendModeEnum.Add
@@ -146,9 +142,5 @@ public partial class HitFX : Node2D, IPoolable
           break;
       }
     }
-
-    int count = node.GetChildCount();
-    for (int i = 0; i < count; i++)
-      ApplyBlendModeRecursive(node.GetChild(i), additive);
   }
 }
