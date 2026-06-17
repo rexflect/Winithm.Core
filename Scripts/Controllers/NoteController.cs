@@ -377,29 +377,22 @@ public partial class NoteController : Node
 
   private Note? SpawnNote(WindowNoteState state, NoteData noteData)
   {
-    if (_notePool is null)
-    {
-      GD.PushWarning("[NoteController] Note pool is not created with Note.tscn.");
-      return null;
-    }
+    if (_notePool is null) return null;
 
     var noteVisual = _notePool.Get();
-
     var parentLayer = GetNoteParentLayer(state, noteData);
-
     var currentParent = noteVisual.GetParent();
 
-    if (currentParent == null)
+    if (!IsInstanceValid(currentParent))
     {
       parentLayer?.AddChild(noteVisual);
     }
     else if (currentParent != parentLayer)
     {
-      noteVisual.Reparent(parentLayer);
+      noteVisual.Reparent(parentLayer, false);
     }
 
-    // Newer notes render on top
-    parentLayer?.MoveChild(noteVisual, parentLayer.GetChildCount() - 1);
+    parentLayer?.MoveChild(noteVisual, -1);
 
     state.NoteVisualMap[noteData] = noteVisual;
     return noteVisual;
@@ -425,7 +418,6 @@ public partial class NoteController : Node
   private void ReturnToPool(Note noteVisual)
   {
     noteVisual.Visible = false;
-    noteVisual.GetParent()?.RemoveChild(noteVisual);
     _notePool?.Release(noteVisual);
   }
 
