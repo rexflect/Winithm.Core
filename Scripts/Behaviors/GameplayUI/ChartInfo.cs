@@ -72,6 +72,7 @@ public partial class ChartInfo : Control
 
     if (IsInstanceValid(_difficult))
     {
+      _difficult.ResetSize();
 
       // Calculate exact text dimensions
       float textWidth = _difficult.Size.X;

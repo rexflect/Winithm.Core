@@ -112,6 +112,9 @@ public partial class SongInfo : Control
 
     if (IsInstanceValid(_name) && IsInstanceValid(_bpm))
     {
+      _name.ResetSize();
+      _bpm.ResetSize();
+
       float nameWidth = _name.Size.X;
       float bpmWidth = _bpm.Size.X;
       float maxTextWidth = Mathf.Max(nameWidth, bpmWidth);
