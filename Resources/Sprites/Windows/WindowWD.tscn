@@ -1,12 +1,12 @@
 [gd_scene format=3 uid="uid://em8hm7scll5x"]
 
-[ext_resource type="Script" uid="uid://dvyqwaw8mamnu" path="res://Winithm.Core/Scripts/Behaviors/WindowVS.cs" id="1_nqped"]
-[ext_resource type="Script" uid="uid://cbba682x03w16" path="res://Winithm.Core/Scripts/Behaviors/WindowFrame.cs" id="2_g5fm5"]
+[ext_resource type="Script" uid="uid://dvyqwaw8mamnu" path="res://Winithm.Core/Scripts/Behaviors/Windows/WindowWD.cs" id="1_thypv"]
+[ext_resource type="Script" uid="uid://cbba682x03w16" path="res://Winithm.Core/Scripts/Behaviors/Windows/WindowFrame.cs" id="2_thypv"]
 
-[node name="WindowVS" type="Control" unique_id=1088118390]
+[node name="WindowWD" type="Control" unique_id=1088118390]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_nqped")
+script = ExtResource("1_thypv")
 
 [node name="TitleBar" type="Control" parent="." unique_id=1229072662]
 anchors_preset = 0
@@ -50,4 +50,4 @@ grow_vertical = 2
 [node name="Frame" type="Control" parent="." unique_id=784199410]
 anchors_preset = 0
 mouse_filter = 2
-script = ExtResource("2_g5fm5")
+script = ExtResource("2_thypv")

@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using Winithm.Core.Behaviors;
+using Winithm.Core.Behaviors.Windows;
 using Winithm.Core.Data;
 using Winithm.Core.Managers;
 
@@ -45,7 +46,7 @@ public partial class NoteController : Node
   public class WindowNoteState
   {
     public required WindowData WindowData;
-    public required WindowVS WindowVisual;
+    public required WindowBase WindowVisual;
 
     public Dictionary<NoteData, Note> NoteVisualMap = [];
     public Dictionary<NoteSide, int> RenderCursors = [];
@@ -80,7 +81,7 @@ public partial class NoteController : Node
   // Window Registration
   // =============================================
 
-  public void RegisterWindow(string windowId, WindowData windowData, WindowVS windowVisual)
+  public void RegisterWindow(string windowId, WindowData windowData, WindowBase windowVisual)
   {
     if (WindowStates.ContainsKey(windowId)) return;
 

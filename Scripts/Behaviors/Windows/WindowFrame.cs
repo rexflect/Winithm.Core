@@ -1,14 +1,14 @@
 using Godot;
 
-namespace Winithm.Core.Behaviors;
+namespace Winithm.Core.Behaviors.Windows;
 
 public partial class WindowFrame : Control
 {
-  private WindowVS? _parent;
+  private WindowBase? _parent;
 
   public override void _Ready()
   {
-    _parent = GetParentOrNull<WindowVS>();
+    _parent = GetParentOrNull<WindowBase>();
   }
 
   public override void _Draw()

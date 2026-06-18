@@ -1,6 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 using Winithm.Core.Behaviors;
+using Winithm.Core.Behaviors.Windows;
 using Winithm.Core.Common;
 using Winithm.Core.Data;
 using Winithm.Core.Managers;
@@ -17,7 +18,7 @@ public partial class WindowController : Node
   protected WindowManager? _windowManager;
 
   private Control? _objectsLayer;
-  private PackedScene _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/WindowVS.tscn");
+  private PackedScene _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/Windows/WindowWD.tscn");
   [Export] public Vector2 ScreenSize = new(1280, 720);
   [Export] public Vector2 PlayerAreaSize = new(1280, 720);
 
@@ -28,7 +29,7 @@ public partial class WindowController : Node
 
   private class WindowState
   {
-    public required WindowVS Visual;
+    public required WindowBase Visual;
     public required WindowData Data;
     public ulong FrameSessionToken = 0;
   }
@@ -39,7 +40,7 @@ public partial class WindowController : Node
   private int _renderCursor = 0;
   private ulong _frameSessionToken = 1;
 
-  private NodePool<WindowVS>? _windowPool;
+  private NodePool<WindowBase>? _windowPool;
 
   public void Initialize(
     Control objectsLayer,
@@ -50,7 +51,7 @@ public partial class WindowController : Node
     NoteController noteController
   )
   {
-    _windowPool = new NodePool<WindowVS>(this, _windowScene);
+    _windowPool = new NodePool<WindowBase>(this, _windowScene);
 
     _windowStates.Clear();
     _renderCursor = 0;
@@ -122,7 +123,7 @@ public partial class WindowController : Node
       }
 
 
-      WindowVS windowVisual;
+      WindowBase windowVisual;
       if (!isActive)
       {
         windowVisual = _windowPool.Get();
@@ -145,7 +146,7 @@ public partial class WindowController : Node
       }
       else
       {
-        windowVisual = state?.Visual ?? _windowScene.Instantiate<WindowVS>();
+        windowVisual = state?.Visual ?? _windowScene.Instantiate<WindowBase>();
       }
 
       state?.FrameSessionToken = _frameSessionToken;
@@ -255,7 +256,7 @@ public partial class WindowController : Node
           AnimateFocusableOverlay(windowVisual, currentBeat);
         else
         {
-          windowVisual.UnFocusOverlayOpacity = WindowVS.UnfocusOverlayTint.A;
+          windowVisual.UnFocusOverlayOpacity = WindowBase.UnfocusOverlayTint.A;
           windowVisual.UnFocus = true;
         }
       }
@@ -332,18 +333,18 @@ public partial class WindowController : Node
   }
 
   private void AnimateFocusableOverlay(
-    WindowVS windowVisual, double currentBeat
+    WindowBase windowVisual, double currentBeat
   )
   {
     // Focus pulse: deterministic sin wave based on beat for perfect scrub rendering
     float sinVal = Mathf.Sin((float)currentBeat * FocusablePulseFrequency * Mathf.Pi);
-    float opacityVal = Mathf.Lerp(0, WindowVS.UnfocusOverlayTint.A, sinVal);
+    float opacityVal = Mathf.Lerp(0, WindowBase.UnfocusOverlayTint.A, sinVal);
     windowVisual.UnFocusOverlayOpacity = opacityVal;
     windowVisual.UnFocus = true;
   }
 
   private static void AnimateUnresponsiveOverlay(
-    WindowVS windowVisual, WindowData windowData, double currentBeat
+    WindowBase windowVisual, WindowData windowData, double currentBeat
   )
   {
     if (currentBeat < windowData.UnresponsiveStartBeat)
@@ -361,16 +362,16 @@ public partial class WindowController : Node
         / (windowData.UnresponsiveEndBeat - windowData.UnresponsiveStartBeat);
 
       float easingVal = (float)EasingFunctions.Evaluate(EasingType.CubicOut, t);
-      float overlayOpacityVal = Mathf.Lerp(0, WindowVS.UnresponsiveOverlayTint.A, easingVal);
-      float windowModulateVal = Mathf.Lerp(1, WindowVS.UnresponsiveWindowModulate.A, easingVal);
+      float overlayOpacityVal = Mathf.Lerp(0, WindowBase.UnresponsiveOverlayTint.A, easingVal);
+      float windowModulateVal = Mathf.Lerp(1, WindowBase.UnresponsiveWindowModulate.A, easingVal);
       windowVisual.UnresponsiveOverlayOpacity = overlayOpacityVal;
       windowVisual.WindowBody?.Modulate = new(1f, 1f, 1f, windowModulateVal);
     }
     else
     {
       windowVisual.IsNotRespondingTitle = true;
-      windowVisual.UnresponsiveOverlayOpacity = WindowVS.UnresponsiveOverlayTint.A;
-      windowVisual.WindowBody?.Modulate = WindowVS.UnresponsiveWindowModulate;
+      windowVisual.UnresponsiveOverlayOpacity = WindowBase.UnresponsiveOverlayTint.A;
+      windowVisual.WindowBody?.Modulate = WindowBase.UnresponsiveWindowModulate;
     }
   }
 
