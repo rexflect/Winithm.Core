@@ -103,10 +103,10 @@ public partial class WindowVS : Control, IPoolable
 
   /// <summary>
   /// Recalculates layout of TitleBar, WindowBody, and Frame.
-  /// Call after changing any exported property.
   /// </summary>
   public void UpdateVisual()
   {
+    // Check dirty states for optimized updates
     bool layoutDirty =
       Pivot != _lastState.Pivot ||
       ScreenSize != _lastState.ScreenSize ||
@@ -126,14 +126,11 @@ public partial class WindowVS : Control, IPoolable
 
     if (!layoutDirty && !titleBarDirty && !bodyDirty) return;
 
+    // Update layout dimensions and positions
     if (layoutDirty)
     {
-      float viewScale = Mathf.Abs(Mathf.Min(
-        PlayerAreaSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
-        PlayerAreaSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
-      ));
-
-      var scaledSize = WindowSize * viewScale;
+      // Use WindowSize directly since WindowController already scales it
+      var scaledSize = WindowSize;
       TitleBarHeight = Mathf.Min(ScreenSize.X, ScreenSize.Y) * TitleBarHeightRatio;
 
       float totalHeight = scaledSize.Y + (!Borderless ? TitleBarHeight : 0f);
@@ -142,19 +139,22 @@ public partial class WindowVS : Control, IPoolable
         -totalHeight * Pivot.Y + (!Borderless ? TitleBarHeight : 0f)
       );
 
+      // Apply WindowBody layout
       WindowBody?.Size = scaledSize;
       WindowBody?.Position = bodyOffset;
 
+      // Apply TitleBar layout
       TitleBar?.Visible = !Borderless;
       TitleBar?.Size = new Vector2(scaledSize.X, TitleBarHeight);
       TitleBar?.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
 
+      // Apply WindowFrame layout
       WindowFrame?.Visible = !Borderless;
       WindowFrame?.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
       WindowFrame?.Position = TitleBar?.Position ?? WindowFrame?.Position ?? Vector2.Zero;
       WindowFrame?.QueueRedraw();
-      
 
+      // Cache layout state
       _lastState.Pivot = Pivot;
       _lastState.ScreenSize = ScreenSize;
       _lastState.PlayerAreaSize = PlayerAreaSize;
@@ -162,6 +162,7 @@ public partial class WindowVS : Control, IPoolable
       _lastState.Borderless = Borderless;
     }
 
+    // Update TitleBar visual states
     if (titleBarDirty)
     {
       TitleBar?.QueueRedraw();
@@ -172,11 +173,11 @@ public partial class WindowVS : Control, IPoolable
       _lastState.IsNotRespondingTitle = IsNotRespondingTitle;
     }
 
+    // Update WindowBody visual states and note layer opacity
     if (bodyDirty)
     {
       WindowBody?.QueueRedraw();
 
-      // Apply NoteOpacity to layers containing notes
       var noteModulate = new Color(1f, 1f, 1f, NoteOpacity);
       NoteLayer?.Modulate = noteModulate;
       FocusNoteLayer?.Modulate = noteModulate;
@@ -185,7 +186,6 @@ public partial class WindowVS : Control, IPoolable
       _lastState.NoteOpacity = NoteOpacity;
     }
   }
-
   // --- Draw callbacks ---
 
   private void OnTitleBarDraw()
