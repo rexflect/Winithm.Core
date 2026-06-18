@@ -144,7 +144,7 @@ public abstract partial class WindowBase : Control, IPoolable
       Pivot != LastState.Pivot ||
       ScreenSize != LastState.ScreenSize ||
       PlayerAreaSize != LastState.PlayerAreaSize ||
-      WindowSize != LastState.WindowSize ||
+      !WindowSize.IsEqualApprox(LastState.WindowSize) ||
       Borderless != LastState.Borderless;
 
     bool titleBarDirty = layoutDirty ||
