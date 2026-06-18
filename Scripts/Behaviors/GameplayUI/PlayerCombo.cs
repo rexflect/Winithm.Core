@@ -116,11 +116,7 @@ public partial class PlayerCombo : Control
     _progressRect?.Color = TextColor;
 
 
-    if (_background is { Material: ShaderMaterial mat })
-    {
-      mat.SetShaderParameter("bg_color", CompBackgroundColor);
-      mat.SetShaderParameter("stripe_color", new Color(0f, 0f, 0f, 0f));
-    }
+    _background?.Modulate = CompBackgroundColor;
 
     _lastState.TextColor = TextColor;
     _lastState.TextOutLineColor = TextOutLineColor;

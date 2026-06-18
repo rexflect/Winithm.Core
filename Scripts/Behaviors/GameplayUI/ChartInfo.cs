@@ -52,11 +52,7 @@ public partial class ChartInfo : Control
     _difficult?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
 
 
-    if (_background is { Material: ShaderMaterial mat })
-    {
-      mat.SetShaderParameter("bg_color", CompBackgroundColor);
-      mat.SetShaderParameter("stripe_color", new Color(0f, 0f, 0f, 0f)); // Transparent
-    }
+    _background?.Modulate = CompBackgroundColor;
 
     _pad?.Color = TextColor;
 
@@ -93,9 +89,11 @@ public partial class ChartInfo : Control
       {
         _pad?.Position = new Vector2(_background.Position.X, _background.Position.Y + _background.Size.Y);
         _pad?.Size = new Vector2(_background.Size.X, PAD_HEIGHT);
-      } else
+      }
+      else
         GD.PushWarning("[GameplayUI] ChartInfo: _background is null");
-    } else
+    }
+    else
       GD.PushWarning("[GameplayUI] ChartInfo: _difficult is null");
 
 

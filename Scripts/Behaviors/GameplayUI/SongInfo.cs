@@ -70,11 +70,7 @@ public partial class SongInfo : Control
     _bpm?.AddThemeColorOverride("font_color", TextColor);
     _bpm?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
 
-    if (_background is { Material: ShaderMaterial mat })
-    {
-      mat.SetShaderParameter("bg_color", CompBackgroundColor);
-      mat.SetShaderParameter("stripe_color", new Color(0f, 0f, 0f, 0f)); // Transparent
-    }
+    _background?.Modulate = CompBackgroundColor;
 
     _lastState.TextColor = TextColor;
     _lastState.TextOutLineColor = TextOutLineColor;

@@ -54,11 +54,7 @@ public partial class PlayerScore : Control
       if (child is DigitRoller roller)
         roller.UpdateColor(TextColor, TextOutLineColor);
 
-    if (_background is { Material: ShaderMaterial mat })
-    {
-      mat.SetShaderParameter("bg_color", CompBackgroundColor);
-      mat.SetShaderParameter("stripe_color", new Color(0f, 0f, 0f, 0f));
-    }
+    _background?.Modulate = CompBackgroundColor;
 
     _padLeft?.Color = TextColor;
     _padRight?.Color = TextColor;
