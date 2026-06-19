@@ -142,10 +142,8 @@ public partial class NoteController
       return;
     }
 
-    var playerAreaSize = state.WindowVisual.PlayerAreaSize;
-    var windowSize = state.WindowVisual.WindowSize;
-    float viewportScale = ComputeViewportScale(playerAreaSize);
-    var scaledWindowSize = windowSize * viewportScale;
+    var windowVisual = state.WindowVisual;
+    var playerAreaSize = windowVisual.PlayerAreaSize;
 
     float headHeight =
       noteVisual.NoteSize * Mathf.Min(
@@ -163,10 +161,16 @@ public partial class NoteController
       }
     }
 
+    if (!IsInstanceValid(windowVisual.WindowBody))
+    {
+      GD.PushWarning("[NoteController] Window body is not exist to compute note width.");
+      return;
+    }
+
     // Width depends on whether the note sits on a vertical or horizontal edge
     float noteWidth = IsVerticalSide(side)
-      ? scaledWindowSize.X * noteData.Width
-      : scaledWindowSize.Y * noteData.Width;
+      ? windowVisual.WindowBody.Size.X * noteData.Width
+      : windowVisual.WindowBody.Size.Y * noteData.Width;
 
     noteVisual.Width = noteWidth;
     noteVisual.NoteSize = PlayerNoteSize;
@@ -184,7 +188,7 @@ public partial class NoteController
     float lateralPosition = noteData.X * (1f - noteData.Width) + noteData.Width / 2f;
 
     var (notePosition, noteRotationDegrees) = ComputeNoteLocalPositionAndRotation(
-      side, scaledWindowSize, lateralPosition, headOffsetPx
+      side, windowVisual.WindowBody.Size, lateralPosition, headOffsetPx
     );
     noteVisual.Position = notePosition;
     noteVisual.RotationDegrees = noteRotationDegrees;
