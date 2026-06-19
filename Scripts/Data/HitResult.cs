@@ -84,8 +84,8 @@ public struct HitResult
     return new HitResult() { Weight = weight, OffsetMs = offsetMs, Note = note, Type = type };
   }
 
-  /// <summary>Drag notes: within 160ms = auto 1.0.</summary>
-  public static HitResult DragHit(NoteData note, double offsetMs)
+  /// <summary>Binary result for evaluation.</summary>
+  public static HitResult FromBinary(NoteData note, double offsetMs)
   {
     double absMs = System.Math.Abs(offsetMs);
     float weight =
