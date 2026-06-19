@@ -7,7 +7,7 @@ namespace Winithm.Core.Behaviors.Windows;
 /// Flat title bar with icon (left), title text (center-left),
 /// and Close / Maximize / Minimize buttons (right).
 /// </summary>
-public partial class WindowWD : WindowBase
+public partial class WindowWD10 : WindowBase
 {
   // ---------------------------------------------------------------------------
   // Resources — loaded once per class, not per instance
@@ -20,11 +20,31 @@ public partial class WindowWD : WindowBase
 
   private static readonly FontFile _fontFile = GD.Load<FontFile>("res://Winithm.Core/Resources/Fonts/Quicksand.ttf");
 
+  protected override void OnReady()
+  {
+    base.OnReady();
+
+    WindowFrame?.Draw += OnWindowFrameDraw;
+  }
+
   // ---------------------------------------------------------------------------
-  // WindowBase hook
+  // Draw — window frame border
   // ---------------------------------------------------------------------------
 
-  protected override void OnReady() { }   // resources are static; nothing extra needed
+  protected override void OnWindowFrameDraw()
+  {
+    if (Borderless) return;
+
+    var color = TitleBarColor with { A = 0.5f };
+
+    float lineWidth = Mathf.Max(1f, TitleBarHeight * 0.025f);
+    WindowFrame?.DrawRect(
+        new Rect2(Vector2.Zero, WindowFrame.Size),
+        color,
+        false,
+        lineWidth
+    );
+  }
 
   // ---------------------------------------------------------------------------
   // Draw — title bar

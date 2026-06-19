@@ -90,10 +90,10 @@ public abstract partial class WindowBase : Control, IPoolable
     FocusNoteLayer = GetNodeOrNull<Control>("WindowBody/FocusNoteLayer");
     UnresponsiveOverlay = GetNodeOrNull<Control>("WindowBody/UnresponsiveOverlay");
 
-    if (TitleBar is not null) TitleBar.Draw += OnTitleBarDraw;
-    if (WindowBody is not null) WindowBody.Draw += OnWindowBodyDraw;
-    if (UnfocusOverlay is not null) UnfocusOverlay.Draw += OnUnfocusOverlayDraw;
-    if (UnresponsiveOverlay is not null) UnresponsiveOverlay.Draw += OnUnresponsiveOverlayDraw;
+    TitleBar?.Draw += OnTitleBarDraw;
+    WindowBody?.Draw += OnWindowBodyDraw;
+    UnfocusOverlay?.Draw += OnUnfocusOverlayDraw;
+    UnresponsiveOverlay?.Draw += OnUnresponsiveOverlayDraw;
 
     OnReady();
     UpdateVisual();
@@ -171,26 +171,21 @@ public abstract partial class WindowBase : Control, IPoolable
         -totalHeight * Pivot.Y + (!Borderless ? TitleBarHeight : 0f)
       );
 
-      if (WindowBody is not null)
-      {
-        WindowBody.Size = scaledSize;
-        WindowBody.Position = bodyOffset;
-      }
 
-      if (TitleBar is not null)
-      {
-        TitleBar.Visible = !Borderless;
-        TitleBar.Size = new Vector2(scaledSize.X, TitleBarHeight);
-        TitleBar.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
-      }
+      WindowBody?.Size = scaledSize;
+      WindowBody?.Position = bodyOffset;
 
-      if (WindowFrame is not null)
-      {
-        WindowFrame.Visible = !Borderless;
-        WindowFrame.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
-        WindowFrame.Position = TitleBar?.Position ?? WindowFrame.Position;
-        WindowFrame.QueueRedraw();
-      }
+
+      TitleBar?.Visible = !Borderless;
+      TitleBar?.Size = new Vector2(scaledSize.X, TitleBarHeight);
+      TitleBar?.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
+
+
+
+      WindowFrame?.Visible = !Borderless;
+      WindowFrame?.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
+      WindowFrame?.Position = TitleBar?.Position ?? WindowFrame.Position;
+      WindowFrame?.QueueRedraw();
 
       LastState.Pivot = Pivot;
       LastState.ScreenSize = ScreenSize;
@@ -225,6 +220,12 @@ public abstract partial class WindowBase : Control, IPoolable
   // ---------------------------------------------------------------------------
   // Abstract draw hooks — each OS style implements its own chrome
   // ---------------------------------------------------------------------------
+
+  /// <summary>
+  /// Draw the window frame border.
+  /// Called every time <see cref="WindowFrame"/> redraws.
+  /// </summary>
+  protected abstract void OnWindowFrameDraw();
 
   /// <summary>
   /// Draw the title bar chrome (background, icon, title text, window buttons).

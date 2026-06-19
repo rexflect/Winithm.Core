@@ -17,7 +17,7 @@ public partial class WindowController : Node
   protected WindowManager? _windowManager;
 
   private Control? _objectsLayer;
-  private PackedScene _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/Windows/WindowWD.tscn");
+  private PackedScene _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/Windows/WindowWD10.tscn");
   [Export] public Vector2 ScreenSize = new(1280, 720);
   [Export] public Vector2 PlayerAreaSize = new(1280, 720);
 
