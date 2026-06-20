@@ -154,6 +154,8 @@ public class NoteManager :
     ExpectedStartFocusBeat = _windowData.UnFocus ? _windowData.StartBeat : BeatTime.Min;
     ExpectedEndCloseBeat = _windowData.EndBeat;
 
+    
+
     foreach (var notes in _noteCollection.Values)
     {
       TotalNoteCount += notes.Count;
@@ -181,6 +183,8 @@ public class NoteManager :
 
     var comboEvents = new List<(double beat, int combo)>();
 
+    // Keep track of seen Close note start beats
+    var seenCloseBeats = new HashSet<double>();
     foreach (var sideNotes in _noteCollection)
     {
       var list = sideNotes.Value;
@@ -207,6 +211,12 @@ public class NoteManager :
         {
           TotalHittableNoteCount++;
           note.IsLifecycleBounded = true;
+
+          if (note.Type is NoteType.Close && !seenCloseBeats.Add(note.StartBeat.AbsoluteValue))
+          {
+            note.IsLifecycleBounded = false;
+            continue;
+          }
 
           if (note.Type is NoteType.Hold)
           {
