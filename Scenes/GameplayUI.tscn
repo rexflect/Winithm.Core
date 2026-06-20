@@ -5,7 +5,6 @@
 [ext_resource type="Texture2D" uid="uid://diougssna5q8j" path="res://Winithm.Core/Resources/Textures/song_placeholder_image.png" id="2_68dja"]
 [ext_resource type="Script" uid="uid://vfxn40lqnjwi" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/SongInfo.cs" id="2_is1gd"]
 [ext_resource type="FontFile" uid="uid://b2y82p7o4yhtf" path="res://Winithm.Core/Resources/Fonts/SpaceGrotesk.ttf" id="3_n315a"]
-[ext_resource type="FontFile" uid="uid://c0iwxwt13dk8u" path="res://Winithm.Core/Resources/Fonts/Quicksand.ttf" id="4_yumhv"]
 [ext_resource type="PackedScene" uid="uid://dcmp6tffpneqy" path="res://Winithm.Core/Resources/Sprites/DigitRoller.tscn" id="5_7kjtd"]
 [ext_resource type="Script" uid="uid://l7yxu0ltd4io" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/ChartInfo.cs" id="6_rx5yn"]
 [ext_resource type="Script" uid="uid://28f01j3kjruj" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/PlayerCombo.cs" id="7_0cxqn"]
@@ -219,7 +218,7 @@ offset_top = 60.0
 offset_right = 169.0
 offset_bottom = 85.0
 theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("4_yumhv")
+theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 20
 text = "ALL PERFECT"
 vertical_alignment = 1
