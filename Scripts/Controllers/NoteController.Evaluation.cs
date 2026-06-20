@@ -47,6 +47,9 @@ public partial class NoteController
       // Note is in the future
       if (noteData.StartBeat.AbsoluteValue > currentBeat) break;
 
+      // Unbounded note is skipped
+      if (!noteData.IsLifecycleBounded) { evalCursor++; continue; }
+
       // Determine if note should be auto-hit
       bool isAutoHittable = (Autoplay && !noteData.IsMutedGhost) || noteData.IsLoudGhost;
 
