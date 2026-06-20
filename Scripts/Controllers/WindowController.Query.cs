@@ -1,9 +1,36 @@
+using Godot;
 using System.Collections.Generic;
 
 namespace Winithm.Core.Controllers;
 
 public partial class WindowController
 {
+  /// <summary>
+  /// Checks if the provided global position is currently hovering over a specific window.
+  /// </summary>
+  public bool IsMouseOverWindowId(string windowId, Vector2 mousePos)
+  {
+    if (!_windowStates.TryGetValue(windowId, out var state)) return false;
+
+    var visual = state.Visual;
+    return visual.WindowBody is not null && visual.WindowBody.GetGlobalRect().HasPoint(mousePos);
+  }
+
+  /// <summary>
+  /// Returns a list of all window IDs that contain the given global position.
+  /// </summary>
+  private readonly List<string> _windowIdsCache = [];
+  public List<string> GetListWindowIdsAtMousePosition(Vector2 mousePos)
+  {
+    _windowIdsCache.Clear();
+
+    foreach (var entry in _windowStates)
+      if (IsMouseOverWindowId(entry.Key, mousePos))
+        _windowIdsCache.Add(entry.Key);
+
+    return _windowIdsCache;
+  }
+
   public int GetTotalComboPassedInDestroyedWindows(double currentBeat)
   {
     if (_windowManager is null || _windowManager.Count == 0) return 0;

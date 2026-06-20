@@ -99,8 +99,12 @@ public partial class NoteController
       }
 
       // Drag notes: notify when inside judgement zone
-      if (noteData.Type is NoteType.Drag && noteData.IsHittable
-          && elapsedMs >= 0 && elapsedMs <= dragWindowMs)
+      if (!state.WindowData.UnFocus
+          && noteData.Type is NoteType.Drag
+          && noteData.IsHittable
+          && elapsedMs >= 0
+          && elapsedMs <= dragWindowMs
+      )
       {
         OnDragReady?.Invoke(windowId, noteData, elapsedMs);
       }
