@@ -34,3 +34,17 @@ public static class AudioStreamUtils
       mp3.Loop = false;
   }
 }
+
+public static class OSDisplayUtils
+{
+  /// <summary>
+  /// Get the DPI scale for a specific screen.
+  /// </summary>
+  /// <param name="screenIndex">The index of the screen. -1 for the current screen.</param>
+  /// <returns>The DPI scale.</returns>
+  public static float GetDPIScale(int screenIndex = -1)
+  {
+    int dpi = DisplayServer.ScreenGetDpi(screenIndex);
+    return dpi > 0 ? dpi / 96f : 1.0f;
+  }
+}

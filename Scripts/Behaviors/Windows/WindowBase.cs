@@ -31,8 +31,8 @@ public abstract partial class WindowBase : Control, IPoolable
   // ---------------------------------------------------------------------------
 
   [Export] public Vector2 Pivot { get; set; } = new(0.5f, 0.5f);
-  [Export] public Color TitleBarColor { get; set; } = Colors.Coral;
-  [Export] public Color TitleTextColor { get; set; } = Colors.Black;
+  [Export] public Color TitleBarColor { get; set; } = Colors.DarkSlateGray;
+  [Export] public Color TitleTextColor { get; set; } = Colors.White;
   [Export] public Vector2 ScreenSize { get; set; } = new(1280, 720);
   [Export] public Vector2 PlayerAreaSize { get; set; } = new(1280, 720);
   [Export] public string Title { get; set; } = "Winithm";
@@ -68,12 +68,11 @@ public abstract partial class WindowBase : Control, IPoolable
   // Shared constants
   // ---------------------------------------------------------------------------
 
-  public static readonly float TitleBarHeightRatio = 0.0375f;
   public static readonly Color UnfocusOverlayTint = new(0.25f, 0.25f, 0.25f, 0.5f);
   public static readonly Color UnresponsiveOverlayTint = new(1f, 1f, 1f, 0.75f);
   public static readonly Color UnresponsiveWindowModulate = new(1f, 1f, 1f, 0.75f);
 
-  internal float TitleBarHeight { get; private set; }
+  protected float TitleBarHeight { get; set; }
 
   // ---------------------------------------------------------------------------
   // Godot lifecycle
@@ -90,10 +89,12 @@ public abstract partial class WindowBase : Control, IPoolable
     FocusNoteLayer = GetNodeOrNull<Control>("WindowBody/FocusNoteLayer");
     UnresponsiveOverlay = GetNodeOrNull<Control>("WindowBody/UnresponsiveOverlay");
 
+    Draw += OnWindowLayoutUpdate;
     TitleBar?.Draw += OnTitleBarDraw;
     WindowBody?.Draw += OnWindowBodyDraw;
     UnfocusOverlay?.Draw += OnUnfocusOverlayDraw;
     UnresponsiveOverlay?.Draw += OnUnresponsiveOverlayDraw;
+    WindowFrame?.Draw += OnWindowFrameDraw;
 
     OnReady();
     UpdateVisual();
@@ -161,30 +162,7 @@ public abstract partial class WindowBase : Control, IPoolable
 
     if (layoutDirty)
     {
-      // WindowController already scales WindowSize before assigning it
-      var scaledSize = WindowSize;
-      TitleBarHeight = Mathf.Min(ScreenSize.X, ScreenSize.Y) * TitleBarHeightRatio;
-
-      float totalHeight = scaledSize.Y + (!Borderless ? TitleBarHeight : 0f);
-      var bodyOffset = new Vector2(
-        -scaledSize.X * Pivot.X,
-        -totalHeight * Pivot.Y + (!Borderless ? TitleBarHeight : 0f)
-      );
-
-
-      WindowBody?.Size = scaledSize;
-      WindowBody?.Position = bodyOffset;
-
-
-      TitleBar?.Visible = !Borderless;
-      TitleBar?.Size = new Vector2(scaledSize.X, TitleBarHeight);
-      TitleBar?.Position = bodyOffset - new Vector2(0f, TitleBarHeight);
-
-
-
-      WindowFrame?.Visible = !Borderless;
-      WindowFrame?.Size = new Vector2(scaledSize.X, scaledSize.Y + TitleBarHeight);
-      WindowFrame?.Position = TitleBar?.Position ?? WindowFrame.Position;
+      QueueRedraw();
       WindowFrame?.QueueRedraw();
 
       LastState.Pivot = Pivot;
@@ -220,6 +198,11 @@ public abstract partial class WindowBase : Control, IPoolable
   // ---------------------------------------------------------------------------
   // Abstract draw hooks — each OS style implements its own chrome
   // ---------------------------------------------------------------------------
+
+  /// <summary>
+  /// Called when layout properties change, before visual update.
+  /// </summary>
+  protected abstract void OnWindowLayoutUpdate();
 
   /// <summary>
   /// Draw the window frame border.
