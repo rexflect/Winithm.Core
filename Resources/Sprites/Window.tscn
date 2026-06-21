@@ -1,11 +1,8 @@
 [gd_scene format=3 uid="uid://cs40ugyqboe7t"]
 
-[ext_resource type="Script" uid="uid://baffey6i5213i" path="res://Winithm.Core/Scripts/Behaviors/Windows/WindowWD10.cs" id="1_t3j4g"]
-
-[node name="WindowWD10" type="Control" unique_id=1088118390]
+[node name="Window" type="Control" unique_id=1088118390]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_t3j4g")
 
 [node name="TitleBar" type="Control" parent="." unique_id=1229072662]
 anchors_preset = 0

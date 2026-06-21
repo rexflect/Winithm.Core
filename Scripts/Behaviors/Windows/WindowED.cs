@@ -7,18 +7,21 @@ namespace Winithm.Core.Behaviors.Windows;
 /// Windows 10-accurate window chrome: flat title bar with icon, left-aligned title,
 /// and Close / Maximize / Minimize caption buttons on the right.
 /// </summary>
-public partial class WindowWD10 : WindowBase
+public partial class WindowED : WindowBase
 {
   // Resources — loaded once per class, not per instance
   private static readonly Texture2D _iconTex = GD.Load<Texture2D>("res://icon.svg");
   private static readonly FontFile _fontFile = GD.Load<FontFile>("res://Winithm.Core/Resources/Fonts/SegoeUI.ttf");
-  
+
   protected override void OnWindowLayoutUpdate()
   {
-    float osScale = OSDisplayUtils.GetDPIScale();
+    float scale = Mathf.Min(
+      ScreenSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
+      ScreenSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
+    );
 
     // Win10 title bar is 28 logical px tall at 100% scale.
-    TitleBarHeight = 28f * osScale;
+    TitleBarHeight = 28f * scale;
 
     float totalHeight = WindowSize.Y + (!Borderless ? TitleBarHeight : 0f);
     var bodyOffset = new Vector2(
@@ -67,7 +70,11 @@ public partial class WindowWD10 : WindowBase
       return;
     }
 
-    float scale = OSDisplayUtils.GetDPIScale();
+    float scale = Mathf.Min(
+      ScreenSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
+      ScreenSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
+    );
+    
     float w = TitleBar.Size.X;
     float h = TitleBar.Size.Y;
 

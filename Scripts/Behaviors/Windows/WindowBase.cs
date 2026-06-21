@@ -80,6 +80,16 @@ public abstract partial class WindowBase : Control, IPoolable
 
   public override void _Ready()
   {
+    OnReady();
+    UpdateVisual();
+  }
+
+  /// <summary>
+  /// Optional hook called at the end of <see cref="_Ready"/> before
+  /// <see cref="UpdateVisual"/>. Subclasses can load their own resources here.
+  /// </summary>
+  public virtual void OnReady()
+  {
     TitleBar = GetNodeOrNull<Control>("TitleBar");
     WindowBody = GetNodeOrNull<Control>("WindowBody");
     WindowFrame = GetNodeOrNull<Control>("Frame");
@@ -95,16 +105,24 @@ public abstract partial class WindowBase : Control, IPoolable
     UnfocusOverlay?.Draw += OnUnfocusOverlayDraw;
     UnresponsiveOverlay?.Draw += OnUnresponsiveOverlayDraw;
     WindowFrame?.Draw += OnWindowFrameDraw;
-
-    OnReady();
-    UpdateVisual();
   }
 
-  /// <summary>
-  /// Optional hook called at the end of <see cref="_Ready"/> before
-  /// <see cref="UpdateVisual"/>. Subclasses can load their own resources here.
-  /// </summary>
-  protected virtual void OnReady() { }
+  /// <summary>Unsubscribes the Draw handlers wired up in <see cref="OnReady"/>.</summary>
+  public void DetachScriptEvents()
+  {
+    Draw -= OnWindowLayoutUpdate;
+    TitleBar?.Draw -= OnTitleBarDraw;
+    WindowBody?.Draw -= OnWindowBodyDraw;
+    UnfocusOverlay?.Draw -= OnUnfocusOverlayDraw;
+    UnresponsiveOverlay?.Draw -= OnUnresponsiveOverlayDraw;
+    WindowFrame?.Draw -= OnWindowFrameDraw;
+  }
+
+  /// <summary>Resets dirty-tracking — call before re-scripting an existing node.</summary>
+  public void ResetDirtyState()
+  {
+    LastState = default;
+  }
 
   public override void _Process(double delta)
   {
