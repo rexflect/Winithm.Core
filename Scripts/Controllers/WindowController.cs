@@ -122,10 +122,6 @@ public partial class WindowController : Node
 
     AddChild(windowVisual);
 
-    // SetScript() doesn't trigger _Ready, so wire it up manually.
-    windowVisual.OnReady();
-    windowVisual.UpdateVisual();
-
     return windowVisual;
   }
 
