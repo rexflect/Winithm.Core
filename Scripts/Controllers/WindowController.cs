@@ -34,7 +34,6 @@ public partial class WindowController : Node
   [Export] public Vector2 ScreenSize = new(1280, 720);
   [Export] public Vector2 PlayerAreaSize = new(1280, 720);
   [Export] public Color TitleBarColor = Colors.DarkSlateGray;
-  [Export] public Color TitleTextColor = Colors.White;
   [Export] public float FocusablePulseFrequency = 5f;
 
   private class WindowState
@@ -216,7 +215,6 @@ public partial class WindowController : Node
         windowVisual.Title = windowData.Title;
         windowVisual.Borderless = windowData.Borderless;
         windowVisual.TitleBarColor = TitleBarColor;
-        windowVisual.TitleTextColor = TitleTextColor;
 
         state = new WindowState() { Visual = windowVisual, Data = windowData };
 

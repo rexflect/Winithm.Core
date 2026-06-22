@@ -48,3 +48,26 @@ public static class OSDisplayUtils
     return dpi > 0 ? dpi / 96f : 1.0f;
   }
 }
+
+public static class ColorUtils
+{
+  public static bool IsLight(Color color)
+  {
+    // Godot Color stores sRGB values, must linearize before calculating luminance
+    float r = LinearizeChannel(color.R);
+    float g = LinearizeChannel(color.G);
+    float b = LinearizeChannel(color.B);
+
+    // W3C relative luminance formula (works on linear light values)
+    float luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+
+    return luminance > 0.179f; // W3C threshold for text contrast
+  }
+
+  private static float LinearizeChannel(float c)
+  {
+    return c <= 0.04045f
+        ? c / 12.92f
+        : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+  }
+}

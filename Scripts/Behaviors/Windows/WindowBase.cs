@@ -1,4 +1,5 @@
 using Godot;
+using Winithm.Core.Common;
 using Winithm.Core.Interfaces;
 
 namespace Winithm.Core.Behaviors.Windows;
@@ -18,7 +19,7 @@ public abstract partial class WindowBase : Control, IPoolable
   protected record struct WindowBaseState
   {
     public Vector2 Pivot, ScreenSize, PlayerAreaSize, WindowSize;
-    public Color TitleBarColor, TitleTextColor, WindowColor;
+    public Color TitleBarColor, WindowColor;
     public string Title;
     public bool Borderless, IsNotRespondingTitle;
     public float UnFocusOverlayOpacity, UnresponsiveOverlayOpacity, NoteOpacity;
@@ -32,7 +33,6 @@ public abstract partial class WindowBase : Control, IPoolable
 
   [Export] public Vector2 Pivot { get; set; } = new(0.5f, 0.5f);
   [Export] public Color TitleBarColor { get; set; } = Colors.DarkSlateGray;
-  [Export] public Color TitleTextColor { get; set; } = Colors.White;
   [Export] public Vector2 ScreenSize { get; set; } = new(1280, 720);
   [Export] public Vector2 PlayerAreaSize { get; set; } = new(1280, 720);
   [Export] public string Title { get; set; } = "Winithm";
@@ -73,6 +73,7 @@ public abstract partial class WindowBase : Control, IPoolable
   public static readonly Color UnresponsiveWindowModulate = new(1f, 1f, 1f, 0.75f);
 
   protected float TitleBarHeight { get; set; }
+  protected Color TitleTextColor { get; set; } = Colors.White;
 
   // ---------------------------------------------------------------------------
   // Godot lifecycle
@@ -168,7 +169,6 @@ public abstract partial class WindowBase : Control, IPoolable
 
     bool titleBarDirty = layoutDirty ||
       TitleBarColor != LastState.TitleBarColor ||
-      TitleTextColor != LastState.TitleTextColor ||
       Title != LastState.Title ||
       IsNotRespondingTitle != LastState.IsNotRespondingTitle;
 
@@ -194,8 +194,9 @@ public abstract partial class WindowBase : Control, IPoolable
     {
       TitleBar?.QueueRedraw();
 
+      TitleTextColor = ColorUtils.IsLight(TitleBarColor) ? Colors.Black : Colors.White;
+
       LastState.TitleBarColor = TitleBarColor;
-      LastState.TitleTextColor = TitleTextColor;
       LastState.Title = Title;
       LastState.IsNotRespondingTitle = IsNotRespondingTitle;
     }
