@@ -6,13 +6,13 @@ public partial class PlayerScore : Control
 {
   public record struct LastState
   {
-    public Color TextColor, TextOutLineColor, CompBackgroundColor;
+    public Color TextColor, BgStripeColor, BgColor;
   }
 
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public Color TextColor = Colors.White;
-  [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = new(0.25f, 0.25f, 0.25f);
+  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
+  [Export] public Color BgColor = new(0f, 0f, 0f);
 
   private LastState _lastState = new();
 
@@ -37,31 +37,32 @@ public partial class PlayerScore : Control
   {
     bool isColorDirty =
       TextColor != _lastState.TextColor
-      || TextOutLineColor != _lastState.TextOutLineColor
-      || CompBackgroundColor != _lastState.CompBackgroundColor;
+      || BgStripeColor != _lastState.BgStripeColor
+      || BgColor != _lastState.BgColor;
 
     if (isColorDirty) UpdateColor();
   }
 
   private void UpdateColor()
   {
-
     _accuracyLabel?.AddThemeColorOverride("font_color", TextColor);
-    _accuracyLabel?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-
 
     foreach (Node child in _scoreContainer?.GetChildren() ?? [])
       if (child is DigitRoller roller)
-        roller.UpdateColor(TextColor, TextOutLineColor);
+        roller.UpdateColor(TextColor);
 
-    _background?.Modulate = CompBackgroundColor;
+    if (_background is ColorRect and { Material: ShaderMaterial material })
+    {
+      material.SetShaderParameter("stripe_color", BgStripeColor);
+      material.SetShaderParameter("bg_color", BgColor);
+    }
 
     _padLeft?.Color = TextColor;
     _padRight?.Color = TextColor;
 
     _lastState.TextColor = TextColor;
-    _lastState.TextOutLineColor = TextOutLineColor;
-    _lastState.CompBackgroundColor = CompBackgroundColor;
+    _lastState.BgStripeColor = BgStripeColor;
+    _lastState.BgColor = BgColor;
   }
 
   public void SetAccuracy(float accuracy)

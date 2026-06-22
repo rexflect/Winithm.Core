@@ -18,14 +18,12 @@ public partial class ComponentController : Control
   private record struct LastState
   {
     public Vector2 ScreenSize;
-    public Color TextColor, TextOutLineColor;
+    public Color BgStripeColor;
   }
 
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public float SongProgressPercent = 0f;
-  [Export] public Color TextColor = Colors.White;
-  [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = new(0.25f, 0.25f, 0.25f);
+  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
 
   private LastState _lastState;
 
@@ -43,6 +41,9 @@ public partial class ComponentController : Control
   private PlayerScore? _playerScore;
 
   private double _lastUpdateBeat;
+
+  private Color TextColor => ColorUtils.IsLight(BgStripeColor) ? Colors.Black : Colors.White;
+  private Color BgColor => ColorUtils.AdjustBrightness(BgStripeColor, -0.2f);
 
   public void Initialize(
     ComponentManager manager, Metronome metronome, SongMetaData songMeta, ChartMetadata chartMeta
@@ -82,9 +83,7 @@ public partial class ComponentController : Control
   public void ForceUpdate(double currentBeat, bool _force = true)
   {
     bool isLayoutDirty = _lastState.ScreenSize != ScreenSize;
-    bool isColorDirty =
-      _lastState.TextColor != TextColor
-      || _lastState.TextOutLineColor != TextOutLineColor;
+    bool isColorDirty = _lastState.BgStripeColor != BgStripeColor;
 
     if (isLayoutDirty) UpdateLayout();
     if (isColorDirty) UpdateColor();
@@ -209,28 +208,27 @@ public partial class ComponentController : Control
   {
 
     _songInfo?.TextColor = TextColor;
-    _songInfo?.TextOutLineColor = TextOutLineColor;
-    _songInfo?.CompBackgroundColor = CompBackgroundColor;
+    _songInfo?.BgStripeColor = BgStripeColor;
+    _songInfo?.BgColor = BgColor;
     _songInfo?.UpdateVisual();
 
 
     _chartInfo?.TextColor = TextColor;
-    _chartInfo?.TextOutLineColor = TextOutLineColor;
-    _chartInfo?.CompBackgroundColor = CompBackgroundColor;
+    _chartInfo?.BgStripeColor = BgStripeColor;
+    _chartInfo?.BgColor = BgColor;
     _chartInfo?.UpdateVisual();
 
 
     _playerCombo?.TextColor = TextColor;
-    _playerCombo?.TextOutLineColor = TextOutLineColor;
-    _playerCombo?.CompBackgroundColor = CompBackgroundColor;
+    _playerCombo?.BgStripeColor = BgStripeColor;
+    _playerCombo?.BgColor = BgColor;
     _playerCombo?.UpdateVisual();
 
     _playerScore?.TextColor = TextColor;
-    _playerScore?.TextOutLineColor = TextOutLineColor;
-    _playerScore?.CompBackgroundColor = CompBackgroundColor;
+    _playerScore?.BgStripeColor = BgStripeColor;
+    _playerScore?.BgColor = BgColor;
     _playerScore?.UpdateVisual();
 
-    _lastState.TextColor = TextColor;
-    _lastState.TextOutLineColor = TextOutLineColor;
+    _lastState.BgStripeColor = BgStripeColor;
   }
 }

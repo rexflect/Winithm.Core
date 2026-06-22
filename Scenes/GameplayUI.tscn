@@ -12,26 +12,38 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qqi1i"]
 shader = ExtResource("1_b0t66")
+shader_parameter/stripe_color = Color(0.1, 0.1, 0.1, 1)
+shader_parameter/bg_color = Color(0, 0, 0, 1)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
+shader_parameter/stripe_gap = 10.0
 shader_parameter/slant = -1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_o17d2"]
 shader = ExtResource("1_b0t66")
+shader_parameter/stripe_color = Color(0.1, 0.1, 0.1, 1)
+shader_parameter/bg_color = Color(0, 0, 0, 1)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
+shader_parameter/stripe_gap = 10.0
 shader_parameter/slant = -1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ff0i"]
 shader = ExtResource("1_b0t66")
+shader_parameter/stripe_color = Color(0.1, 0.1, 0.1, 1)
+shader_parameter/bg_color = Color(0, 0, 0, 1)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
+shader_parameter/stripe_gap = 10.0
 shader_parameter/slant = -1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lau8c"]
 shader = ExtResource("1_b0t66")
+shader_parameter/stripe_color = Color(0.1, 0.1, 0.1, 1)
+shader_parameter/bg_color = Color(0, 0, 0, 1)
 shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
+shader_parameter/stripe_gap = 10.0
 shader_parameter/slant = -1.0
 
 [node name="GameplayUI" type="Control" unique_id=1473560799]
@@ -87,7 +99,6 @@ offset_left = 90.0
 offset_top = -80.0
 offset_right = 215.0
 offset_bottom = -50.0
-theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 23
 text = "Song Name"
@@ -99,7 +110,6 @@ offset_left = 90.0
 offset_top = -50.0
 offset_right = 167.0
 offset_bottom = -26.0
-theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 18
 text = "BPM: 120"
@@ -150,7 +160,6 @@ offset_left = -118.0
 offset_top = -71.0
 offset_right = -35.0
 offset_bottom = -34.0
-theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 28
 text = "Info: 5"
@@ -205,7 +214,6 @@ offset_left = 45.0
 offset_top = 30.0
 offset_right = 97.0
 offset_bottom = 60.0
-theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 23
 text = "x100"
@@ -217,7 +225,6 @@ offset_left = 45.0
 offset_top = 60.0
 offset_right = 169.0
 offset_bottom = 85.0
-theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 20
 text = "ALL PERFECT"
@@ -311,7 +318,6 @@ offset_right = -35.0
 offset_bottom = 83.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 16
 text = "100.00%"

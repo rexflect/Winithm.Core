@@ -105,12 +105,10 @@ public partial class DigitRoller : Control
     SetProcess(true);
   }
 
-  public void UpdateColor(Color textColor, Color outlineColor)
+  public void UpdateColor(Color textColor)
   {
 
     _templateLabel?.AddThemeColorOverride("font_color", textColor);
-    _templateLabel?.AddThemeColorOverride("font_outline_color", outlineColor);
-
 
     if (!IsInstanceValid(_container))
     {
@@ -123,7 +121,6 @@ public partial class DigitRoller : Control
       if (_container.GetChild(i) is Label lbl)
       {
         lbl.AddThemeColorOverride("font_color", textColor);
-        lbl.AddThemeColorOverride("font_outline_color", outlineColor);
       }
     }
   }

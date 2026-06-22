@@ -53,15 +53,20 @@ public static class ColorUtils
 {
   public static bool IsLight(Color color)
   {
-    // Godot Color stores sRGB values, must linearize before calculating luminance
     float r = LinearizeChannel(color.R);
     float g = LinearizeChannel(color.G);
     float b = LinearizeChannel(color.B);
 
-    // W3C relative luminance formula (works on linear light values)
     float luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+    return luminance > 0.179f;
+  }
 
-    return luminance > 0.179f; // W3C threshold for text contrast
+  public static Color AdjustBrightness(Color color, float offset)
+  {
+    // Convert sRGB → HSV, shift V, convert back
+    color.ToHsv(out float h, out float s, out float v);
+    v = Math.Clamp(v + offset, 0f, 1f);
+    return Color.FromHsv(h, s, v, color.A);
   }
 
   private static float LinearizeChannel(float c)

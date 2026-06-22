@@ -6,7 +6,7 @@ public partial class SongInfo : Control
 {
   public record struct LastState
   {
-    public Color TextColor, TextOutLineColor, CompBackgroundColor;
+    public Color TextColor, BgStripeColor, BgColor;
     public string SongName;
     public float BPM, IconSize;
     public Vector2 IconCenter;
@@ -15,8 +15,8 @@ public partial class SongInfo : Control
 
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public Color TextColor = Colors.White;
-  [Export] public Color TextOutLineColor = Colors.Black;
-  [Export] public Color CompBackgroundColor = new(0.25f, 0.25f, 0.25f);
+  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
+  [Export] public Color BgColor = new(0f, 0f, 0f);
   [Export] public string SongName = "Song Name";
   [Export] public float BPM = 120f;
   [Export]
@@ -47,8 +47,8 @@ public partial class SongInfo : Control
   {
     bool isColorDirty =
       TextColor != _lastState.TextColor
-      || TextOutLineColor != _lastState.TextOutLineColor
-      || CompBackgroundColor != _lastState.CompBackgroundColor;
+      || BgStripeColor != _lastState.BgStripeColor
+      || BgColor != _lastState.BgColor;
 
     bool isInfoDirty = SongName != _lastState.SongName || BPM != _lastState.BPM;
     bool isIconDirty = SongIcon != _lastState.SongIcon ||
@@ -64,17 +64,17 @@ public partial class SongInfo : Control
   {
 
     _name?.AddThemeColorOverride("font_color", TextColor);
-    _name?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
-
-
     _bpm?.AddThemeColorOverride("font_color", TextColor);
-    _bpm?.AddThemeColorOverride("font_outline_color", TextOutLineColor);
 
-    _background?.Modulate = CompBackgroundColor;
+    if (_background is ColorRect and { Material: ShaderMaterial material })
+    {
+      material.SetShaderParameter("stripe_color", BgStripeColor);
+      material.SetShaderParameter("bg_color", BgColor);
+    }
 
     _lastState.TextColor = TextColor;
-    _lastState.TextOutLineColor = TextOutLineColor;
-    _lastState.CompBackgroundColor = CompBackgroundColor;
+    _lastState.BgStripeColor = BgStripeColor;
+    _lastState.BgColor = BgColor;
   }
 
   private void UpdateIcon()
