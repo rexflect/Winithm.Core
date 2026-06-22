@@ -11,7 +11,7 @@ namespace Winithm.Core.Controllers;
 
 public enum WindowMode
 {
-  Custom,
+  InGame,
   Editor,
   Native
 }
@@ -75,7 +75,7 @@ public partial class WindowController : Node
   {
     switch (mode)
     {
-      case WindowMode.Custom:
+      case WindowMode.InGame:
         // Detect/load script before constructing the pool — createFunc needs it.
         var wm = WindowManagerDetector.Detect();
         _windowScript = wm switch
