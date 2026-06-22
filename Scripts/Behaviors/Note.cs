@@ -20,6 +20,7 @@ public partial class Note : Control, IPoolable
 
   // --- Child references (assigned in _Ready) ---
   // References to scene nodes assigned during initialization
+  private CanvasGroup? _canvasGroup;
   private Control? _headContainer;
   private NinePatchRect? _headBase;
   private TextureRect? _headOverlay;
@@ -44,12 +45,14 @@ public partial class Note : Control, IPoolable
   // Initialize node references and perform initial visual update
   public override void _Ready()
   {
-    _headContainer = GetNodeOrNull<Control>("Head");
-    _headBase = GetNodeOrNull<NinePatchRect>("Head/Base");
-    _headOverlay = GetNodeOrNull<TextureRect>("Head/Overlay");
+    _canvasGroup = GetNodeOrNull<CanvasGroup>("CanvasGroup");
 
-    _bodyContainer = GetNodeOrNull<Control>("Body");
-    _bodyBase = GetNodeOrNull<NinePatchRect>("Body/Base");
+    _headContainer = GetNodeOrNull<Control>("CanvasGroup/Head");
+    _headBase = GetNodeOrNull<NinePatchRect>("CanvasGroup/Head/Base");
+    _headOverlay = GetNodeOrNull<TextureRect>("CanvasGroup/Head/Overlay");
+
+    _bodyContainer = GetNodeOrNull<Control>("CanvasGroup/Body");
+    _bodyBase = GetNodeOrNull<NinePatchRect>("CanvasGroup/Body/Base");
 
     UpdateVisual();
   }
@@ -113,12 +116,13 @@ public partial class Note : Control, IPoolable
       return;
     }
 
-    if (_headBase?.Material is ShaderMaterial shaderMaterial)
+    if (_canvasGroup?.Material is ShaderMaterial shaderMaterial)
     {
       shaderMaterial.SetShaderParameter("is_highlighted", active);
       shaderMaterial.SetShaderParameter(
         "glow_radius", BASE_HIGHTLIGHTING_SIZE * ResourcePack.Value.Config.HighlightSize
       );
+      shaderMaterial.SetShaderParameter("glow_intensity", ResourcePack.Value.Config.HighlightInsensity);
     }
   }
 

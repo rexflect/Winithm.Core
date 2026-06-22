@@ -16,6 +16,7 @@ public record struct ResourcePackConfig
 {
   public bool Particle;
   public float HighlightSize;
+  public float HighlightInsensity;
   public int NinePatchHeadMarginH;
   public int NinePatchBodyMarginH;
   public int NinePatchBodyMarginV;
@@ -162,6 +163,9 @@ public partial class ResourcePackManager : Node
             break;
           case "highlightSize":
             resourcePack.Config.HighlightSize = float.TryParse(val, out float sz) ? sz : 0.75f;
+            break;
+          case "highlightIntensity":
+            resourcePack.Config.HighlightInsensity = float.TryParse(val, out float ins) ? ins : 1.5f;
             break;
           case "hitfxAutoResult":
             resourcePack.Config.HitFXAutoResult = ParseHitResultType(val);

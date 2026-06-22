@@ -10,24 +10,28 @@ shader_parameter/glow_intensity = 1.5
 shader_parameter/glow_radius = 6.0
 
 [node name="Note" type="Control" unique_id=1006967786]
-material = SubResource("ShaderMaterial_2vsp2")
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_5o3w4")
 
-[node name="Body" type="Control" parent="." unique_id=901541332]
+[node name="CanvasGroup" type="CanvasGroup" parent="." unique_id=2129324291]
+material = SubResource("ShaderMaterial_2vsp2")
+fit_margin = 1024.0
+
+[node name="Body" type="Control" parent="CanvasGroup" unique_id=901541332]
 visible = false
-layout_mode = 1
+layout_mode = 3
 anchors_preset = 0
 
-[node name="Base" type="NinePatchRect" parent="Body" unique_id=797511680]
+[node name="Base" type="NinePatchRect" parent="CanvasGroup/Body" unique_id=797511680]
 layout_mode = 0
 
-[node name="Head" type="Control" parent="." unique_id=148784751]
+[node name="Head" type="Control" parent="CanvasGroup" unique_id=148784751]
+layout_mode = 3
 anchors_preset = 0
 
-[node name="Base" type="NinePatchRect" parent="Head" unique_id=2054169787]
+[node name="Base" type="NinePatchRect" parent="CanvasGroup/Head" unique_id=2054169787]
 layout_mode = 0
 
-[node name="Overlay" type="TextureRect" parent="Head" unique_id=461630709]
+[node name="Overlay" type="TextureRect" parent="CanvasGroup/Head" unique_id=461630709]
 layout_mode = 0
