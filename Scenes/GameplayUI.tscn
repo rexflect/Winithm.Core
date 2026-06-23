@@ -78,14 +78,16 @@ script = ExtResource("2_is1gd")
 [node name="Background" type="ColorRect" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=149922271]
 modulate = Color(0.25, 0.25, 0.25, 0.5)
 material = SubResource("ShaderMaterial_qqi1i")
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = 80.0
 offset_top = -80.0
 offset_right = 225.0
 offset_bottom = -25.0
 
 [node name="TextureRect" type="TextureRect" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=118848695]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = 25.0
 offset_top = -80.0
 offset_right = 80.0
@@ -94,7 +96,8 @@ texture = ExtResource("2_68dja")
 expand_mode = 1
 
 [node name="Name" type="Label" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=158060646]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = 90.0
 offset_top = -80.0
 offset_right = 215.0
@@ -105,7 +108,8 @@ text = "Song Name"
 vertical_alignment = 1
 
 [node name="BPM" type="Label" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=98164072]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = 90.0
 offset_top = -50.0
 offset_right = 167.0
@@ -141,25 +145,29 @@ script = ExtResource("6_rx5yn")
 [node name="Background" type="ColorRect" parent="ChartInfoTransform/SubTransform/ChartInfo" unique_id=2128106826]
 modulate = Color(0.25, 0.25, 0.25, 0.5)
 material = SubResource("ShaderMaterial_o17d2")
-layout_mode = 0
-offset_left = -134.0
+layout_mode = 1
+anchors_preset = -1
+offset_left = -129.0
 offset_top = -82.0
 offset_right = -25.0
 offset_bottom = -32.5
 
 [node name="Pad" type="ColorRect" parent="ChartInfoTransform/SubTransform/ChartInfo" unique_id=1686427044]
-layout_mode = 0
-offset_left = -134.0
+layout_mode = 1
+anchors_preset = -1
+offset_left = -129.0
 offset_top = -32.5
 offset_right = -25.0
 offset_bottom = -25.0
 
 [node name="Difficult" type="Label" parent="ChartInfoTransform/SubTransform/ChartInfo" unique_id=1741076348]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = -118.0
 offset_top = -71.0
 offset_right = -35.0
 offset_bottom = -34.0
+grow_horizontal = 0
 theme_override_fonts/font = ExtResource("3_n315a")
 theme_override_font_sizes/font_size = 28
 text = "Info: 5"
@@ -186,7 +194,8 @@ script = ExtResource("7_0cxqn")
 [node name="Background" type="ColorRect" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=957669646]
 modulate = Color(0.25, 0.25, 0.25, 0.5)
 material = SubResource("ShaderMaterial_6ff0i")
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = 35.0
 offset_top = 25.0
 offset_right = 179.0
@@ -194,7 +203,7 @@ offset_bottom = 90.0
 
 [node name="Pause" type="Control" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=2018201748]
 clip_contents = true
-anchors_preset = 0
+layout_mode = 1
 offset_left = 25.0
 offset_top = 25.0
 offset_right = 35.0
@@ -209,7 +218,8 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Combo" type="Label" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=181812478]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = 45.0
 offset_top = 30.0
 offset_right = 97.0
@@ -220,7 +230,8 @@ text = "x100"
 vertical_alignment = 1
 
 [node name="Status" type="Label" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=137441926]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = 45.0
 offset_top = 60.0
 offset_right = 169.0
@@ -253,28 +264,32 @@ script = ExtResource("9_rhtcn")
 [node name="Background" type="ColorRect" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=1565888443]
 modulate = Color(0.25, 0.25, 0.25, 0.5)
 material = SubResource("ShaderMaterial_lau8c")
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = -187.5
 offset_top = 25.0
 offset_right = -32.5
 offset_bottom = 90.0
 
 [node name="PadLeft" type="ColorRect" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=1943714872]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = -195.0
 offset_top = 25.0
 offset_right = -187.5
 offset_bottom = 56.5
 
 [node name="PadRight" type="ColorRect" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=2026615917]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = -32.5
 offset_top = 56.5
 offset_right = -25.0
 offset_bottom = 88.0
 
 [node name="Score" type="HBoxContainer" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=1631005081]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = -185.0
 offset_top = 25.0
 offset_right = -35.0
@@ -311,7 +326,8 @@ layout_mode = 2
 
 [node name="Accuracy" type="Label" parent="PlayerScoreTransform/SubTransform/PlayerScore" unique_id=14015074]
 modulate = Color(1, 1, 1, 0.85300004)
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 offset_left = -98.0
 offset_top = 62.0
 offset_right = -35.0
