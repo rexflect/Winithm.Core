@@ -46,15 +46,8 @@ public partial class ComponentController : Control
   private Color BgColor => ColorUtils.AdjustBrightness(BgStripeColor, -0.1f);
   private Color PadColor => ColorUtils.AdjustBrightness(BgColor, 0.5f);
 
-  public void Initialize(
-    ComponentManager manager, Metronome metronome, SongMetaData songMeta, ChartMetadata chartMeta
-  )
+  public override void _Ready()
   {
-    _componentManager = manager;
-    _metronome = metronome;
-    _songMetaData = songMeta;
-    _chartMetaData = chartMeta;
-
     _songInfoTransform = GetNodeOrNull<Control>("SongInfoTransform");
     _songInfoSubTransform = _songInfoTransform?.GetNodeOrNull<Control>("SubTransform");
     _songInfo = _songInfoSubTransform?.GetNodeOrNull<SongInfo>("SongInfo");
@@ -70,6 +63,16 @@ public partial class ComponentController : Control
     _playerScoreTransform = GetNodeOrNull<Control>("PlayerScoreTransform");
     _playerScoreSubTransform = _playerScoreTransform?.GetNodeOrNull<Control>("SubTransform");
     _playerScore = _playerScoreSubTransform?.GetNodeOrNull<PlayerScore>("PlayerScore");
+  }
+
+  public void Initialize(
+    ComponentManager manager, Metronome metronome, SongMetaData songMeta, ChartMetadata chartMeta
+  )
+  {
+    _componentManager = manager;
+    _metronome = metronome;
+    _songMetaData = songMeta;
+    _chartMetaData = chartMeta;
 
     UpdateLayout();
   }
@@ -185,7 +188,7 @@ public partial class ComponentController : Control
     transformControl?.Modulate = new Color(1f, 1f, 1f, a);
   }
 
-  private void UpdateLayout()
+  public void UpdateLayout()
   {
     float viewScale = Mathf.Abs(Mathf.Min(
       ScreenSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
@@ -205,9 +208,8 @@ public partial class ComponentController : Control
     _lastState.ScreenSize = ScreenSize;
   }
 
-  private void UpdateColor()
+  public void UpdateColor()
   {
-
     _songInfo?.TextColor = TextColor;
     _songInfo?.BgStripeColor = BgStripeColor;
     _songInfo?.BgColor = BgColor;
