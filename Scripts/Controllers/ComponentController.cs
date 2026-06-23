@@ -43,7 +43,8 @@ public partial class ComponentController : Control
   private double _lastUpdateBeat;
 
   private Color TextColor => ColorUtils.IsLight(BgStripeColor) ? Colors.Black : Colors.White;
-  private Color BgColor => ColorUtils.AdjustBrightness(BgStripeColor, -0.2f);
+  private Color BgColor => ColorUtils.AdjustBrightness(BgStripeColor, -0.1f);
+  private Color PadColor => ColorUtils.AdjustBrightness(BgColor, 0.5f);
 
   public void Initialize(
     ComponentManager manager, Metronome metronome, SongMetaData songMeta, ChartMetadata chartMeta
@@ -210,23 +211,27 @@ public partial class ComponentController : Control
     _songInfo?.TextColor = TextColor;
     _songInfo?.BgStripeColor = BgStripeColor;
     _songInfo?.BgColor = BgColor;
+    _songInfo?.PadColor = PadColor;
     _songInfo?.UpdateVisual();
 
 
     _chartInfo?.TextColor = TextColor;
     _chartInfo?.BgStripeColor = BgStripeColor;
     _chartInfo?.BgColor = BgColor;
+    _chartInfo?.PadColor = PadColor;
     _chartInfo?.UpdateVisual();
 
 
     _playerCombo?.TextColor = TextColor;
     _playerCombo?.BgStripeColor = BgStripeColor;
     _playerCombo?.BgColor = BgColor;
+    _playerCombo?.PadColor = PadColor;
     _playerCombo?.UpdateVisual();
 
     _playerScore?.TextColor = TextColor;
     _playerScore?.BgStripeColor = BgStripeColor;
     _playerScore?.BgColor = BgColor;
+    _playerScore?.PadColor = PadColor;
     _playerScore?.UpdateVisual();
 
     _lastState.BgStripeColor = BgStripeColor;

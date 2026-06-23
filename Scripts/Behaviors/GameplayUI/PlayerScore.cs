@@ -6,13 +6,14 @@ public partial class PlayerScore : Control
 {
   public record struct LastState
   {
-    public Color TextColor, BgStripeColor, BgColor;
+    public Color TextColor, BgStripeColor, BgColor, PadColor;
   }
 
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public Color TextColor = Colors.White;
   [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
   [Export] public Color BgColor = new(0f, 0f, 0f);
+  [Export] public Color PadColor = new(0f, 0f, 0f);
 
   private LastState _lastState = new();
 
@@ -38,7 +39,8 @@ public partial class PlayerScore : Control
     bool isColorDirty =
       TextColor != _lastState.TextColor
       || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor;
+      || BgColor != _lastState.BgColor
+      || PadColor != _lastState.PadColor;
 
     if (isColorDirty) UpdateColor();
   }
@@ -57,12 +59,13 @@ public partial class PlayerScore : Control
       material.SetShaderParameter("bg_color", BgColor);
     }
 
-    _padLeft?.Color = TextColor;
-    _padRight?.Color = TextColor;
+    _padLeft?.Color = PadColor;
+    _padRight?.Color = PadColor;
 
     _lastState.TextColor = TextColor;
     _lastState.BgStripeColor = BgStripeColor;
     _lastState.BgColor = BgColor;
+    _lastState.PadColor = PadColor;
   }
 
   public void SetAccuracy(float accuracy)

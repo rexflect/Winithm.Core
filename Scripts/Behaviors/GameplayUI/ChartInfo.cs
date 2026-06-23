@@ -7,13 +7,14 @@ public partial class ChartInfo : Control
   public record struct LastState
   {
     public string DifficultText;
-    public Color TextColor, BgStripeColor, BgColor;
+    public Color TextColor, BgStripeColor, BgColor, PadColor;
   }
 
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public string DifficultText = "Info: 5";
   [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
   [Export] public Color BgColor = new(0f, 0f, 0f);
+  [Export] public Color PadColor = new(0f, 0f, 0f);
   [Export] public Color TextColor = Colors.White;
 
   public readonly float PAD_HEIGHT = 7.5f;
@@ -38,7 +39,8 @@ public partial class ChartInfo : Control
     bool isColorDirty =
       TextColor != _lastState.TextColor
       || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor;
+      || BgColor != _lastState.BgColor
+      || PadColor != _lastState.PadColor;
     bool isInfoDirty = DifficultText != _lastState.DifficultText;
 
     if (isColorDirty) UpdateColor();
@@ -56,11 +58,12 @@ public partial class ChartInfo : Control
       material.SetShaderParameter("bg_color", BgColor);
     }
 
-    _pad?.Color = TextColor;
+    _pad?.Color = PadColor;
 
     _lastState.TextColor = TextColor;
     _lastState.BgStripeColor = BgStripeColor;
     _lastState.BgColor = BgColor;
+    _lastState.PadColor = PadColor;
   }
 
   private void UpdateInfo()

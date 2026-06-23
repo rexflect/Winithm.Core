@@ -7,13 +7,14 @@ public partial class PlayerCombo : Control
 {
   public record struct LastState
   {
-    public Color TextColor, BgStripeColor, BgColor;
+    public Color TextColor, BgStripeColor, BgColor, PadColor;
   }
 
   [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
   [Export] public Color TextColor = Colors.White;
   [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
   [Export] public Color BgColor = new(0f, 0f, 0f);
+  [Export] public Color PadColor = new(0f, 0f, 0f);
 
   private LastState _lastState = new();
 
@@ -54,13 +55,13 @@ public partial class PlayerCombo : Control
 
       float tm = 1f - (_comboColorTimer / COMBO_COLOR_DURATION);
 
-      var inverted = new Color(1f - TextColor.R, 1f - TextColor.G, 1f - TextColor.B, TextColor.A);
+      var inverted = new Color(1f - PadColor.R, 1f - PadColor.G, 1f - PadColor.B, PadColor.A);
 
-      _progressRect?.Color = inverted.Lerp(TextColor, tm);
+      _progressRect?.Color = inverted.Lerp(PadColor, tm);
     }
     else
     {
-      _progressRect?.Color = TextColor;
+      _progressRect?.Color = PadColor;
     }
 
     if (_pauseState == PauseAnimState.Draining)
@@ -98,7 +99,8 @@ public partial class PlayerCombo : Control
     bool isColorDirty =
       TextColor != _lastState.TextColor
       || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor;
+      || BgColor != _lastState.BgColor
+      || PadColor != _lastState.PadColor;
 
     if (isColorDirty) UpdateColor();
   }
@@ -114,11 +116,12 @@ public partial class PlayerCombo : Control
       material.SetShaderParameter("bg_color", BgColor);
     }
 
-    _progressRect?.Color = TextColor;
+    _progressRect?.Color = PadColor;
 
     _lastState.TextColor = TextColor;
     _lastState.BgStripeColor = BgStripeColor;
     _lastState.BgColor = BgColor;
+    _lastState.PadColor = PadColor;
   }
 
   public void SetCombo(int combo, bool instant)

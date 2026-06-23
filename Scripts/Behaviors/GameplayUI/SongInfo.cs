@@ -6,7 +6,7 @@ public partial class SongInfo : Control
 {
   public record struct LastState
   {
-    public Color TextColor, BgStripeColor, BgColor;
+    public Color TextColor, BgStripeColor, BgColor, PadColor;
     public string SongName;
     public float BPM, IconSize;
     public Vector2 IconCenter;
@@ -17,6 +17,7 @@ public partial class SongInfo : Control
   [Export] public Color TextColor = Colors.White;
   [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
   [Export] public Color BgColor = new(0f, 0f, 0f);
+  [Export] public Color PadColor = new(0f, 0f, 0f);
   [Export] public string SongName = "Song Name";
   [Export] public float BPM = 120f;
   [Export]
@@ -48,7 +49,8 @@ public partial class SongInfo : Control
     bool isColorDirty =
       TextColor != _lastState.TextColor
       || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor;
+      || BgColor != _lastState.BgColor
+      || PadColor != _lastState.PadColor;
 
     bool isInfoDirty = SongName != _lastState.SongName || BPM != _lastState.BPM;
     bool isIconDirty = SongIcon != _lastState.SongIcon ||
@@ -75,6 +77,7 @@ public partial class SongInfo : Control
     _lastState.TextColor = TextColor;
     _lastState.BgStripeColor = BgStripeColor;
     _lastState.BgColor = BgColor;
+    _lastState.PadColor = PadColor;
   }
 
   private void UpdateIcon()
