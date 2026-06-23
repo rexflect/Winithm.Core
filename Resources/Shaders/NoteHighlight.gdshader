@@ -8,45 +8,61 @@ uniform float glow_radius : hint_range(0.0, 20.0) = 6.0;
 // Use Screen Texture to get CanvasGroup's merged output
 uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_nearest;
 
+// Pre-calculate the 8 directional vectors. 
+// This completely removes the expensive sin() and cos() calculations from the fragment shader.
+const vec2 OFFSETS[8] = vec2[8](
+  vec2(1.0, 0.0),
+  vec2(0.707106, 0.707106),
+  vec2(0.0, 1.0),
+  vec2(-0.707106, 0.707106),
+  vec2(-1.0, 0.0),
+  vec2(-0.707106, -0.707106),
+  vec2(0.0, -1.0),
+  vec2(0.707106, -0.707106)
+);
+
 void fragment() {
   // 1. Get the merged texture of the CanvasGroup
   vec4 base_color = textureLod(screen_texture, SCREEN_UV, 0.0);
 
-  // 2. Un-premultiply alpha to restore real RGB values
-  if (base_color.a > 0.0001) {
-    base_color.rgb /= base_color.a;
-  }
+  // Early exit using a flipped condition. If not highlighted, skip all heavy calculations.
+  if (!is_highlighted) {
+    COLOR = base_color;
+  } else {
+    // 2. Branchless un-premultiply alpha. 
+    // max() prevents division by zero without needing an expensive 'if' statement.
+    base_color.rgb /= max(base_color.a, 0.00001);
 
-  if (is_highlighted) {
-    float glow_alpha = 0.0;
-    vec3 acc_color = vec3(0.0);
-    float acc_alpha = 0.0;
+    // Vectorized accumulator: rgb = color, a = alpha.
+    // Calculating them together uses the GPU's SIMD architecture much more efficiently.
+    vec4 acc = vec4(0.0);
     
-    // Scale offset by SCREEN_PIXEL_SIZE
     vec2 px = SCREEN_PIXEL_SIZE * glow_radius;
+    vec2 half_px = px * 0.5;
 
-    // Scan 8 directions to detect edges and collect colors
-    const int GLOW_TAPS = 8;
-    for (int i = 0; i < GLOW_TAPS; i++) {
-      float angle = float(i) * 0.78539816; // 2 * PI / 8
-      vec2 offset = vec2(cos(angle), sin(angle));
-
+    // Because the loop size is fixed (8) and reads from a constant array, 
+    // the shader compiler will easily "unroll" this loop for maximum speed.
+    for (int i = 0; i < 8; i++) {
+      vec2 offset = OFFSETS[i];
+      
       vec4 s1 = textureLod(screen_texture, SCREEN_UV + offset * px, 0.0);
-      vec4 s2 = textureLod(screen_texture, SCREEN_UV + offset * px * 0.5, 0.0);
+      vec4 s2 = textureLod(screen_texture, SCREEN_UV + offset * half_px, 0.0);
 
-      glow_alpha += s1.a + s2.a;
-
-      // Accumulate premultiplied RGB to find the local dominant color
-      acc_color += s1.rgb + s2.rgb;
-      acc_alpha += s1.a + s2.a;
+      // Add both colors and alphas simultaneously
+      acc += s1 + s2;
     }
-    glow_alpha /= float(GLOW_TAPS * 2);
 
-    // Calculate the dominant color of the glow
-    vec3 glow_color = base_color.rgb; // Fallback to base color
-    if (acc_alpha > 0.0001) {
-      glow_color = acc_color / acc_alpha; // Un-premultiply the averaged color
-    }
+    // Multiply is significantly faster than division ( dividing by 16 is multiplying by 0.0625 )
+    float glow_alpha = acc.a * 0.0625;
+
+    // Branchless fallback logic:
+    // Extract the glow color. If acc.a is 0, this results in black.
+    vec3 extracted_glow = acc.rgb / max(acc.a, 0.00001);
+    
+    // step() returns 0.0 if acc.a < 0.00001, and 1.0 otherwise. 
+    // We use this to mix the fallback base_color branchlessly.
+    float has_glow = step(0.00001, acc.a);
+    vec3 glow_color = mix(base_color.rgb, extracted_glow, has_glow);
 
     // Smooth and boost the glow outline
     glow_alpha = smoothstep(0.0, 0.5, glow_alpha) * glow_intensity;
@@ -56,7 +72,5 @@ void fragment() {
     float final_alpha = max(base_color.a, clamp(glow_alpha, 0.0, 1.0));
 
     COLOR = vec4(final_rgb, final_alpha);
-  } else {
-    COLOR = base_color;
   }
 }
