@@ -47,10 +47,10 @@ public class ScoreEngine
 
   /// <summary>
   /// Score based on accuracy and max combo.
-  /// Combo weight reduced by 10x (95% Accuracy / 5% Max Combo ratio).
+  /// Combo weight reduced by 10x (90% Accuracy / 10% Max Combo ratio).
   /// </summary>
   public int RealtimeScore => _totalCombos > 0
-    ? (int)(MaxScore * (0.95f * (_weightGained / _totalCombos) + 0.05f * ((float)_maxCombo / _totalCombos)))
+    ? (int)(MaxScore * (0.9f * (_weightGained / _totalCombos) + 0.1f * ((float)_maxCombo / _totalCombos)))
     : 0;
 
   private int ComboRemain => Math.Max(0, _totalCombos - _comboEvaluated);
