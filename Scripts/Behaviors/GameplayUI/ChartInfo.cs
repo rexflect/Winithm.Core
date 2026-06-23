@@ -51,7 +51,7 @@ public partial class ChartInfo : Control
   {
 
     _difficult?.AddThemeColorOverride("font_color", TextColor);
-    
+
     if (_background is ColorRect and { Material: ShaderMaterial material })
     {
       material.SetShaderParameter("stripe_color", BgStripeColor);
@@ -68,39 +68,47 @@ public partial class ChartInfo : Control
 
   private void UpdateInfo()
   {
-
-    _difficult?.Text = DifficultText;
-
-    if (IsInstanceValid(_difficult))
+    if (!IsInstanceValid(_difficult))
     {
-      _difficult.ResetSize();
+      GD.PushWarning("[GameplayUI] ChartInfo: _difficult is null");
+      return;
+    }
 
-      // Calculate exact text dimensions
-      float textWidth = _difficult.Size.X;
-      float textHeight = _difficult.Size.Y;
+    _difficult.Text = DifficultText;
 
-      // Set background size with 10px padding on all sides
-      float bgWidth = textWidth + 20f;
-      float bgHeight = textHeight + 20f - PAD_HEIGHT;
-      _background?.Size = new Vector2(bgWidth, bgHeight);
+    // Resolve active typographic metrics from the theme context to calculate text bounds deterministically
+    var font = _difficult.GetThemeFont("font");
+    int fontSize = _difficult.GetThemeFontSize("font_size");
+    var textSize = font.GetStringSize(DifficultText, fontSize: fontSize);
 
-      // Align background to the right edge of the label
+    float textWidth = textSize.X;
+    float textHeight = textSize.Y;
+
+    // Dynamically calculate the true visual starting X position based on Godot's GrowHorizontal configuration
+    float rightEdge = _difficult.Position.X + _difficult.Size.X;
+    float textStartX = rightEdge - textWidth;
+
+    // Establish dynamic background dimensions incorporating a uniform padding structure
+    float bgWidth = textWidth + 20f;
+    float bgHeight = textHeight + 20f - PAD_HEIGHT;
+
+    if (IsInstanceValid(_background))
+    {
+      _background.Size = new Vector2(bgWidth, bgHeight);
+
+      // Snap background position to the calculated true visual layout bounds
       float bgTopEdge = _difficult.Position.Y - 10f;
+      _background.Position = new Vector2(textStartX - 10f, bgTopEdge);
 
-      _background?.Position = new Vector2(_difficult.Position.X - 10f, bgTopEdge);
-
-      // Position pad directly below the background
-      if (IsInstanceValid(_background))
+      // Synchronize the status pad directly beneath the primary background block
+      if (IsInstanceValid(_pad))
       {
-        _pad?.Position = new Vector2(_background.Position.X, _background.Position.Y + _background.Size.Y);
-        _pad?.Size = new Vector2(_background.Size.X, PAD_HEIGHT);
+        _pad.Position = new Vector2(_background.Position.X, _background.Position.Y + _background.Size.Y);
+        _pad.Size = new Vector2(_background.Size.X, PAD_HEIGHT);
       }
-      else
-        GD.PushWarning("[GameplayUI] ChartInfo: _background is null");
     }
     else
-      GD.PushWarning("[GameplayUI] ChartInfo: _difficult is null");
-
+      GD.PushWarning("[GameplayUI] ChartInfo: _background is null");
 
     _lastState.DifficultText = DifficultText;
   }

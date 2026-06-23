@@ -107,30 +107,44 @@ public partial class SongInfo : Control
   private void UpdateInfo()
   {
     _name?.Text = SongName;
-    _bpm?.Text = $"BPM: {BPM}";
 
-    if (IsInstanceValid(_name) && IsInstanceValid(_bpm))
+    string bpmText = $"BPM: {BPM}";
+    _bpm?.Text = bpmText;
+
+    if (!IsInstanceValid(_name) || !IsInstanceValid(_bpm))
     {
-      _name.ResetSize();
-      _bpm.ResetSize();
-
-      float nameWidth = _name.Size.X;
-      float bpmWidth = _bpm.Size.X;
-      float maxTextWidth = Mathf.Max(nameWidth, bpmWidth);
-
-      float textStartX = Mathf.Min(_name.OffsetLeft, _bpm.OffsetLeft);
-      float bgWidth = maxTextWidth + 20f; // 5px padding on left and right
-
-      // Height matches song icon
-      if (IsInstanceValid(_icon))
-      {
-        _background?.Position = new Vector2(textStartX - 10f, _icon.OffsetTop);
-        _background?.Size = new Vector2(bgWidth, _icon.Size.Y);
-      } 
-      else
-        GD.PushWarning("[GameplayUI] SongInfo: _icon is null");
-    } else
       GD.PushWarning("[GameplayUI] SongInfo: _name or _bpm is null");
+      return;
+    }
+
+    // Extract contextual font assets to calculate text dimensions without forcing a UI layout pass
+    var nameFont = _name.GetThemeFont("font");
+    int nameFontSize = _name.GetThemeFontSize("font_size");
+    float nameWidth = nameFont.GetStringSize(SongName, fontSize: nameFontSize).X;
+
+    var bpmFont = _bpm.GetThemeFont("font");
+    int bpmFontSize = _bpm.GetThemeFontSize("font_size");
+    float bpmWidth = bpmFont.GetStringSize(bpmText, fontSize: bpmFontSize).X;
+
+    float nameStartX = _name.Position.X;
+    float bpmStartX = _bpm.Position.X;
+
+    // Determine the maximum bounding width required to properly contain both labels
+    float maxTextWidth = Mathf.Max(nameWidth, bpmWidth);
+    float textStartX = Mathf.Min(nameStartX, bpmStartX);
+    float bgWidth = maxTextWidth + 20f; // Incorporates safety margins on both lateral bounds
+
+    // Anchor background constraints to the operational song icon dimensions
+    if (IsInstanceValid(_icon))
+    {
+      if (IsInstanceValid(_background))
+      {
+        _background.Position = new Vector2(textStartX - 10f, _icon.OffsetTop);
+        _background.Size = new Vector2(bgWidth, _icon.Size.Y);
+      }
+    }
+    else
+      GD.PushWarning("[GameplayUI] SongInfo: _icon is null");
 
     _lastState.SongName = SongName;
     _lastState.BPM = BPM;
