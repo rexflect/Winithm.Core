@@ -211,12 +211,17 @@ public partial class ResourcePackManager : Node
 
     foreach (string fileName in dir.GetFiles())
     {
-      if (fileName.EndsWith(".import") || fileName.EndsWith(".uid")) continue; // Skip Godot import/uid metadata files
+      if (fileName.EndsWith(".uid")) continue;
 
-      string filePath = path + "/" + fileName;
-      string fileNameWOExt = System.IO.Path.GetFileNameWithoutExtension(fileName);
+      // Sanitize file names to mitigate Godot 4's export artifact remap behavior
+      string cleanFileName = fileName.EndsWith(".import")
+        ? fileName.Substring(0, fileName.Length - 7)
+        : fileName;
 
-      // Name format: NoteType_NotePart
+      string filePath = path + "/" + cleanFileName;
+      string fileNameWOExt = System.IO.Path.GetFileNameWithoutExtension(cleanFileName);
+
+      // Expected naming convention: [NoteType]_[NotePart] (e.g., Tap_Base)
       int underscoreIdx = fileNameWOExt.IndexOf('_');
       if (underscoreIdx == -1) continue;
 
@@ -226,7 +231,7 @@ public partial class ResourcePackManager : Node
       var noteType = NoteData.ParseNoteType(ntStr);
       var texturePart = ParseNotePart(tpStr);
 
-      // Initialize dictionary lazy to prevent KeyNotFoundException
+      // Lazily initialize the nested dictionary to guarantee safe lookups
       if (!resourcePack.TEX.TryGetValue(noteType, out var value))
       {
         value = [];
@@ -248,18 +253,35 @@ public partial class ResourcePackManager : Node
 
     foreach (string fileName in dir.GetFiles())
     {
-      if (fileName.EndsWith(".import") || fileName.EndsWith(".uid")) continue;
+      if (fileName.EndsWith(".uid")) continue;
 
-      string filePath = path + "/" + fileName;
-      string fileNameWOExt = System.IO.Path.GetFileNameWithoutExtension(fileName);
+      // Sanitize file names to mitigate Godot 4's export artifact remap behavior
+      string cleanFileName = fileName.EndsWith(".import")
+        ? fileName.Substring(0, fileName.Length - 7)
+        : fileName;
+
+      string filePath = path + "/" + cleanFileName;
+      string fileNameWOExt = System.IO.Path.GetFileNameWithoutExtension(cleanFileName);
 
       var noteType = NoteData.ParseNoteType(fileNameWOExt);
       var audioStream = GD.Load<AudioStream>(filePath);
+
+      if (audioStream is null) continue;
+
       AudioStreamUtils.ClampStreamLoop(audioStream);
       resourcePack.SFX[noteType] = audioStream;
     }
 
-    if (!resourcePack.SFX.ContainsKey(NoteType.Hold)) resourcePack.SFX[NoteType.Hold] = resourcePack.SFX[NoteType.Tap];
+    // Fallback assignment: If an explicit Hold SFX is missing, reuse Tap SFX as the default behavior
+    if (resourcePack.SFX.ContainsKey(NoteType.Tap))
+    {
+      if (!resourcePack.SFX.ContainsKey(NoteType.Hold))
+        resourcePack.SFX[NoteType.Hold] = resourcePack.SFX[NoteType.Tap];
+    }
+    else
+    {
+      GD.PushError($"[ResourcePackManager] Critical fallback missing: Default 'Tap' SFX could not be found in {path}");
+    }
   }
 
   private static void LoadHitFX(string path, ref ResourcePack resourcePack)
