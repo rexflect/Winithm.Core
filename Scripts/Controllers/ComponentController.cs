@@ -99,6 +99,7 @@ public partial class ComponentController : Control
       _songInfo?.SongIcon = _songMetaData.Illustration.IllustrationTexture;
       _songInfo?.IconCenter = _songMetaData.Illustration.IconCenter;
       _songInfo?.IconSize = _songMetaData.Illustration.IconSize;
+      _songInfo?.SongProgress = SongProgressPercent;
       _songInfo?.UpdateVisual();
     }
 

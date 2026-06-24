@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://vfxn40lqnjwi" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/SongInfo.cs" id="2_is1gd"]
 [ext_resource type="FontFile" uid="uid://b2y82p7o4yhtf" path="res://Winithm.Core/Resources/Fonts/SpaceGrotesk.ttf" id="3_n315a"]
 [ext_resource type="PackedScene" uid="uid://dcmp6tffpneqy" path="res://Winithm.Core/Resources/Sprites/DigitRoller.tscn" id="5_7kjtd"]
+[ext_resource type="Shader" uid="uid://b7n14hk5nvy4o" path="res://Winithm.Core/Resources/Shaders/SongNameProgress.gdshader" id="5_e2j1j"]
 [ext_resource type="Script" uid="uid://l7yxu0ltd4io" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/ChartInfo.cs" id="6_rx5yn"]
 [ext_resource type="Script" uid="uid://28f01j3kjruj" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/PlayerCombo.cs" id="7_0cxqn"]
 [ext_resource type="Script" uid="uid://cp188c4vqrj0f" path="res://Winithm.Core/Scripts/Behaviors/GameplayUI/PlayerScore.cs" id="9_rhtcn"]
@@ -18,6 +19,20 @@ shader_parameter/speed = 10.0
 shader_parameter/stripe_width = 10.0
 shader_parameter/stripe_gap = 10.0
 shader_parameter/slant = -1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rx5yn"]
+shader = ExtResource("5_e2j1j")
+shader_parameter/progress = 0.0
+shader_parameter/text_color = Color(1, 1, 1, 1)
+shader_parameter/width = 125.0
+shader_parameter/is_bg = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_is1gd"]
+shader = ExtResource("5_e2j1j")
+shader_parameter/progress = 0.0
+shader_parameter/text_color = Color(1, 1, 1, 1)
+shader_parameter/width = 125.0
+shader_parameter/is_bg = false
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_o17d2"]
 shader = ExtResource("1_b0t66")
@@ -95,7 +110,21 @@ offset_bottom = -25.0
 texture = ExtResource("2_68dja")
 expand_mode = 1
 
+[node name="ProgressBgFill" type="ColorRect" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=54397720]
+material = SubResource("ShaderMaterial_rx5yn")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 90.0
+offset_top = -80.0
+offset_right = 215.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="Name" type="Label" parent="SongInfoTransform/SubTransform/SongInfo" unique_id=158060646]
+material = SubResource("ShaderMaterial_is1gd")
 layout_mode = 1
 anchors_preset = -1
 offset_left = 90.0
@@ -204,6 +233,7 @@ offset_bottom = 90.0
 [node name="Pause" type="Control" parent="PlayerComboTransform/SubTransform/PlayerCombo" unique_id=2018201748]
 clip_contents = true
 layout_mode = 1
+anchors_preset = 0
 offset_left = 25.0
 offset_top = 25.0
 offset_right = 35.0
