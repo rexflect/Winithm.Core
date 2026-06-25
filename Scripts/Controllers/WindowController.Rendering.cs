@@ -54,9 +54,19 @@ public partial class WindowController
     WindowBase windowVisual, double currentBeat
   )
   {
+    if (_audioController?.CurrentTime is null)
+    {
+      windowVisual.UnFocusOverlayOpacity = 0f;
+      windowVisual.UnFocus = true;
+      GD.PushWarning(
+        "[WindowController] Cannot animate focusable overlay since _audioController.CurrentTime is not initialized."
+      );
+      return;
+    }
+
     // Focus pulse: deterministic sin wave based on beat for perfect scrub rendering
-    float sinVal = Mathf.Sin((float)currentBeat * FocusablePulseFrequency * Mathf.Pi);
-    float opacityVal = Mathf.Lerp(0, WindowBase.UnfocusOverlayTint.A, sinVal);
+    float sinVal = Mathf.Sin((float)_audioController.CurrentTime * FocusablePulseFrequency * Mathf.Pi);
+    float opacityVal = sinVal >= 0.5f ? 1f : 0f;
     windowVisual.UnFocusOverlayOpacity = opacityVal;
     windowVisual.UnFocus = true;
   }

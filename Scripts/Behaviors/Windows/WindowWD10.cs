@@ -227,7 +227,7 @@ public partial class WindowWD10 : WindowBase
     if (!IsInstanceValid(UnfocusOverlay)) return;
 
     // Semi-transparent tint that dims the window when it loses focus.
-    var unfocusColor = UnfocusOverlayTint with { A = UnFocusOverlayOpacity };
+    var unfocusColor = UnfocusOverlayTint with { A = UnfocusOverlayTint.A * UnFocusOverlayOpacity };
     UnfocusOverlay.DrawRect(new Rect2(Vector2.Zero, UnfocusOverlay.Size), unfocusColor);
   }
 

@@ -19,7 +19,7 @@ public enum WindowMode
 [Tool]
 public partial class WindowController : Node
 {
-  protected Metronome? _metronome;
+  protected AudioController? _audioController;
   protected GroupController? _groupController;
   protected ThemeChannelController? _themeController;
   protected NoteController? _noteController;
@@ -34,7 +34,7 @@ public partial class WindowController : Node
   [Export] public Vector2 ScreenSize = new(1280, 720);
   [Export] public Vector2 PlayerAreaSize = new(1280, 720);
   [Export] public Color TitleBarColor = Colors.DarkSlateGray;
-  [Export] public float FocusablePulseFrequency = 5f;
+  [Export] public float FocusablePulseFrequency = 10f;
 
   private class WindowState
   {
@@ -52,7 +52,7 @@ public partial class WindowController : Node
   public void Initialize(
       Control objectsLayer,
       WindowManager windowManager,
-      Metronome metronome,
+      AudioController audioController,
       GroupController groupController,
       ThemeChannelController themeController,
       NoteController noteController
@@ -64,7 +64,7 @@ public partial class WindowController : Node
     _lastUpdateBeat = -1f;
 
     _objectsLayer = objectsLayer;
-    _metronome = metronome;
+    _audioController = audioController;
     _groupController = groupController;
     _themeController = themeController;
     _noteController = noteController;
@@ -136,7 +136,7 @@ public partial class WindowController : Node
 
   public void ForceUpdate(double currentBeat, bool _force = true)
   {
-    if (_metronome is null || _windowManager is null)
+    if (_audioController?.Metronome is null || _windowManager is null)
     {
       GD.PushError("[WindowController] Not initialized");
       return;
@@ -276,10 +276,10 @@ public partial class WindowController : Node
 
     windowData.Unresponsive = true;
 
-    if (_metronome is not null)
-      windowData.ComputeAnimationWhenUnresponsive(_metronome);
+    if (_audioController?.Metronome is not null)
+      windowData.ComputeAnimationWhenUnresponsive(_audioController.Metronome);
     else
-      GD.PushError("[WindowController] _metronome is not initialized to compute window animation");
+      GD.PushError("[WindowController] _audioController.Metronome is not initialized to compute window animation");
   }
 
   public void AddStartFocusable(string windowId, double currentBeat)

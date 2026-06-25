@@ -68,7 +68,7 @@ public abstract partial class WindowBase : Control, IPoolable
   // Shared constants
   // ---------------------------------------------------------------------------
 
-  public static readonly Color UnfocusOverlayTint = new(0.25f, 0.25f, 0.25f, 0.5f);
+  public static readonly Color UnfocusOverlayTint = new(0.85f, 0.85f, 0.85f, 0.25f);
   public static readonly Color UnresponsiveOverlayTint = new(1f, 1f, 1f, 0.75f);
   public static readonly Color UnresponsiveWindowModulate = new(1f, 1f, 1f, 0.75f);
 
