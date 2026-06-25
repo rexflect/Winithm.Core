@@ -47,10 +47,11 @@ public class ScoreEngine
 
   /// <summary>
   /// Score based on accuracy and max combo.
-  /// Combo weight reduced by 10x (90% Accuracy / 10% Max Combo ratio).
+  /// Formula: MaxScore * Accuracy ^ (3 - MaxCombo / TotalCombos).
+  /// Exponent ranges from 2.0 (perfect combo) to 3.0 (zero combo).
   /// </summary>
   public int RealtimeScore => _totalCombos > 0
-    ? (int)(MaxScore * (0.9f * (_weightGained / _totalCombos) + 0.1f * ((float)_maxCombo / _totalCombos)))
+    ? (int)(MaxScore * MathF.Pow(_weightGained / _totalCombos, 3f - (float)_maxCombo / _totalCombos))
     : 0;
 
   private int ComboRemain => Math.Max(0, _totalCombos - _comboEvaluated);
@@ -73,10 +74,10 @@ public class ScoreEngine
 
   /// <summary>
   /// Best possible final score assuming all remaining combos are perfect.
-  /// Combo weight reduced by 10x (90% Accuracy / 10% Max Combo ratio).
+  /// Formula: MaxScore * AccuracyPredict ^ (3 - MaxComboPredict / TotalCombos).
   /// </summary>
   public int ScorePredict => _totalCombos > 0
-    ? (int)(MaxScore * (0.95f * (WeightPredict / _totalCombos) + 0.05f * ((float)MaxComboPredict / _totalCombos)))
+    ? (int)(MaxScore * MathF.Pow(WeightPredict / _totalCombos, 3f - (float)MaxComboPredict / _totalCombos))
     : MaxScore; // before any note: predict a perfect run
 
   // ── Setup ────────────────────────────────────────────────────────────────────
