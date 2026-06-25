@@ -68,6 +68,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_e2j1j")
 
 [node name="SongInfoTransform" type="Control" parent="." unique_id=1245442107]
@@ -77,6 +78,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="SubTransform" type="Control" parent="SongInfoTransform" unique_id=81110553]
 layout_mode = 1
@@ -84,6 +86,7 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
+mouse_filter = 2
 
 [node name="SongInfo" type="Control" parent="SongInfoTransform/SubTransform" unique_id=1816729946]
 layout_mode = 1
@@ -155,6 +158,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="SubTransform" type="Control" parent="ChartInfoTransform" unique_id=191648706]
 layout_mode = 1
@@ -165,6 +169,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 0
+mouse_filter = 2
 
 [node name="ChartInfo" type="Control" parent="ChartInfoTransform/SubTransform" unique_id=1711508267]
 layout_mode = 1
@@ -210,10 +215,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="SubTransform" type="Control" parent="PlayerComboTransform" unique_id=206859354]
 layout_mode = 1
 anchors_preset = 0
+mouse_filter = 2
 
 [node name="PlayerCombo" type="Control" parent="PlayerComboTransform/SubTransform" unique_id=1626395537]
 layout_mode = 1
@@ -278,6 +285,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="SubTransform" type="Control" parent="PlayerScoreTransform" unique_id=1124056192]
 layout_mode = 1
@@ -285,6 +293,7 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 grow_horizontal = 0
+mouse_filter = 2
 
 [node name="PlayerScore" type="Control" parent="PlayerScoreTransform/SubTransform" unique_id=1395954684]
 layout_mode = 1

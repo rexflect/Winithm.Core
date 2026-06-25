@@ -162,6 +162,7 @@ public partial class SongInfo : Control
 
     _progressBgFill?.Position = _name.Position;
     _progressBgFill?.Size = nameSize;
+    _progressBgFill?.SetAnchorsPreset(LayoutPreset.TopLeft, true);
 
     _nameMaterial?.SetShaderParameter("width", nameSize.X);
     _bgFillMaterial?.SetShaderParameter("width", nameSize.X);
@@ -173,6 +174,7 @@ public partial class SongInfo : Control
       {
         _background.Position = new Vector2(textStartX - 10f, _icon.OffsetTop);
         _background.Size = new Vector2(bgWidth, _icon.Size.Y);
+        _background.SetAnchorsPreset(LayoutPreset.TopLeft, true);
       }
     }
     else
