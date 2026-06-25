@@ -78,7 +78,7 @@ public partial class NoteController
 
     var noteTransform = new Transform2D(Mathf.DegToRad(rotationDegrees), localPosition);
 
-    var parentLayer = GetNoteParentLayer(state, note);
+    var parentLayer = state.WindowVisual.GetNoteParentLayer(note);
     if (!IsInstanceValid(parentLayer))
     {
       GD.PushWarning($"[NoteController] Parent layer for note {note.ID} not found in window {windowId}.");

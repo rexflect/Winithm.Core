@@ -1,5 +1,6 @@
 using Godot;
 using Winithm.Core.Common;
+using Winithm.Core.Data;
 using Winithm.Core.Interfaces;
 
 namespace Winithm.Core.Behaviors.Windows;
@@ -140,6 +141,34 @@ public abstract partial class WindowBase : Control, IPoolable
       LastState.UnFocusOverlayOpacity = UnFocusOverlayOpacity;
       LastState.UnresponsiveOverlayOpacity = UnresponsiveOverlayOpacity;
     }
+  }
+
+  public virtual Note? AddNoteVisual(Note noteVisual, NoteData noteData)
+  {
+    var layer = GetNoteParentLayer(noteData);
+
+    var currentParent = noteVisual.GetParent();
+
+    if (!IsInstanceValid(currentParent))
+      layer?.AddChild(noteVisual);
+    else if (currentParent != layer)
+      noteVisual.Reparent(layer, false);
+
+    layer?.MoveChild(noteVisual, -1);
+    return noteVisual;
+  }
+
+  public virtual Control? GetNoteParentLayer(NoteData noteData)
+  {
+    return noteData.Type switch
+    {
+      NoteType.Tap => NoteLayer,
+      NoteType.Drag => NoteLayer,
+      NoteType.Hold => NoteLayer,
+      NoteType.Focus => FocusNoteLayer,
+      NoteType.Close => NoteLayer,
+      _ => null
+    };
   }
 
   // ---------------------------------------------------------------------------

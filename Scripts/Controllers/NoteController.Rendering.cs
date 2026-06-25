@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Collections.Generic;
 using Winithm.Core.Behaviors;
 using Winithm.Core.Data;
 using Winithm.Core.Managers;
@@ -12,13 +11,6 @@ public partial class NoteController
   private static bool IsVerticalSide(NoteSide side)
   {
     return side is NoteSide.Top || side is NoteSide.Bottom;
-  }
-
-  private static CanvasItem? GetNoteParentLayer(WindowNoteState state, NoteData note)
-  {
-    return (note.Type is NoteType.Focus)
-      ? state.WindowVisual.FocusNoteLayer
-      : state.WindowVisual.NoteLayer;
   }
 
   private static float ComputeViewportScale(Vector2 playerAreaSize)
@@ -67,19 +59,7 @@ public partial class NoteController
     }
 
     var noteVisual = _notePool.Get();
-    var parentLayer = GetNoteParentLayer(state, noteData);
-    var currentParent = noteVisual.GetParent();
-
-    if (!IsInstanceValid(currentParent))
-    {
-      parentLayer?.AddChild(noteVisual);
-    }
-    else if (currentParent != parentLayer)
-    {
-      noteVisual.Reparent(parentLayer, false);
-    }
-
-    parentLayer?.MoveChild(noteVisual, -1);
+    state.WindowVisual.AddNoteVisual(noteVisual, noteData);
 
     state.NoteVisualMap[noteData] = noteVisual;
     return noteVisual;
