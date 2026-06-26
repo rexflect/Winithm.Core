@@ -141,6 +141,23 @@ public partial class AudioController : Node
     _player.Stop();
   }
 
+  /// <summary>Stops playback and resets the clock to the beginning.</summary>
+  public void Stop()
+  {
+    _isPlaying = false;
+    _streamStarted = false;
+    _player.Stop();
+    _clock = _audioOffset > 0d ? -_audioOffset : 0d;
+    ClampClock();
+  }
+
+  /// <summary>Stops the current playback and starts it again from the beginning.</summary>
+  public void Restart()
+  {
+    Stop();
+    Resume();
+  }
+
   // ── Seeking ─────────────────────────────────────────────────────────────────
 
   /// <summary>

@@ -21,7 +21,7 @@ public class FrameCache
 /// Manages scroll speed segments and visual lane distances.
 /// </summary>
 public class SpeedStepManager :
-  IDeepCloneable<SpeedStepManager>, IObjectManager<SpeedStepData>
+  IDeepCloneableUID<SpeedStepManager>, IObjectManager<SpeedStepData>
 {
   public event Action<SpeedStepManager>? OnUpdated;
 
@@ -71,14 +71,14 @@ public class SpeedStepManager :
     }
   }
 
-  public SpeedStepManager DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public SpeedStepManager DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var newSpeedStep = new SpeedStepManager();
 
     newSpeedStep.BeginUpdate();
 
     foreach (var speedStep in _speedStepCollection)
-      newSpeedStep.AddSpeedStep(speedStep.DeepClone(objectFactory, offset));
+      newSpeedStep.AddSpeedStep(speedStep.DeepCloner(objectFactory, offset));
 
     newSpeedStep.EndUpdate();
 

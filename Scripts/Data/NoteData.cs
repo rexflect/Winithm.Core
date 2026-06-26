@@ -17,7 +17,7 @@ public enum NoteType
   Close
 }
 
-public class NoteData : IDeepCloneable<NoteData>
+public class NoteData : IDeepCloneableUID<NoteData>
 {
   public event Action<NoteData, double>? OnStartBeatChanged;
   public event Action<NoteData>? OnInvalidate;
@@ -79,7 +79,7 @@ public class NoteData : IDeepCloneable<NoteData>
     HoldStartResult = HitResult.None(this);
   }
 
-  public NoteData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public NoteData DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     return new NoteData()
     {

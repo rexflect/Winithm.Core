@@ -8,7 +8,7 @@ namespace Winithm.Core.Data;
 /// <summary>
 /// Scroll speed segment for a window.
 /// </summary>
-public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneable<SpeedStepData>
+public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID<SpeedStepData>
 {
   public event Action<SpeedStepData, double>? OnStartBeatChanged;
   public event Action<SpeedStepData>? OnUpdated;
@@ -36,7 +36,7 @@ public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneable
     StoryboardEvents.OnUpdated += BubbleStoryboard;
   }
 
-  public SpeedStepData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public SpeedStepData DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var cloned = new SpeedStepData();
 
@@ -46,7 +46,7 @@ public class SpeedStepData : IStoryboardable<StoryboardProperty>, IDeepCloneable
     cloned.ID = objectFactory.GenerateUID();
     cloned.StartBeat = StartBeat + (offset ?? BeatTime.Zero);
     cloned.Multiplier = Multiplier;
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
+    cloned.StoryboardEvents = StoryboardEvents?.DeepCloner(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
 
     // Re-wire bubbling to the cloned StoryboardEvents
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;

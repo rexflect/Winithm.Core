@@ -9,7 +9,7 @@ namespace Winithm.Core.Data;
 /// <summary>
 /// Main rendering container (lane) data including transform and sub-managers.
 /// </summary>
-public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneable<WindowData>
+public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID<WindowData>
 {
   public event Action<WindowData>? OnLifeCycleChanged;
   public event Action<WindowData>? OnUnFocusChanged;
@@ -115,7 +115,7 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Wi
     EndOutEndBeat = metronome.ToBeat(secsAfterCloseNoteMissed + 1.2);
   }
 
-  public WindowData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public WindowData DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var cloned = new WindowData();
 
@@ -149,9 +149,9 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Wi
     cloned.EndBeat = EndBeat + (offset ?? BeatTime.Zero);
 
     // Clone sub-managers
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
-    cloned.SpeedSteps = SpeedSteps?.DeepClone(objectFactory, offset) ?? new SpeedStepManager();
-    cloned.Notes = Notes?.DeepClone(objectFactory, offset) ?? new NoteManager();
+    cloned.StoryboardEvents = StoryboardEvents?.DeepCloner(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
+    cloned.SpeedSteps = SpeedSteps?.DeepCloner(objectFactory, offset) ?? new SpeedStepManager();
+    cloned.Notes = Notes?.DeepCloner(objectFactory, offset) ?? new NoteManager();
 
     // Re-wire sub-manager bubbling to the new clone
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;

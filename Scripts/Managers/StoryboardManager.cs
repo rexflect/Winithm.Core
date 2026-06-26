@@ -22,7 +22,7 @@ public class Cursor
 /// Manages timeline events and interpolates values.
 /// </summary>
 public class StoryboardManager<TProp>
-  : IDeepCloneable<StoryboardManager<TProp>>, IObjectManager<TProp, List<EventData>>
+  : IDeepCloneableUID<StoryboardManager<TProp>>, IObjectManager<TProp, List<EventData>>
   where TProp : notnull
 {
   public event Action<StoryboardManager<TProp>>? OnUpdated;
@@ -67,7 +67,7 @@ public class StoryboardManager<TProp>
     if (_updateLockCount == 0) OnUpdated?.Invoke(this);
   }
 
-  public StoryboardManager<TProp> DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public StoryboardManager<TProp> DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var newStoryboard = new StoryboardManager<TProp>();
 
@@ -76,7 +76,7 @@ public class StoryboardManager<TProp>
     foreach (var events in _eventCollection)
     {
       foreach (var evt in events.Value)
-        newStoryboard.AddEvent(events.Key, evt.DeepClone(objectFactory, offset));
+        newStoryboard.AddEvent(events.Key, evt.DeepCloner(objectFactory, offset));
     }
 
     newStoryboard.EndUpdate();

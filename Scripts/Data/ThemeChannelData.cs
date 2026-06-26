@@ -8,7 +8,7 @@ namespace Winithm.Core.Data;
 /// <summary>
 /// Shared color palette and opacity channel for themes.
 /// </summary>
-public class ThemeChannelData : IStoryboardable<StoryboardProperty>, IDeepCloneable<ThemeChannelData>
+public class ThemeChannelData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID<ThemeChannelData>
 {
   public event Action<ThemeChannelData>? OnUpdated;
 
@@ -32,7 +32,7 @@ public class ThemeChannelData : IStoryboardable<StoryboardProperty>, IDeepClonea
     StoryboardEvents.OnUpdated += BubbleStoryboard;
   }
 
-  public ThemeChannelData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public ThemeChannelData DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var cloned = new ThemeChannelData();
 
@@ -46,7 +46,7 @@ public class ThemeChannelData : IStoryboardable<StoryboardProperty>, IDeepClonea
     cloned.InitB = InitB;
     cloned.InitA = InitA;
     cloned.InitNoteA = InitNoteA;
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
+    cloned.StoryboardEvents = StoryboardEvents?.DeepCloner(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
 
     // Re-wire bubbling to the cloned StoryboardEvents
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;

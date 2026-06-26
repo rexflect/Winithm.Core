@@ -8,7 +8,7 @@ namespace Winithm.Core.Data;
 /// <summary>
 /// Animation state or transition for a property.
 /// </summary>
-public class EventData : IDeepCloneable<EventData>
+public class EventData : IDeepCloneableUID<EventData>
 {
   public event Action<EventData>? OnStartBeatChanged;
   public event Action<EventData>? OnUpdated;
@@ -27,7 +27,7 @@ public class EventData : IDeepCloneable<EventData>
 
   public AnyValue EasingBezier { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = new(0f, 0f, 1f, 1f);
 
-  public EventData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public EventData DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     return new EventData()
     {

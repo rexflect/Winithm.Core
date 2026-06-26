@@ -21,7 +21,7 @@ public enum NoteSide
 /// Manages Note segments, boundaries, and spatial data.
 /// </summary>
 public class NoteManager :
-  IDeepCloneable<NoteManager>, IObjectManager<NoteSide, List<NoteData>>
+  IDeepCloneableUID<NoteManager>, IObjectManager<NoteSide, List<NoteData>>
 {
   public event Action<double>? OnNoteAddedAtBeat;
   public event Action<double>? OnNoteRemovedAtBeat;
@@ -64,7 +64,7 @@ public class NoteManager :
   private int _updateLockCount = 0;
   private bool _needsRecompute = false;
 
-  public NoteManager DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public NoteManager DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var cloned = new NoteManager();
 
@@ -72,7 +72,7 @@ public class NoteManager :
     foreach (var sideNotes in _noteCollection)
     {
       foreach (var note in sideNotes.Value)
-        cloned.AddNote(sideNotes.Key, note.DeepClone(objectFactory, offset));
+        cloned.AddNote(sideNotes.Key, note.DeepCloner(objectFactory, offset));
     }
     cloned.EndUpdate();
 

@@ -58,7 +58,10 @@ public partial class WindowController : Node
       NoteController noteController
   )
   {
+    foreach (var window in _windowStates.Values)
+      _windowPool?.Release(window.Visual);
     _windowStates.Clear();
+    
     _renderCursor = 0;
     _frameSessionToken = 0;
     _lastUpdateBeat = -1f;

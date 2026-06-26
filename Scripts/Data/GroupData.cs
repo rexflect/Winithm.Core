@@ -8,7 +8,7 @@ namespace Winithm.Core.Data;
 /// <summary>
 /// Hierarchical transform node for grouping windows or other groups.
 /// </summary>
-public class GroupData : IStoryboardable<StoryboardProperty>, IDeepCloneable<GroupData>
+public class GroupData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID<GroupData>
 {
   public event Action<GroupData>? OnUpdated;
 
@@ -34,7 +34,7 @@ public class GroupData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Gro
     StoryboardEvents.OnUpdated += BubbleStoryboard;
   }
 
-  public GroupData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public GroupData DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var cloned = new GroupData();
 
@@ -49,7 +49,7 @@ public class GroupData : IStoryboardable<StoryboardProperty>, IDeepCloneable<Gro
     cloned.InitScaleX = InitScaleX;
     cloned.InitScaleY = InitScaleY;
     cloned.InitRotation = InitRotation;
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
+    cloned.StoryboardEvents = StoryboardEvents?.DeepCloner(objectFactory, offset) ?? new StoryboardManager<StoryboardProperty>();
 
     // Re-wire bubbling to the cloned StoryboardEvents
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;

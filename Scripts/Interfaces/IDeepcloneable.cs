@@ -3,7 +3,12 @@ using Winithm.Core.Managers;
 
 namespace Winithm.Core.Interfaces;
 
-public interface IDeepCloneable<T>
+public interface IDeepCloneableUID<T>
 {
-  T DeepClone(ObjectFactory objectFactory, BeatTime? offset);
+  T DeepCloner(ObjectFactory objectFactory, BeatTime? offset);
+}
+
+public interface IDeepCloneableStatic<T>
+{
+  T DeepCloner();
 }

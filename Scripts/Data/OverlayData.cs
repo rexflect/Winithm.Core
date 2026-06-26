@@ -9,7 +9,7 @@ namespace Winithm.Core.Data;
 /// <summary>
 /// Post-processing shader overlay with dynamic parameters.
 /// </summary>
-public class OverlayData : IStoryboardable<string>, IDeepCloneable<OverlayData>
+public class OverlayData : IStoryboardable<string>, IDeepCloneableUID<OverlayData>
 {
   public event Action<OverlayData>? OnLifeCycleChanged;
   public event Action<OverlayData>? OnUpdated;
@@ -41,7 +41,7 @@ public class OverlayData : IStoryboardable<string>, IDeepCloneable<OverlayData>
     StoryboardEvents.OnUpdated += BubbleStoryboard;
   }
 
-  public OverlayData DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public OverlayData DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     var cloned = new OverlayData();
 
@@ -59,7 +59,7 @@ public class OverlayData : IStoryboardable<string>, IDeepCloneable<OverlayData>
     foreach (var pair in InitParams)
       cloned.InitParams[pair.Key] = pair.Value;
 
-    cloned.StoryboardEvents = StoryboardEvents?.DeepClone(objectFactory, offset) ?? new StoryboardManager<string>();
+    cloned.StoryboardEvents = StoryboardEvents?.DeepCloner(objectFactory, offset) ?? new StoryboardManager<string>();
     cloned.StoryboardEvents.OnUpdated += cloned.BubbleStoryboard;
 
     return cloned;

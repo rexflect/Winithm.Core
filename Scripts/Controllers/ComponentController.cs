@@ -40,7 +40,7 @@ public partial class ComponentController : Control
   private Control? _playerScoreSubTransform;
   private PlayerScore? _playerScore;
 
-  private double _lastUpdateBeat;
+  private double _lastUpdateBeat = double.MinValue;
 
   private Color TextColor => ColorUtils.IsLight(BgStripeColor) ? Colors.Black : Colors.White;
   private Color BgColor => ColorUtils.AdjustBrightness(BgStripeColor, -0.1f);
@@ -69,6 +69,9 @@ public partial class ComponentController : Control
     ComponentManager manager, Metronome metronome, SongMetaData songMeta, ChartMetadata chartMeta
   )
   {
+    _lastState = default;
+    _lastUpdateBeat = double.MinValue;
+
     _componentManager = manager;
     _metronome = metronome;
     _songMetaData = songMeta;

@@ -14,6 +14,8 @@ public partial class ThemeChannelController : Node
 
   public void Initialize(ThemeChannelManager manager)
   {
+    _lastStates.Clear();
+
     _themeManager = manager;
 
     foreach (var tc in _themeManager)

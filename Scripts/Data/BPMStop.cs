@@ -8,7 +8,7 @@ namespace Winithm.Core.Data;
 /// <summary>
 /// Represents a tempo change at a specific beat.
 /// </summary>
-public class BPMStop : IDeepCloneable<BPMStop>
+public class BPMStop : IDeepCloneableUID<BPMStop>
 {
   public event Action<BPMStop>? OnStartBeatChanged;
   public event Action<BPMStop>? OnInvalidate;
@@ -43,7 +43,7 @@ public class BPMStop : IDeepCloneable<BPMStop>
     StartTimeSeconds = 0
   };
 
-  public BPMStop DeepClone(ObjectFactory objectFactory, BeatTime? offset)
+  public BPMStop DeepCloner(ObjectFactory objectFactory, BeatTime? offset)
   {
     return new BPMStop()
     {

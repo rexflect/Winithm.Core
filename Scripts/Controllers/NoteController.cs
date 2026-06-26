@@ -68,6 +68,10 @@ public partial class NoteController : Node
 
   public void Initialize(Metronome metronome, WindowManager windowManager, bool autoplay = false)
   {
+    _lastBeat = double.MinValue;
+    foreach (var windowId in WindowStates.Keys)
+      UnregisterWindow(windowId);
+
     Autoplay = autoplay;
     _metronome = metronome;
     _windowManager = windowManager;
