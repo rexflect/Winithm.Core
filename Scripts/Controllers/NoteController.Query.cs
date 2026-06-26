@@ -50,7 +50,7 @@ public partial class NoteController
       return true;
     }
 
-    if (!state.WindowData.Notes.TryGetNoteSide(note, out var noteSide))
+    if (!state.WindowData.Notes.TryGetNoteSide(note, out var noteDataGet))
     {
       GD.PushWarning($"[NoteController] Note {note.ID} not found in window {windowId}.");
       return false;
@@ -61,7 +61,7 @@ public partial class NoteController
     float viewportScale = ComputeViewportScale(playerAreaSize);
     var scaledWindowSize = windowSize * viewportScale;
 
-    float noteWidth = IsVerticalSide(noteSide)
+    float noteWidth = IsVerticalSide(noteDataGet.side)
       ? scaledWindowSize.X * note.Width
       : scaledWindowSize.Y * note.Width;
 
@@ -69,7 +69,7 @@ public partial class NoteController
     float headOffsetPx = 0f;
 
     var (localPosition, rotationDegrees) = ComputeNoteLocalPositionAndRotation(
-      noteSide, scaledWindowSize, lateralPosition, headOffsetPx
+      noteDataGet.side, scaledWindowSize, lateralPosition, headOffsetPx
     );
 
     float fallbackHeadHeight = PlayerNoteSize

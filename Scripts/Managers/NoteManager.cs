@@ -264,9 +264,10 @@ public class NoteManager :
   // Event Management
   // ==========================================
 
-  private readonly Dictionary<NoteData, NoteSide> _noteSideMap = [];
+  private readonly Dictionary<string, (NoteData note, NoteSide side)> _noteSideMap = [];
 
-  public bool TryGetNoteSide(NoteData note, out NoteSide side) => _noteSideMap.TryGetValue(note, out side);
+  public bool TryGetNoteSide(NoteData note, out (NoteData note, NoteSide side) data) 
+    => _noteSideMap.TryGetValue(note.ID, out data);
 
   private void SubscribeChangeEvent(NoteSide side, NoteData note)
   {
@@ -279,7 +280,7 @@ public class NoteManager :
     note.OnUpdated -= HandleUpdated;
     note.OnUpdated += HandleUpdated;
 
-    _noteSideMap[note] = side;
+    _noteSideMap[note.ID] = (note, side);
   }
 
   private void UnsubscribeChangeEvent(NoteData note)
@@ -288,12 +289,13 @@ public class NoteManager :
     note.OnInvalidate -= HandleInvalidate;
     note.OnUpdated -= HandleUpdated;
 
-    _noteSideMap.Remove(note);
+    _noteSideMap.Remove(note.ID);
   }
 
   private void HandleStartBeatChanged(NoteData note, double prevStartBeat)
   {
-    if (!_noteSideMap.TryGetValue(note, out var side)) return;
+    if (!_noteSideMap.TryGetValue(note.ID, out var data)) return;
+    var (noteData, side) = data;
 
     var list = _noteCollection[side];
     list.Remove(note);
@@ -376,8 +378,11 @@ public class NoteManager :
 
   public bool RemoveNote(NoteData note)
   {
-    if (_noteSideMap.TryGetValue(note, out var side))
-      return RemoveNote(side, note);
+    if (_noteSideMap.TryGetValue(note.ID, out var data))
+    {
+      var (noteData, side) = data;
+      return RemoveNote(side, noteData);
+    }
     return false;
   }
 

@@ -72,6 +72,9 @@ public partial class NoteController : Node
     foreach (var windowId in WindowStates.Keys)
       UnregisterWindow(windowId);
 
+    _notePool?.Dispose();
+    _notePool = null;
+
     Autoplay = autoplay;
     _metronome = metronome;
     _windowManager = windowManager;
