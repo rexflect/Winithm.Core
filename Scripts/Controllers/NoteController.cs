@@ -196,7 +196,7 @@ public partial class NoteController : Node
       var side = sideEntry.Key;
       var noteList = sideEntry.Value;
 
-      float viewportLengthPx = IsVerticalSide(side) ? windowSize.Y * viewportScale : windowSize.X * viewportScale;
+      float viewportLengthPx = IsVerticalSide(side) ? windowSize.Y : windowSize.X;
 
       int renderCursor = state.RenderCursors[side];
 

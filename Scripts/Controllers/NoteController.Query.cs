@@ -58,18 +58,16 @@ public partial class NoteController
 
     var playerAreaSize = state.WindowVisual.PlayerAreaSize;
     var windowSize = state.WindowVisual.WindowSize;
-    float viewportScale = ComputeViewportScale(playerAreaSize);
-    var scaledWindowSize = windowSize * viewportScale;
 
     float noteWidth = IsVerticalSide(noteDataGet.side)
-      ? scaledWindowSize.X * note.Width
-      : scaledWindowSize.Y * note.Width;
+      ? windowSize.X * note.Width
+      : windowSize.Y * note.Width;
 
     float lateralPosition = note.X * (1f - note.Width) + note.Width / 2f;
     float headOffsetPx = 0f;
 
     var (localPosition, rotationDegrees) = ComputeNoteLocalPositionAndRotation(
-      noteDataGet.side, scaledWindowSize, lateralPosition, headOffsetPx
+      noteDataGet.side, windowSize, lateralPosition, headOffsetPx
     );
 
     float fallbackHeadHeight = PlayerNoteSize
