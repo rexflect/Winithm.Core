@@ -1,6 +1,6 @@
 using Godot;
-using System;
 using Winithm.Core.Behaviors;
+using Winithm.Core.Common;
 using Winithm.Core.Data;
 using Winithm.Core.Managers;
 
@@ -15,10 +15,7 @@ public partial class NoteController
 
   private static float ComputeViewportScale(Vector2 playerAreaSize)
   {
-    return Math.Min(
-      playerAreaSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
-      playerAreaSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
-    );
+    return OSDisplayUtils.GetReferenceResolutionScale(playerAreaSize);
   }
 
   /// <summary>

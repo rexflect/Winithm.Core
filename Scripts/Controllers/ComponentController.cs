@@ -181,10 +181,7 @@ public partial class ComponentController : Control
       StoryboardProperty.Alpha, currentBeat, new AnyValue(targetCompData.InitAlpha)
     ).X;
 
-    float viewScale = Mathf.Abs(Mathf.Min(
-      ScreenSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
-      ScreenSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
-    ));
+    float viewScale = OSDisplayUtils.GetReferenceResolutionScale(ScreenSize);
 
     transformControl?.Position = new Vector2(x * viewScale, y * viewScale);
     subTransformControl?.Scale = new Vector2(s, s);
@@ -194,10 +191,7 @@ public partial class ComponentController : Control
 
   public void UpdateLayout()
   {
-    float viewScale = Mathf.Abs(Mathf.Min(
-      ScreenSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
-      ScreenSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
-    ));
+    float viewScale = OSDisplayUtils.GetReferenceResolutionScale(ScreenSize);
 
     // Use Scale on each component — this uniformly scales all
     // internal positions, sizes, fonts, and clip areas without

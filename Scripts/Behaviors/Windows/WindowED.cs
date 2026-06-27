@@ -15,10 +15,7 @@ public partial class WindowED : WindowBase
 
   protected override void OnWindowLayoutUpdate()
   {
-    float scale = Mathf.Min(
-      ScreenSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
-      ScreenSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
-    );
+    float scale = OSDisplayUtils.GetReferenceResolutionScale(ScreenSize);
 
     // Win10 title bar is 28 logical px tall at 100% scale.
     TitleBarHeight = 28f * scale;
@@ -70,10 +67,7 @@ public partial class WindowED : WindowBase
       return;
     }
 
-    float scale = Mathf.Min(
-      ScreenSize.X / Constants.Visual.DESIGN_RESOLUTION.X,
-      ScreenSize.Y / Constants.Visual.DESIGN_RESOLUTION.Y
-    );
+    float scale = OSDisplayUtils.GetReferenceResolutionScale(ScreenSize);
     
     float w = TitleBar.Size.X;
     float h = TitleBar.Size.Y;

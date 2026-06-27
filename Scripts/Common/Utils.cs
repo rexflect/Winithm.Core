@@ -47,6 +47,14 @@ public static class OSDisplayUtils
     int dpi = DisplayServer.ScreenGetDpi(screenIndex);
     return dpi > 0 ? dpi / 96f : 1.0f;
   }
+
+  public static float GetReferenceResolutionScale(Vector2 size)
+  {
+    return MathF.Min(
+      size.X / Constants.Visual.DESIGN_RESOLUTION.X,
+      size.Y / Constants.Visual.DESIGN_RESOLUTION.Y
+    );
+  }
 }
 
 public static class ColorUtils
