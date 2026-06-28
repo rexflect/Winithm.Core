@@ -43,9 +43,9 @@ public static class Scoring
 
   public static readonly Dictionary<Grade, string> GradeNames = new()
     {
-      { Grade.AP, "GFX" },
-      { Grade.FC, "VFX" },
-      { Grade.S, "FX" },
+      { Grade.AP, "FX" },
+      { Grade.FC, "X" },
+      { Grade.S, "S" },
       { Grade.A, "A" },
       { Grade.B, "B" },
       { Grade.C, "C" },
