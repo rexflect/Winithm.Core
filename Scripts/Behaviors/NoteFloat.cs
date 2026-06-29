@@ -124,61 +124,75 @@ public partial class NoteFloat : Control, IPoolable
 
     var clampedProgress = Mathf.Clamp(Progress, 0f, 1f);
 
+    // --- Indicator: delayed fade-in for anticipation ---
     if (_indicator is not null)
     {
       _indicator.Size = WindowSize;
       _indicator.Position = Vector2.Zero;
-      _indicator.Modulate = new Color(1f, 1f, 1f, clampedProgress * INDICATOR_FULL_OPACITY);
+
+      // Appear after 30% progress, ease-in quadratic
+      float indicatorT = Mathf.Clamp((clampedProgress - 0.3f) / 0.7f, 0f, 1f);
+      indicatorT *= indicatorT;
+      _indicator.Modulate = new Color(1f, 1f, 1f, indicatorT * INDICATOR_FULL_OPACITY);
     }
 
+    // --- Body: perspective projection + depth slide ---
     if (_bodyGroup is not null)
     {
-      // 0 = left/top edge, 1 = right/bottom
       float lateralPosition = X * (1f - Width) + Width / 2f;
       float depth = Width * 0.5f;
-      
-      Vector2 pivot = Vector2.Zero;
 
-      switch (Side)
+      Vector2 pivot = Side switch
       {
-        case NoteSide.Bottom:
-          pivot = new Vector2(WindowSize.X * lateralPosition, WindowSize.Y * (1f - depth));
-          break;
-        case NoteSide.Top:
-          pivot = new Vector2(WindowSize.X * lateralPosition, WindowSize.Y * depth);
-          break;
-        case NoteSide.Left:
-          pivot = new Vector2(WindowSize.X * depth, WindowSize.Y * lateralPosition);
-          break;
-        case NoteSide.Right:
-          pivot = new Vector2(WindowSize.X * (1f - depth), WindowSize.Y * lateralPosition);
-          break;
-      }
+        NoteSide.Bottom => new(WindowSize.X * lateralPosition, WindowSize.Y * (1f - depth)),
+        NoteSide.Top    => new(WindowSize.X * lateralPosition, WindowSize.Y * depth),
+        NoteSide.Left   => new(WindowSize.X * depth, WindowSize.Y * lateralPosition),
+        NoteSide.Right  => new(WindowSize.X * (1f - depth), WindowSize.Y * lateralPosition),
+        _ => Vector2.Zero
+      };
 
-      _bodyGroup.Position = pivot;
-      
-      // Apply strong ease-in for 3D perspective acceleration effect (Cubic)
-      float easeProgress = Mathf.Pow(clampedProgress, 3.0f);
-      _bodyGroup.Scale = new Vector2(easeProgress, easeProgress);
-      _bodyGroup.Modulate = new Color(1f, 1f, 1f, BODY_OPACITY);
+      // Perspective scale: simulates 1/(distance) projection
+      // Near field factor k controls depth intensity (higher = more dramatic)
+      const float PERSPECTIVE_DEPTH_K = 5f;
+      float perspectiveScale = clampedProgress / (1f + PERSPECTIVE_DEPTH_K * (1f - clampedProgress));
+
+      // Depth slide: body drifts inward from its edge as it approaches
+      const float SLIDE_STRENGTH = 0.08f;
+      float slideT = 1f - Mathf.Pow(clampedProgress, 2f);
+      Vector2 edgeDir = Side switch
+      {
+        NoteSide.Bottom => new(0f, 1f),
+        NoteSide.Top    => new(0f, -1f),
+        NoteSide.Left   => new(-1f, 0f),
+        NoteSide.Right  => new(1f, 0f),
+        _ => Vector2.Zero
+      };
+      float slideDistPx = slideT * Mathf.Min(WindowSize.X, WindowSize.Y) * SLIDE_STRENGTH;
+
+      _bodyGroup.Position = pivot + edgeDir * slideDistPx;
+      _bodyGroup.Scale = new Vector2(perspectiveScale, perspectiveScale);
+
+      // Opacity: cubic ease-out so note becomes visible early as a faint ghost
+      float bodyAlpha = 1f - Mathf.Pow(1f - clampedProgress, 3f);
+      _bodyGroup.Modulate = new Color(1f, 1f, 1f, bodyAlpha * BODY_OPACITY);
 
       if (_base is not null)
       {
         _base.Size = WindowSize;
-        _base.Position = -pivot; // Offset back to cover window
+        _base.Position = -pivot;
       }
 
       if (_overlay is not null && _overlay.Texture is not null)
       {
         float minSize = Mathf.Min(WindowSize.X, WindowSize.Y);
         float targetSize = minSize * FloatOverlayRatio;
-        
+
         var texSize = _overlay.Texture.GetSize();
         if (texSize.X > 0 && texSize.Y > 0)
         {
           _overlay.Scale = new Vector2(targetSize / texSize.X, targetSize / texSize.Y);
           _overlay.Size = texSize;
-          
+
           var scaledSize = new Vector2(targetSize, targetSize);
           _overlay.Position = -pivot + (WindowSize / 2f) - (scaledSize / 2f);
         }
