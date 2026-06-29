@@ -19,6 +19,7 @@ public partial class NoteController : Node
   public event Action<string, NoteData>? OnActiveHoldTick;
   public event Action<string, NoteData>? OnActiveHoldEnded;
   public event Action<string, NoteData, double>? OnDragReady;
+  public event Action<string, NoteData, double>? OnHoverReady;
   public event Action<string, NoteData>? OnNoteMiss;
   public event Action<string, NoteData>? OnAutoHit;
 
@@ -37,8 +38,10 @@ public partial class NoteController : Node
   private const float OFF_SCREEN_MARGIN_FACTOR = 3f;
 
   private PackedScene? _noteScene;
+  private PackedScene? _noteFloatScene;
   private Metronome? _metronome;
   private NodePool<Note>? _notePool;
+  private NodePool<NoteFloat>? _noteFloatPool;
   private double _lastBeat = double.MinValue;
 
   public Dictionary<string, WindowNoteState> WindowStates { get; private set; } = [];
@@ -49,6 +52,7 @@ public partial class NoteController : Node
     public required WindowBase WindowVisual;
 
     public Dictionary<NoteData, Note> NoteVisualMap = [];
+    public Dictionary<NoteData, NoteFloat> FloatNoteVisualMap = [];
     public Dictionary<NoteSide, int> RenderCursors = [];
     public Dictionary<NoteSide, int> EvalCursors = [];
 
@@ -75,11 +79,17 @@ public partial class NoteController : Node
     _notePool?.Dispose();
     _notePool = null;
 
+    _noteFloatPool?.Dispose();
+    _noteFloatPool = null;
+
     Autoplay = autoplay;
     _metronome = metronome;
     _windowManager = windowManager;
     _noteScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/Note.tscn");
     _notePool = new NodePool<Note>(this, _noteScene);
+
+    _noteFloatScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/NoteFloat.tscn");
+    _noteFloatPool = new NodePool<NoteFloat>(this, _noteFloatScene);
   }
 
   public void SetNoteHighlightSimulation(bool active) => NoteHighlightSimulation = active;
@@ -114,6 +124,9 @@ public partial class NoteController : Node
     foreach (var noteVisual in state.NoteVisualMap.Values)
       ReturnToPool(noteVisual);
 
+    foreach (var floatNoteVisual in state.FloatNoteVisualMap.Values)
+      ReturnToPool(floatNoteVisual);
+
     WindowStates.Remove(windowId);
   }
 
@@ -128,9 +141,16 @@ public partial class NoteController : Node
         if (IsInstanceValid(noteVisual)) noteVisual.QueueFree();
       }
       state.NoteVisualMap.Clear();
+
+      foreach (var floatNoteVisual in state.FloatNoteVisualMap.Values)
+      {
+        if (IsInstanceValid(floatNoteVisual)) floatNoteVisual.QueueFree();
+      }
+      state.FloatNoteVisualMap.Clear();
     }
 
     _notePool?.Dispose();
+    _noteFloatPool?.Dispose();
   }
 
   // =============================================
@@ -158,9 +178,9 @@ public partial class NoteController : Node
     bool force
   )
   {
-    if (_metronome is null || _notePool is null)
+    if (_metronome is null || _notePool is null || _noteFloatPool is null)
     {
-      GD.PushWarning("[NoteController] Metronome or NotePool is not initialized.");
+      GD.PushWarning("[NoteController] Metronome, NotePool or NoteFloatPool is not initialized.");
       return;
     }
 
@@ -220,35 +240,70 @@ public partial class NoteController : Node
         var noteData = noteList[i];
 
         double noteStartBeat = noteData.StartBeat.AbsoluteValue;
-        double noteEndBeat = noteStartBeat + noteData.Length;
 
         // Skip consumed notes
         if (noteData.ConsumedSessionToken == state.ConsumeSessionToken) continue;
 
-        // Hold notes should disappear immediately when playback reaches their tail
-        if (noteData.Type is NoteType.Hold && currentBeat >= noteEndBeat) continue;
+        // Skip indicator and float notes (handled in second pass)
+        if (noteData.Type is NoteType.Indicator) continue;
 
-        float headOffsetPx = state.WindowData.SpeedSteps.GetVisualOffset(
-          currentBeat, noteStartBeat
-        ) * pixelsPerBeat * viewportScale;
+        if (!IsFloatNoteType(noteData.Type))
+        {
+          double noteEndBeat = noteStartBeat + noteData.Length;
 
-        // Notes beyond viewport: all subsequent are even further (sorted by StartBeat)
-        if (headOffsetPx > viewportLengthPx + offScreenMarginPx) break;
+          // Hold notes should disappear immediately when playback reaches their tail
+          if (noteData.Type is NoteType.Hold && currentBeat >= noteEndBeat) continue;
 
-        float tailOffsetPx = (noteData.Length == 0 || noteData.Type is not NoteType.Hold)
-          ? headOffsetPx
-          : state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * pixelsPerBeat * viewportScale;
+          float headOffsetPx = state.WindowData.SpeedSteps.GetVisualOffset(
+            currentBeat, noteStartBeat
+          ) * pixelsPerBeat * viewportScale;
 
-        if (!state.NoteVisualMap.TryGetValue(noteData, out var noteVisual))
-          noteVisual = SpawnNote(state, noteData);
+          // Notes beyond viewport: all subsequent are even further (sorted by StartBeat)
+          if (headOffsetPx > viewportLengthPx + offScreenMarginPx) break;
 
-        noteVisual?.Modulate = noteData.IsEvaluated ? NOTE_COLOR_EVALUATED : NOTE_COLOR_DEFAULT;
+          float tailOffsetPx = (noteData.Length == 0 || noteData.Type is not NoteType.Hold)
+            ? headOffsetPx
+            : state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * pixelsPerBeat * viewportScale;
 
-        PositionNoteVisual(
-          side, noteData, noteVisual, headOffsetPx, tailOffsetPx, state
-        );
+          if (!state.NoteVisualMap.TryGetValue(noteData, out var noteVisual))
+            noteVisual = SpawnNote(state, noteData);
 
-        noteData.LastSeenFrameSessionToken = state.FrameSessionToken;
+          noteVisual?.Modulate = noteData.IsEvaluated ? NOTE_COLOR_EVALUATED : NOTE_COLOR_DEFAULT;
+
+          PositionNoteVisual(
+            side, noteData, noteVisual, headOffsetPx, tailOffsetPx, state
+          );
+
+          noteData.LastSeenFrameSessionToken = state.FrameSessionToken;
+        }
+        else
+        {
+          // Float notes appear based on beat distance, same as speed step offset, but normalized.
+          // Let's use the offset to compute progress. A progress of 0 means exactly on screen edge,
+          // and a progress of 1 means exactly at timing window.
+          // Wait, standard float notes scale from 0 to 1 over their entire approach time.
+          float offsetPx = state.WindowData.SpeedSteps.GetVisualOffset(
+            currentBeat, noteStartBeat
+          ) * pixelsPerBeat * viewportScale;
+
+          // Progress = 1 - (offsetPx / viewportLengthPx)
+          // Note: offsetPx is distance from anchor to timing point. 
+          // When offsetPx == viewportLengthPx, progress is 0.
+          // When offsetPx == 0, progress is 1.
+          if (offsetPx > viewportLengthPx) break; // Not yet visible
+
+          float progress = 1f - (offsetPx / viewportLengthPx);
+          if (progress < 0f) continue;
+
+          if (!state.FloatNoteVisualMap.TryGetValue(noteData, out var floatNoteVisual))
+            floatNoteVisual = SpawnFloatNote(state, noteData);
+
+          floatNoteVisual?.Modulate = noteData.IsEvaluated ? NOTE_COLOR_EVALUATED : NOTE_COLOR_DEFAULT;
+
+          PositionFloatNoteVisual(side, noteData, floatNoteVisual, state, progress);
+
+          noteData.LastSeenFrameSessionToken = state.FrameSessionToken;
+        }
       }
     }
 

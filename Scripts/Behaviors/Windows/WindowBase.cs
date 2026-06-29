@@ -59,8 +59,9 @@ public abstract partial class WindowBase : Control, IPoolable
   public Control? WindowBody { get; private set; }
   public Control? WindowFrame { get; private set; }
 
-  // NoteLayer → UnfocusOverlay → FocusNoteLayer → UnresponsiveOverlay → HitFXLayer
+  // NoteLayer → FloatNoteLayer → UnfocusOverlay → FocusNoteLayer → UnresponsiveOverlay → HitFXLayer
   public Control? NoteLayer { get; private set; }
+  public Control? FloatNoteLayer { get; private set; }
   public Control? UnfocusOverlay { get; private set; }
   public Control? FocusNoteLayer { get; private set; }
   public Control? UnresponsiveOverlay { get; private set; }
@@ -97,6 +98,7 @@ public abstract partial class WindowBase : Control, IPoolable
     WindowFrame = GetNodeOrNull<Control>("Frame");
 
     NoteLayer = GetNodeOrNull<Control>("WindowBody/NoteLayer");
+    FloatNoteLayer = GetNodeOrNull<Control>("WindowBody/FloatNoteLayer");
     UnfocusOverlay = GetNodeOrNull<Control>("WindowBody/UnfocusOverlay");
     FocusNoteLayer = GetNodeOrNull<Control>("WindowBody/FocusNoteLayer");
     UnresponsiveOverlay = GetNodeOrNull<Control>("WindowBody/UnresponsiveOverlay");
@@ -143,7 +145,7 @@ public abstract partial class WindowBase : Control, IPoolable
     }
   }
 
-  public virtual Note? AddNoteVisual(Note noteVisual, NoteData noteData)
+  public virtual Control? AddNoteVisual(Control noteVisual, NoteData noteData)
   {
     var layer = GetNoteParentLayer(noteData);
 
@@ -165,8 +167,9 @@ public abstract partial class WindowBase : Control, IPoolable
       NoteType.Tap => NoteLayer,
       NoteType.Drag => NoteLayer,
       NoteType.Hold => NoteLayer,
+      NoteType.Hover => FloatNoteLayer,
       NoteType.Focus => FocusNoteLayer,
-      NoteType.Close => NoteLayer,
+      NoteType.Close => FloatNoteLayer,
       _ => null
     };
   }
@@ -235,8 +238,9 @@ public abstract partial class WindowBase : Control, IPoolable
       WindowBody?.QueueRedraw();
 
       var noteModulate = new Color(1f, 1f, 1f, NoteOpacity);
-      if (NoteLayer is not null) NoteLayer.Modulate = noteModulate;
-      if (FocusNoteLayer is not null) FocusNoteLayer.Modulate = noteModulate;
+      NoteLayer?.Modulate = noteModulate;
+      FloatNoteLayer?.Modulate = noteModulate;
+      FocusNoteLayer?.Modulate = noteModulate;
 
       LastState.WindowColor = WindowColor;
       LastState.NoteOpacity = NoteOpacity;

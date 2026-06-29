@@ -13,6 +13,11 @@ public partial class NoteController
     return side is NoteSide.Top || side is NoteSide.Bottom;
   }
 
+  private static bool IsFloatNoteType(NoteType type)
+  {
+    return type is NoteType.Hover || type is NoteType.Focus || type is NoteType.Close;
+  }
+
   private static float ComputeViewportScale(Vector2 playerAreaSize)
   {
     return OSDisplayUtils.GetReferenceResolutionScale(playerAreaSize);
@@ -62,6 +67,21 @@ public partial class NoteController
     return noteVisual;
   }
 
+  private NoteFloat? SpawnFloatNote(WindowNoteState state, NoteData noteData)
+  {
+    if (_noteFloatPool is null)
+    {
+      GD.PushWarning("[NoteController] NoteFloat pool is not created with NoteFloat.tscn.");
+      return null;
+    }
+
+    var floatNoteVisual = _noteFloatPool.Get();
+    state.WindowVisual.AddNoteVisual(floatNoteVisual, noteData);
+
+    state.FloatNoteVisualMap[noteData] = floatNoteVisual;
+    return floatNoteVisual;
+  }
+
   /// <summary>Removes a note's visual and returns it to the pool.</summary>
   public void ConsumeNote(string windowId, NoteData note)
   {
@@ -75,6 +95,12 @@ public partial class NoteController
         ReturnToPool(noteVisual);
         state.NoteVisualMap.Remove(note);
       }
+      else if (state.FloatNoteVisualMap.TryGetValue(note, out var floatNoteVisual))
+      {
+        note.ConsumedSessionToken = state.ConsumeSessionToken;
+        ReturnToPool(floatNoteVisual);
+        state.FloatNoteVisualMap.Remove(note);
+      }
       state.ActiveHolds.Remove(note);
     }
   }
@@ -83,6 +109,12 @@ public partial class NoteController
   {
     noteVisual.Visible = false;
     _notePool?.Release(noteVisual);
+  }
+
+  private void ReturnToPool(NoteFloat noteVisual)
+  {
+    noteVisual.Visible = false;
+    _noteFloatPool?.Release(noteVisual);
   }
 
   private void CollectStaleNoteVisuals(WindowNoteState state)
@@ -96,8 +128,16 @@ public partial class NoteController
 
     foreach (var note in state.PendingVisualRemovals)
     {
-      ReturnToPool(state.NoteVisualMap[note]);
-      state.NoteVisualMap.Remove(note);
+      if (state.NoteVisualMap.TryGetValue(note, out var noteVisual))
+      {
+        ReturnToPool(noteVisual);
+        state.NoteVisualMap.Remove(note);
+      }
+      else if (state.FloatNoteVisualMap.TryGetValue(note, out var floatNoteVisual))
+      {
+        ReturnToPool(floatNoteVisual);
+        state.FloatNoteVisualMap.Remove(note);
+      }
     }
   }
 
@@ -173,6 +213,43 @@ public partial class NoteController
     noteVisual.UpdateVisual();
   }
 
+  private void PositionFloatNoteVisual(
+    NoteSide side,
+    NoteData noteData,
+    NoteFloat? floatNoteVisual,
+    WindowNoteState state,
+    float progress)
+  {
+    if (!IsInstanceValid(floatNoteVisual))
+    {
+      GD.PushWarning("[NoteController] Float note visual does not exist to be positioned.");
+      return;
+    }
+
+    var windowVisual = state.WindowVisual;
+    var playerAreaSize = windowVisual.PlayerAreaSize;
+
+    if (!IsInstanceValid(windowVisual.WindowBody))
+    {
+      GD.PushWarning("[NoteController] Window body does not exist to compute note sizes.");
+      return;
+    }
+
+    floatNoteVisual.WindowSize = windowVisual.WindowBody.Size;
+    floatNoteVisual.Side = side;
+    floatNoteVisual.X = noteData.X;
+    floatNoteVisual.Width = noteData.Width;
+    floatNoteVisual.Progress = progress;
+
+    var resourcePack = noteData.ResourcePack;
+    floatNoteVisual.SetNoteType(noteData.Type, resourcePack);
+
+    // Highlight notes sharing the same start beat (chords)
+    ApplyChordHighlight(noteData, floatNoteVisual);
+
+    floatNoteVisual.UpdateVisual();
+  }
+
   private void ApplyChordHighlight(NoteData noteData, Note noteVisual)
   {
     if (!NoteHighlightSimulation)
@@ -192,4 +269,22 @@ public partial class NoteController
       noteVisual.SetNoteHighlighting(count >= 2);
   }
 
+  private void ApplyChordHighlight(NoteData noteData, NoteFloat floatNoteVisual)
+  {
+    if (!NoteHighlightSimulation)
+    {
+      floatNoteVisual.SetNoteHighlighting(false);
+      return;
+    }
+
+    if (_windowManager is null)
+    {
+      GD.PushWarning("[NoteController] _windowManager is not initilized to highlight chord notes.");
+      return;
+    }
+
+    double startBeat = noteData.StartBeat.AbsoluteValue;
+    if (_windowManager.ChordNoteMap.TryGetValue(startBeat, out var count))
+      floatNoteVisual.SetNoteHighlighting(count >= 2);
+  }
 }

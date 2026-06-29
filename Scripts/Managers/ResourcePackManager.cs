@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Winithm.Core.Common;
 using Winithm.Core.Data;
 
@@ -17,9 +18,13 @@ public record struct ResourcePackConfig
   public bool Particle;
   public float HighlightSize;
   public float HighlightInsensity;
-  public int NinePatchHeadMarginH;
+  public int NinePatchHeadMargin;
   public int NinePatchBodyMarginH;
   public int NinePatchBodyMarginV;
+  public int NinePatchFloatMargin;
+  public float HeadOverlayRatio;
+  public float FloatOverlayRatio;
+  public float bodyWidthOffset;
   public HitResultType HitFXAutoResult;
   public int HitFXHoldTickMs;
   public bool HitFXAdditiveBlending;
@@ -155,8 +160,8 @@ public partial class ResourcePackManager : Node
           case "particle":
             resourcePack.Config.Particle = bool.TryParse(val, out bool ptl) && ptl;
             break;
-          case "ninePatchHeadMarginH":
-            resourcePack.Config.NinePatchHeadMarginH = int.TryParse(val, out int h) ? h : 16;
+          case "ninePatchHeadMargin":
+            resourcePack.Config.NinePatchHeadMargin = int.TryParse(val, out int h) ? h : 16;
             break;
           case "ninePatchBodyMarginH":
             resourcePack.Config.NinePatchBodyMarginH = int.TryParse(val, out int mh) ? mh : 0;
@@ -164,11 +169,23 @@ public partial class ResourcePackManager : Node
           case "ninePatchBodyMarginV":
             resourcePack.Config.NinePatchBodyMarginV = int.TryParse(val, out int mv) ? mv : 0;
             break;
+          case "ninePatchFloatMargin":
+            resourcePack.Config.NinePatchFloatMargin = int.TryParse(val, out int fm) ? fm : 0;
+            break;
+          case "headOverlayRatio":
+            resourcePack.Config.HeadOverlayRatio = float.TryParse(val, CultureInfo.InvariantCulture, out float hos) ? hos : 1.2f;
+            break;
+          case "floatOverlayRatio":
+            resourcePack.Config.FloatOverlayRatio = float.TryParse(val, CultureInfo.InvariantCulture, out float fos) ? fos : 0.5f;
+            break;
+          case "bodyWidthOffset":
+            resourcePack.Config.bodyWidthOffset = float.TryParse(val, CultureInfo.InvariantCulture, out float bwo) ? bwo : 0.015f;
+            break;
           case "highlightSize":
-            resourcePack.Config.HighlightSize = float.TryParse(val, out float sz) ? sz : 0.75f;
+            resourcePack.Config.HighlightSize = float.TryParse(val, CultureInfo.InvariantCulture, out float sz) ? sz : 0.75f;
             break;
           case "highlightIntensity":
-            resourcePack.Config.HighlightInsensity = float.TryParse(val, out float ins) ? ins : 1.5f;
+            resourcePack.Config.HighlightInsensity = float.TryParse(val, CultureInfo.InvariantCulture, out float ins) ? ins : 1.5f;
             break;
           case "hitfxAutoResult":
             resourcePack.Config.HitFXAutoResult = ParseHitResultType(val);
@@ -195,10 +212,10 @@ public partial class ResourcePackManager : Node
 
     float r = 0, g = 0, b = 0, a = 1;
 
-    if (parts.Length >= 1) _ = float.TryParse(parts[0], out r);
-    if (parts.Length >= 2) _ = float.TryParse(parts[1], out g);
-    if (parts.Length >= 3) _ = float.TryParse(parts[2], out b);
-    if (parts.Length >= 4) _ = float.TryParse(parts[3], out a);
+    if (parts.Length >= 1) _ = float.TryParse(parts[0], CultureInfo.InvariantCulture, out r);
+    if (parts.Length >= 2) _ = float.TryParse(parts[1], CultureInfo.InvariantCulture, out g);
+    if (parts.Length >= 3) _ = float.TryParse(parts[2], CultureInfo.InvariantCulture, out b);
+    if (parts.Length >= 4) _ = float.TryParse(parts[3], CultureInfo.InvariantCulture, out a);
 
     return new(r, g, b, a);
   }

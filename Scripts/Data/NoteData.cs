@@ -13,8 +13,10 @@ public enum NoteType
   Tap,
   Hold,
   Drag,
+  Hover,
   Focus,
-  Close
+  Close,
+  Indicator // Just a visual layer for float notes like Hover to make it easier for players to time, not a playable note type.
 }
 
 public class NoteData : IDeepCloneableUID<NoteData>
@@ -101,8 +103,10 @@ public class NoteData : IDeepCloneableUID<NoteData>
       "tap" => NoteType.Tap,
       "hold" => NoteType.Hold,
       "drag" => NoteType.Drag,
+      "hover" => NoteType.Hover,
       "focus" => NoteType.Focus,
       "close" => NoteType.Close,
+      "indicator" => NoteType.Indicator,
       _ => NoteType.Tap
     };
   }

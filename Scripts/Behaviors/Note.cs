@@ -36,11 +36,12 @@ public partial class Note : Control, IPoolable
   [Export] public float BodyHeight { get; set; } = 0f;
   public ResourcePack? ResourcePack { get; set; } = null;
 
-  public static readonly float NOTE_HEAD_HEIGHT_RATIO = 0.0175f;
-  public static readonly float NOTE_HEAD_OVERLAY_RATIO_SIZE = 1.2f;
-  public static readonly float BODY_TO_HEAD_WIDTH_OFFSET = 0.015f;
-
+  public static readonly float NOTE_HEAD_HEIGHT_RATIO = 0.025f;
   public static readonly float BASE_HIGHTLIGHTING_SIZE = 10f;
+
+  public float NoteHeadOverlayRatioSize { get; set; } = 1.2f;
+  public float NoteBodyWidthOffset { get; set; } = 0.015f;
+
 
   // Initialize node references and perform initial visual update
   public override void _Ready()
@@ -74,6 +75,15 @@ public partial class Note : Control, IPoolable
 
   public void SetNoteType(NoteType type, ResourcePack resourcePack)
   {
+    if (type is NoteType.Hover
+      || type is NoteType.Focus
+      || type is NoteType.Close
+    )
+    {
+      GD.PushWarning($"[Note] Invalid note type for scroll notes: {type}");
+      return;
+    }
+
     bool isDirty = Type != type
                   || !ReferenceEquals(ResourcePack?.TEX, resourcePack.TEX);
     if (!isDirty) return;
@@ -81,10 +91,13 @@ public partial class Note : Control, IPoolable
     Type = type;
     ResourcePack = resourcePack;
 
+    NoteHeadOverlayRatioSize = resourcePack.Config.HeadOverlayRatio;
+    NoteBodyWidthOffset = resourcePack.Config.bodyWidthOffset;
+
     _bodyContainer?.Visible = Type is NoteType.Hold;
 
-    _headBase?.PatchMarginLeft = resourcePack.Config.NinePatchHeadMarginH;
-    _headBase?.PatchMarginRight = resourcePack.Config.NinePatchHeadMarginH;
+    _headBase?.PatchMarginLeft = resourcePack.Config.NinePatchHeadMargin;
+    _headBase?.PatchMarginRight = resourcePack.Config.NinePatchHeadMargin;
     _headBase?.PatchMarginTop = 0;
     _headBase?.PatchMarginBottom = 0;
 
@@ -129,6 +142,16 @@ public partial class Note : Control, IPoolable
   // Recalculates sizes and positions of all components based on current properties
   public void UpdateVisual()
   {
+    bool headDirty =
+      PlayerAreaSize != _lastState.PlayerAreaSize ||
+      Width != _lastState.Width ||
+      NoteSize != _lastState.NoteSize;
+
+    bool bodyDirty =
+      PlayerAreaSize != _lastState.PlayerAreaSize ||
+      Width != _lastState.Width ||
+      BodyHeight != _lastState.BodyHeight;
+
     float minScale = Mathf.Min(PlayerAreaSize.X, PlayerAreaSize.Y);
     float headH = NoteSize * minScale * NOTE_HEAD_HEIGHT_RATIO;
 
@@ -141,16 +164,6 @@ public partial class Note : Control, IPoolable
       headScale = headH / headTex.GetSize().Y;
     }
 
-    bool headDirty =
-      PlayerAreaSize != _lastState.PlayerAreaSize ||
-      Width != _lastState.Width ||
-      NoteSize != _lastState.NoteSize;
-
-    bool bodyDirty =
-      PlayerAreaSize != _lastState.PlayerAreaSize ||
-      Width != _lastState.Width ||
-      BodyHeight != _lastState.BodyHeight;
-
     if (headDirty)
     {
       // Update head component layout
@@ -158,27 +171,29 @@ public partial class Note : Control, IPoolable
 
       if (_headBase?.Texture is { } baseTex)
       {
-        float targetLogicW = headScale > 0 ? headW / headScale : headW;
+        // Decouple horizontal scale from NoteSize to prevent margins from growing/shrinking with NoteSize
+        float baseScale = NoteSize > 0 ? headScale / NoteSize : headScale;
+        float targetLogicW = baseScale > 0 ? headW / baseScale : headW;
         float minSafeW = _headBase.PatchMarginLeft + _headBase.PatchMarginRight;
 
-        // 2. Prevent NinePatch distortion by scaling X-axis if width < margins
+        // Prevent NinePatch distortion by scaling X-axis if width < margins
         if (targetLogicW < minSafeW && minSafeW > 0)
         {
           _headBase.Size = new Vector2(minSafeW, baseTex.GetSize().Y);
-          _headBase.Scale = new Vector2(headScale * (targetLogicW / minSafeW), headScale);
+          _headBase.Scale = new Vector2(baseScale * (targetLogicW / minSafeW), headScale);
         }
         else
         {
           _headBase.Size = new Vector2(targetLogicW, baseTex.GetSize().Y);
-          _headBase.Scale = new Vector2(headScale, headScale);
+          _headBase.Scale = new Vector2(baseScale, headScale);
         }
-
+        
         _headBase.Position = Vector2.Zero;
       }
 
       if (_headOverlay?.Texture is { } overlayTex)
       {
-        float overlaySize = headH * NOTE_HEAD_OVERLAY_RATIO_SIZE;
+        float overlaySize = headH * NoteHeadOverlayRatioSize;
         float texW = overlayTex.GetSize().X;
         float texH = overlayTex.GetSize().Y;
 
@@ -191,28 +206,31 @@ public partial class Note : Control, IPoolable
     if (bodyDirty)
     {
       // Update body component layout (for Hold notes)
-      float bodyWidthOffset = minScale * BODY_TO_HEAD_WIDTH_OFFSET;
+      float bodyWidthOffset = minScale * NoteBodyWidthOffset;
       float bodyW = MathF.Max(headW - bodyWidthOffset, 0f);
 
       _bodyContainer?.Position = new Vector2(-bodyW / 2f, -BodyHeight - headH);
 
-      float targetLogicW = headScale > 0 ? bodyW / headScale : bodyW;
+      float baseScale = NoteSize > 0 ? headScale / NoteSize : headScale;
+      float targetLogicW = baseScale > 0 ? bodyW / baseScale : bodyW;
       float targetLogicH = headScale > 0 ? BodyHeight / headScale : BodyHeight;
       float minSafeW = _bodyBase?.PatchMarginLeft + _bodyBase?.PatchMarginRight ?? headW;
 
-      // 3. Apply the same squish logic to the body NinePatch
-      if (targetLogicW < minSafeW && minSafeW > 0)
+      if (_bodyBase is not null)
       {
-        _bodyBase?.Size = new Vector2(minSafeW, targetLogicH);
-        _bodyBase?.Scale = new Vector2(headScale * (targetLogicW / minSafeW), headScale);
+        if (targetLogicW < minSafeW && minSafeW > 0)
+        {
+          _bodyBase.Size = new Vector2(minSafeW, targetLogicH);
+          _bodyBase.Scale = new Vector2(baseScale * (targetLogicW / minSafeW), headScale);
+        }
+        else
+        {
+          _bodyBase.Size = new Vector2(targetLogicW, targetLogicH);
+          _bodyBase.Scale = new Vector2(baseScale, headScale);
+        }
+        
+        _bodyBase.Position = Vector2.Zero;
       }
-      else
-      {
-        _bodyBase?.Size = new Vector2(targetLogicW, targetLogicH);
-        _bodyBase?.Scale = new Vector2(headScale, headScale);
-      }
-
-      _bodyBase?.Position = Vector2.Zero;
 
     }
 

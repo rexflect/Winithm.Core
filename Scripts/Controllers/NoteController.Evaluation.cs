@@ -35,7 +35,8 @@ public partial class NoteController
       return;
     }
 
-    double dragWindowMs = Constants.HitResult.TimmingWindowMs[HitResultType.Bad];
+    double dragWindowMs = Constants.HitResult.TimmingWindowMs[HitResultType.Good];
+    double hoverWindowMs = Constants.HitResult.TimmingWindowMs[HitResultType.Good];
     double missWindowMs = Constants.HitResult.TimmingWindowMs[HitResultType.Miss];
     int evalCursor = state.EvalCursors[side];
     var noteList = state.WindowData.Notes[side];
@@ -46,6 +47,9 @@ public partial class NoteController
 
       // Note is in the future
       if (noteData.StartBeat.AbsoluteValue > currentBeat) break;
+
+      // Skip indicator notes
+      if (noteData.Type is NoteType.Indicator) { evalCursor++; continue; }
 
       // Unbounded note is skipped
       if (!noteData.IsLifecycleBounded) { evalCursor++; continue; }
@@ -107,6 +111,17 @@ public partial class NoteController
       )
       {
         OnDragReady?.Invoke(windowId, noteData, elapsedMs);
+      }
+
+      // Hover notes: notify when inside judgement zone
+      if (!state.WindowData.UnFocus
+          && noteData.Type is NoteType.Hover
+          && noteData.IsHittable
+          && elapsedMs >= 0
+          && elapsedMs <= hoverWindowMs
+      )
+      {
+        OnHoverReady?.Invoke(windowId, noteData, elapsedMs);
       }
 
       // Miss: exceeded timing window

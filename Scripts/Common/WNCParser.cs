@@ -489,6 +489,7 @@ public static class WNCParser
       if (parts.Length >= 8)
         currentNote.FakeType = int.TryParse(parts[7], out var ft) ? ft : 0;
 
+      if (currentNote.Type is NoteType.Indicator) return;
 
       factory.SyncMaxIDSeed(currentNote.ID);
       current.Notes.AddNote(side, currentNote);

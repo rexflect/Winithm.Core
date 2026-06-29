@@ -165,6 +165,8 @@ public static class WNCGenerator
         {
           foreach (var n in nss.Value)
           {
+            if (n.Type is NoteType.Indicator) continue;
+            
             sb.AppendLine($" # {n.ID} {n.Type} {n.StartBeat} {ParserUtils.FormatDouble(n.Length)} {ParserUtils.FormatFloat(n.X)} {ParserUtils.FormatFloat(n.Width)} {nss.Key} {n.FakeType}");
           }
         }

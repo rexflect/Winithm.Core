@@ -49,6 +49,21 @@ public partial class NoteController
 
       return true;
     }
+    else if (state.FloatNoteVisualMap.TryGetValue(note, out var floatNoteVisual) && IsInstanceValid(floatNoteVisual))
+    {
+      var visualTransform = floatNoteVisual.GetGlobalTransform();
+      var globalCenter = visualTransform * (floatNoteVisual.WindowSize / 2f);
+
+      info = new NoteGlobalTransformInfo()
+      {
+        Position = globalCenter,
+        Rotation = visualTransform.Rotation,
+        NoteWidth = Mathf.Min(floatNoteVisual.WindowSize.X, floatNoteVisual.WindowSize.Y),
+        PlayerAreaSize = state.WindowVisual.PlayerAreaSize,
+      };
+
+      return true;
+    }
 
     if (!state.WindowData.Notes.TryGetNoteSide(note, out var noteDataGet))
     {
@@ -58,6 +73,29 @@ public partial class NoteController
 
     var playerAreaSize = state.WindowVisual.PlayerAreaSize;
     var windowSize = state.WindowVisual.WindowSize;
+
+    if (IsFloatNoteType(note.Type))
+    {
+      var floatParentLayer = state.WindowVisual.GetNoteParentLayer(note);
+      if (!IsInstanceValid(floatParentLayer))
+      {
+        GD.PushWarning($"[NoteController] Parent layer for float note {note.ID} not found in window {windowId}.");
+        return false;
+      }
+
+      var floatParentTransform = floatParentLayer.GetGlobalTransform();
+      var floatGlobalPos = floatParentTransform * (windowSize / 2f);
+
+      info = new NoteGlobalTransformInfo()
+      {
+        Position = floatGlobalPos,
+        Rotation = floatParentTransform.Rotation,
+        NoteWidth = Mathf.Min(windowSize.X, windowSize.Y),
+        PlayerAreaSize = playerAreaSize,
+      };
+
+      return true;
+    }
 
     float noteWidth = IsVerticalSide(noteDataGet.side)
       ? windowSize.X * note.Width

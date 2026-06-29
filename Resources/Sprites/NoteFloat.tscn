@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://cnote_float_uid123"]
+
+[ext_resource type="Script" uid="uid://dnotefloatscript1" path="res://Winithm.Core/Scripts/Behaviors/NoteFloat.cs" id="1_nflt"]
+[ext_resource type="Shader" uid="uid://bvpba145qtjsn" path="res://Winithm.Core/Resources/Shaders/NoteHighlight.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2vsp2"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+shader_parameter/is_highlighted = false
+shader_parameter/glow_intensity = 1.5
+shader_parameter/glow_radius = 6.0
+
+[node name="NoteFloat" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("1_nflt")
+
+[node name="CanvasGroup" type="CanvasGroup" parent="."]
+material = SubResource("ShaderMaterial_2vsp2")
+fit_margin = 1024.0
+
+[node name="Indicator" type="NinePatchRect" parent="CanvasGroup"]
+layout_mode = 0
+mouse_filter = 2
+
+[node name="BodyGroup" type="Control" parent="CanvasGroup"]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Base" type="NinePatchRect" parent="CanvasGroup/BodyGroup"]
+layout_mode = 0
+mouse_filter = 2
+
+[node name="Overlay" type="TextureRect" parent="CanvasGroup/BodyGroup"]
+layout_mode = 0
+mouse_filter = 2

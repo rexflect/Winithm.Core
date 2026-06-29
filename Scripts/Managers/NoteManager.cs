@@ -207,6 +207,7 @@ public class NoteManager :
           note.StartBeat >= ExpectedStartFocusBeat
           && noteEndBeat <= ExpectedEndCloseBeat.AbsoluteValue
           && note.IsHittable
+          && note.Type is not NoteType.Indicator
         )
         {
           TotalHittableNoteCount++;
@@ -318,6 +319,12 @@ public class NoteManager :
 
   public int AddNote(NoteSide side, NoteData note)
   {
+    if(note.Type is NoteType.Indicator)
+    {
+      GD.PushWarning("[NoteManager] Indicator notes are not a playable note type");
+      return -1; 
+    }
+
     if (!_noteCollection.TryGetValue(side, out var list))
     {
       list = [];
