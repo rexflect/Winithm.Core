@@ -43,7 +43,7 @@ public partial class NoteFloat : Control, IPoolable
   public override void _Ready()
   {
     _canvasGroup = GetNodeOrNull<CanvasGroup>("CanvasGroup");
-    _indicator = GetNodeOrNull<NinePatchRect>("CanvasGroup/Indicator");
+    _indicator = GetNodeOrNull<NinePatchRect>("Indicator");
     _bodyGroup = GetNodeOrNull<Control>("CanvasGroup/BodyGroup");
     _base = GetNodeOrNull<NinePatchRect>("CanvasGroup/BodyGroup/Base");
     _overlay = GetNodeOrNull<TextureRect>("CanvasGroup/BodyGroup/Overlay");
