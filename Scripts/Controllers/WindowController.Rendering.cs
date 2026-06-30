@@ -9,18 +9,19 @@ namespace Winithm.Core.Controllers;
 
 public partial class WindowController
 {
+  private List<string> _staleIds = new();
   private void CollectStaleWindows()
   {
-    var staleIds = new List<string>();
+    _staleIds.Clear();
     foreach (var kvp in _windowStates)
     {
       if (kvp.Value.FrameSessionToken != _frameSessionToken)
       {
-        staleIds.Add(kvp.Key);
+        _staleIds.Add(kvp.Key);
       }
     }
 
-    foreach (var id in staleIds)
+    foreach (var id in _staleIds)
     {
       _windowPool?.Release(_windowStates[id].Visual);
       _windowStates.Remove(id);
