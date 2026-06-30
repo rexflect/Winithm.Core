@@ -9,7 +9,7 @@ namespace Winithm.Core.Controllers;
 
 public partial class WindowController
 {
-  private List<string> _staleIds = new();
+  private readonly List<string> _staleIds = [];
   private void CollectStaleWindows()
   {
     _staleIds.Clear();

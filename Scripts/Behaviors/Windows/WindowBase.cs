@@ -149,19 +149,6 @@ public abstract partial class WindowBase : Control, IPoolable
     isTitleBarDirty = true;
     isBodyDirty = true;
   }
-
-  public override void _Process(double delta)
-  {
-    if (isOverlayDirty)
-    {
-      UnfocusOverlay?.QueueRedraw();
-      UnresponsiveOverlay?.QueueRedraw();
-      TitleBar?.QueueRedraw();
-
-      isOverlayDirty = false;
-    }
-  }
-
   public virtual Control? AddNoteVisual(Control noteVisual, NoteData noteData)
   {
     var layer = GetNoteParentLayer(noteData);
@@ -234,9 +221,16 @@ public abstract partial class WindowBase : Control, IPoolable
       FocusNoteLayer?.Modulate = noteModulate;
     }
 
+    if (isOverlayDirty)
+    {
+      UnfocusOverlay?.QueueRedraw();
+      UnresponsiveOverlay?.QueueRedraw();
+    }
+
     isLayoutDirty = false;
     isTitleBarDirty = false;
     isBodyDirty = false;
+    isOverlayDirty = false;
   }
 
   // ---------------------------------------------------------------------------
