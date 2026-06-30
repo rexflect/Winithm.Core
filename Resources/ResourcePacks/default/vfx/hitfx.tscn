@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://124b32832np"]
 
-[ext_resource type="Script" uid="uid://3247gcc3nq7u" path="res://Winithm.Core/Resources/ResourcePacks/default/vfx/HitFXDefault.cs" id="1_id34e"]
+[ext_resource type="Script" uid="uid://ciychhp3hv6ov" path="res://Winithm.Core/Resources/ResourcePacks/default/vfx/HitFXDefault.cs" id="1_id34e"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_1"]
 blend_mode = 1

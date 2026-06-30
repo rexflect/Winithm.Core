@@ -1,4 +1,3 @@
-using System;
 using Godot;
 using Winithm.Core.Behaviors;
 using Winithm.Core.Common;
