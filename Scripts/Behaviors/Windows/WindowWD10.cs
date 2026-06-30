@@ -38,11 +38,7 @@ public partial class WindowWD10 : WindowBase
     WindowFrame?.Position = TitleBar?.Position ?? WindowFrame.Position;
     WindowFrame?.QueueRedraw();
 
-    LastState.Pivot = Pivot;
-    LastState.ScreenSize = ScreenSize;
-    LastState.PlayerAreaSize = PlayerAreaSize;
-    LastState.WindowSize = WindowSize;
-    LastState.Borderless = Borderless;
+    isLayoutDirty = false;
   }
 
   protected override void OnWindowFrameDraw()

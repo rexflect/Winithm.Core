@@ -17,39 +17,58 @@ public abstract partial class WindowBase : Control, IPoolable
   // Dirty tracking
   // ---------------------------------------------------------------------------
 
-  protected record struct WindowBaseState
-  {
-    public Vector2 Pivot, ScreenSize, PlayerAreaSize, WindowSize;
-    public Color TitleBarColor, WindowColor;
-    public string Title;
-    public bool Borderless, IsNotRespondingTitle;
-    public float UnFocusOverlayOpacity, UnresponsiveOverlayOpacity, NoteOpacity;
-  }
+  protected bool isOverlayDirty = false;
+  protected bool isLayoutDirty = false;
+  protected bool isTitleBarDirty = false;
+  protected bool isBodyDirty = false;
 
-  protected WindowBaseState LastState;
 
   // ---------------------------------------------------------------------------
   // Exported properties — shared by every style
   // ---------------------------------------------------------------------------
 
-  [Export] public Vector2 Pivot { get; set; } = new(0.5f, 0.5f);
-  [Export] public Color TitleBarColor { get; set; } = Colors.DarkSlateGray;
-  [Export] public Vector2 ScreenSize { get; set; } = new(1280, 720);
-  [Export] public Vector2 PlayerAreaSize { get; set; } = new(1280, 720);
-  [Export] public string Title { get; set; } = "Winithm";
-  [Export] public Vector2 WindowSize { get; set; } = new(300, 500);
-  [Export] public Color WindowColor { get; set; } = new(0.1f, 0.1f, 0.1f, 0.85f);
-  [Export] public float NoteOpacity { get; set; } = 1f;
-  [Export] public bool Borderless { get; set; }
-  [Export] public bool UnFocus { get; set; }
+  [Export] public Vector2 Pivot { get; set
+    { if (field != value) { isLayoutDirty = true; field = value; } }
+  } = new(0.5f, 0.5f);
+  [Export] public Vector2 ScreenSize { get; set
+    { if (!value.IsEqualApprox(field)) { isLayoutDirty = true; field = value; } }
+  } = new(1280, 720);
+  [Export] public Vector2 PlayerAreaSize { get; set
+    { if (!value.IsEqualApprox(field)) { isLayoutDirty = true; field = value; } }
+  } = new(1280, 720);
+  [Export] public Color TitleBarColor { get; set
+    { if (field != value) { isTitleBarDirty = true; field = value; } }
+  } = Colors.DarkSlateGray;
+  [Export] public string Title { get; set
+    { if (field != value) { isTitleBarDirty = true; field = value; } }
+  } = "Winithm";
+  [Export] public Vector2 WindowSize { get; set
+    { if (!value.IsEqualApprox(field)) { isLayoutDirty = true; field = value; } }
+  } = new(300, 500);
+  [Export] public Color WindowColor { get; set
+    { if (field != value) { isBodyDirty = true; field = value; } }
+  } = new(0.1f, 0.1f, 0.1f, 0.85f);
+  [Export] public float NoteOpacity { get; set
+    { if (field != value) { isBodyDirty = true; field = value; } }
+  } = 1f;
+  [Export] public bool Borderless { get; set
+    { if (field != value) { isLayoutDirty = true; field = value; } }
+  } = false;
+  [Export] public bool UnFocus { get; set; } = false;
 
   // ---------------------------------------------------------------------------
   // Runtime state injected by WindowManager each frame
   // ---------------------------------------------------------------------------
 
-  public float UnFocusOverlayOpacity { get; set; }
-  public float UnresponsiveOverlayOpacity { get; set; }
-  public bool IsNotRespondingTitle { get; set; }
+  public float UnFocusOverlayOpacity { get; set
+    { if (field != value) { isOverlayDirty = true; field = value; } }
+  }
+  public float UnresponsiveOverlayOpacity { get; set
+    { if (field != value) { isOverlayDirty = true; field = value; } }
+  }
+  public bool IsNotRespondingTitle { get; set
+    { if (field != value) { isTitleBarDirty = true; field = value; } }
+  }
 
   // ---------------------------------------------------------------------------
   // Child node references — resolved in _Ready, written by subclass via Init
@@ -125,23 +144,18 @@ public abstract partial class WindowBase : Control, IPoolable
   /// <summary>Resets dirty-tracking — call before re-scripting an existing node.</summary>
   public void ResetDirtyState()
   {
-    LastState = default;
+    isOverlayDirty = true;
   }
 
   public override void _Process(double delta)
   {
-    bool overlayDirty =
-      UnFocusOverlayOpacity != LastState.UnFocusOverlayOpacity ||
-      UnresponsiveOverlayOpacity != LastState.UnresponsiveOverlayOpacity;
-
-    if (overlayDirty)
+    if (isOverlayDirty)
     {
       UnfocusOverlay?.QueueRedraw();
       UnresponsiveOverlay?.QueueRedraw();
       TitleBar?.QueueRedraw();
 
-      LastState.UnFocusOverlayOpacity = UnFocusOverlayOpacity;
-      LastState.UnresponsiveOverlayOpacity = UnresponsiveOverlayOpacity;
+      isOverlayDirty = false;
     }
   }
 
@@ -192,48 +206,26 @@ public abstract partial class WindowBase : Control, IPoolable
   /// </summary>
   public void UpdateVisual()
   {
-    bool layoutDirty =
-      Pivot != LastState.Pivot ||
-      ScreenSize != LastState.ScreenSize ||
-      PlayerAreaSize != LastState.PlayerAreaSize ||
-      !WindowSize.IsEqualApprox(LastState.WindowSize) ||
-      Borderless != LastState.Borderless;
+    if (!isLayoutDirty && !isTitleBarDirty && !isBodyDirty) return;
 
-    bool titleBarDirty = layoutDirty ||
-      TitleBarColor != LastState.TitleBarColor ||
-      Title != LastState.Title ||
-      IsNotRespondingTitle != LastState.IsNotRespondingTitle;
-
-    bool bodyDirty = layoutDirty ||
-      WindowColor != LastState.WindowColor ||
-      NoteOpacity != LastState.NoteOpacity;
-
-    if (!layoutDirty && !titleBarDirty && !bodyDirty) return;
-
-    if (layoutDirty)
+    if (isLayoutDirty)
     {
       QueueRedraw();
       WindowFrame?.QueueRedraw();
 
-      LastState.Pivot = Pivot;
-      LastState.ScreenSize = ScreenSize;
-      LastState.PlayerAreaSize = PlayerAreaSize;
-      LastState.WindowSize = WindowSize;
-      LastState.Borderless = Borderless;
+      isLayoutDirty = false;
     }
 
-    if (titleBarDirty)
+    if (isLayoutDirty || isTitleBarDirty)
     {
       TitleBar?.QueueRedraw();
 
       TitleTextColor = ColorUtils.IsLight(TitleBarColor) ? Colors.Black : Colors.White;
 
-      LastState.TitleBarColor = TitleBarColor;
-      LastState.Title = Title;
-      LastState.IsNotRespondingTitle = IsNotRespondingTitle;
+      isTitleBarDirty = false;
     }
 
-    if (bodyDirty)
+    if (isLayoutDirty || isBodyDirty)
     {
       WindowBody?.QueueRedraw();
 
@@ -242,8 +234,7 @@ public abstract partial class WindowBase : Control, IPoolable
       FloatNoteLayer?.Modulate = noteModulate;
       FocusNoteLayer?.Modulate = noteModulate;
 
-      LastState.WindowColor = WindowColor;
-      LastState.NoteOpacity = NoteOpacity;
+      isBodyDirty = false;
     }
   }
 
