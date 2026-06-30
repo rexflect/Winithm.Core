@@ -10,14 +10,13 @@ namespace Winithm.Core.Managers;
 public enum NotePart
 {
   Base,
+  BaseHL,
   Overlay
 }
 
 public record struct ResourcePackConfig
 {
   public bool Particle;
-  public float HighlightSize;
-  public float HighlightInsensity;
   public int NinePatchHeadMargin;
   public int NinePatchBodyMarginH;
   public int NinePatchBodyMarginV;
@@ -48,6 +47,7 @@ public partial class ResourcePackManager : Node
     return name.ToLowerInvariant() switch
     {
       "base" => NotePart.Base,
+      "baseHL" => NotePart.BaseHL,
       "overlay" => NotePart.Overlay,
       _ => NotePart.Base
     };
@@ -180,12 +180,6 @@ public partial class ResourcePackManager : Node
             break;
           case "bodyWidthOffset":
             resourcePack.Config.bodyWidthOffset = float.TryParse(val, CultureInfo.InvariantCulture, out float bwo) ? bwo : 0.015f;
-            break;
-          case "highlightSize":
-            resourcePack.Config.HighlightSize = float.TryParse(val, CultureInfo.InvariantCulture, out float sz) ? sz : 0.75f;
-            break;
-          case "highlightIntensity":
-            resourcePack.Config.HighlightInsensity = float.TryParse(val, CultureInfo.InvariantCulture, out float ins) ? ins : 1.5f;
             break;
           case "hitfxAutoResult":
             resourcePack.Config.HitFXAutoResult = ParseHitResultType(val);

@@ -200,11 +200,9 @@ public partial class NoteController
     noteVisual.PlayerAreaSize = playerAreaSize;
     noteVisual.BodyHeight = bodyHeight;
 
+    bool isChordNote = IsChordNote(noteData);
     var resourcePack = noteData.ResourcePack;
-    noteVisual.SetNoteType(noteData.Type, resourcePack);
-
-    // Highlight notes sharing the same start beat (chords)
-    ApplyChordHighlight(noteData, noteVisual);
+    noteVisual.SetNoteType(noteData.Type, NoteHighlightSimulation && isChordNote, resourcePack);
 
     // Lateral position: Note X is a proportion of the available free space (0 to 1).
     // Left edge = X * (1 - Width). The note is drawn centered at (Left edge + Width/2)
@@ -247,50 +245,23 @@ public partial class NoteController
     floatNoteVisual.Width = noteData.Width;
     floatNoteVisual.Progress = progress;
 
+    bool isChordNote = IsChordNote(noteData);
     var resourcePack = noteData.ResourcePack;
-    floatNoteVisual.SetNoteType(noteData.Type, resourcePack);
-
-    // Highlight notes sharing the same start beat (chords)
-    ApplyChordHighlight(noteData, floatNoteVisual);
+    floatNoteVisual.SetNoteType(noteData.Type, NoteHighlightSimulation && isChordNote, resourcePack);
 
     floatNoteVisual.UpdateVisual();
   }
 
-  private void ApplyChordHighlight(NoteData noteData, Note noteVisual)
+  private bool IsChordNote(NoteData noteData)
   {
-    if (!NoteHighlightSimulation)
-    {
-      noteVisual.SetNoteHighlighting(false);
-      return;
-    }
-
     if (_windowManager is null)
     {
-      GD.PushWarning("[NoteController] _windowManager is not initilized to highlight chord notes.");
-      return;
+      GD.PushWarning("[NoteController] WindowManager is not initialized. Cannot highlight chord notes.");
+      return false;
     }
 
-    double startBeat = noteData.StartBeat.AbsoluteValue;
-    if (_windowManager.ChordNoteMap.TryGetValue(startBeat, out var count))
-      noteVisual.SetNoteHighlighting(count >= 2);
-  }
-
-  private void ApplyChordHighlight(NoteData noteData, NoteFloat floatNoteVisual)
-  {
-    if (!NoteHighlightSimulation)
-    {
-      floatNoteVisual.SetNoteHighlighting(false);
-      return;
-    }
-
-    if (_windowManager is null)
-    {
-      GD.PushWarning("[NoteController] _windowManager is not initilized to highlight chord notes.");
-      return;
-    }
-
-    double startBeat = noteData.StartBeat.AbsoluteValue;
-    if (_windowManager.ChordNoteMap.TryGetValue(startBeat, out var count))
-      floatNoteVisual.SetNoteHighlighting(count >= 2);
+    return _windowManager.ChordNoteMap.TryGetValue(
+      noteData.StartBeat.AbsoluteValue, out var noteCount
+    ) && noteCount >= 2;
   }
 }

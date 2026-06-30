@@ -73,7 +73,7 @@ public partial class Note : Control, IPoolable
     return null;
   }
 
-  public void SetNoteType(NoteType type, ResourcePack resourcePack)
+  public void SetNoteType(NoteType type, bool highlighting, ResourcePack resourcePack)
   {
     if (type is NoteType.Hover
       || type is NoteType.Focus
@@ -108,35 +108,19 @@ public partial class Note : Control, IPoolable
 
     NoteType headType = Type is NoteType.Hold ? NoteType.Tap : Type;
 
-    _headBase?.Texture = GetTextureSafe(headType, NotePart.Base);
+    _headBase?.Texture = GetTextureSafe(
+      headType, highlighting ? NotePart.BaseHL : NotePart.Base
+    );
     _headOverlay?.Texture = GetTextureSafe(headType, NotePart.Overlay);
 
     if (Type is NoteType.Hold)
-    {
-      _bodyBase?.Texture = GetTextureSafe(NoteType.Hold, NotePart.Base);
-    }
+      _bodyBase?.Texture = GetTextureSafe(
+        NoteType.Hold, highlighting ? NotePart.BaseHL : NotePart.Base
+      );
 
     // Force update visual since texture changed
     _lastState = default;
     UpdateVisual();
-  }
-
-  public void SetNoteHighlighting(bool active)
-  {
-    if (ResourcePack is null)
-    {
-      GD.PushWarning("[Note] ResourcePack is not setted");
-      return;
-    }
-
-    if (_canvasGroup?.Material is ShaderMaterial shaderMaterial)
-    {
-      shaderMaterial.SetShaderParameter("is_highlighted", active);
-      shaderMaterial.SetShaderParameter(
-        "glow_radius", BASE_HIGHTLIGHTING_SIZE * ResourcePack.Value.Config.HighlightSize
-      );
-      shaderMaterial.SetShaderParameter("glow_intensity", ResourcePack.Value.Config.HighlightInsensity);
-    }
   }
 
   // Recalculates sizes and positions of all components based on current properties
@@ -187,7 +171,7 @@ public partial class Note : Control, IPoolable
           _headBase.Size = new Vector2(targetLogicW, baseTex.GetSize().Y);
           _headBase.Scale = new Vector2(baseScale, headScale);
         }
-        
+
         _headBase.Position = Vector2.Zero;
       }
 
@@ -216,22 +200,19 @@ public partial class Note : Control, IPoolable
       float targetLogicH = headScale > 0 ? BodyHeight / headScale : BodyHeight;
       float minSafeW = _bodyBase?.PatchMarginLeft + _bodyBase?.PatchMarginRight ?? headW;
 
-      if (_bodyBase is not null)
+
+      if (targetLogicW < minSafeW && minSafeW > 0)
       {
-        if (targetLogicW < minSafeW && minSafeW > 0)
-        {
-          _bodyBase.Size = new Vector2(minSafeW, targetLogicH);
-          _bodyBase.Scale = new Vector2(baseScale * (targetLogicW / minSafeW), headScale);
-        }
-        else
-        {
-          _bodyBase.Size = new Vector2(targetLogicW, targetLogicH);
-          _bodyBase.Scale = new Vector2(baseScale, headScale);
-        }
-        
-        _bodyBase.Position = Vector2.Zero;
+        _bodyBase?.Size = new Vector2(minSafeW, targetLogicH);
+        _bodyBase?.Scale = new Vector2(baseScale * (targetLogicW / minSafeW), headScale);
+      }
+      else
+      {
+        _bodyBase?.Size = new Vector2(targetLogicW, targetLogicH);
+        _bodyBase?.Scale = new Vector2(baseScale, headScale);
       }
 
+      _bodyBase?.Position = Vector2.Zero;
     }
 
     // Save current state for next dirty check
