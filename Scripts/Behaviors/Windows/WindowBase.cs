@@ -145,6 +145,9 @@ public abstract partial class WindowBase : Control, IPoolable
   public void ResetDirtyState()
   {
     isOverlayDirty = true;
+    isLayoutDirty = true;
+    isTitleBarDirty = true;
+    isBodyDirty = true;
   }
 
   public override void _Process(double delta)
