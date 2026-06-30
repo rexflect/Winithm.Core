@@ -19,7 +19,6 @@ public partial class NoteFloat : Control, IPoolable
   private NoteFloatState _lastState;
 
   // --- Child references ---
-  private CanvasGroup? _canvasGroup;
   private NinePatchRect? _indicator;
   private Control? _bodyGroup;
   private NinePatchRect? _base;
@@ -44,11 +43,10 @@ public partial class NoteFloat : Control, IPoolable
 
   public override void _Ready()
   {
-    _canvasGroup = GetNodeOrNull<CanvasGroup>("CanvasGroup");
     _indicator = GetNodeOrNull<NinePatchRect>("Indicator");
-    _bodyGroup = GetNodeOrNull<Control>("CanvasGroup/BodyGroup");
-    _base = GetNodeOrNull<NinePatchRect>("CanvasGroup/BodyGroup/Base");
-    _overlay = GetNodeOrNull<TextureRect>("CanvasGroup/BodyGroup/Overlay");
+    _bodyGroup = GetNodeOrNull<Control>("BodyGroup");
+    _base = GetNodeOrNull<NinePatchRect>("BodyGroup/Base");
+    _overlay = GetNodeOrNull<TextureRect>("BodyGroup/Overlay");
 
     UpdateVisual();
   }

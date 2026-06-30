@@ -8,26 +8,21 @@ anchors_preset = 0
 mouse_filter = 2
 script = ExtResource("1_5o3w4")
 
-[node name="CanvasGroup" type="CanvasGroup" parent="." unique_id=2129324291]
-fit_margin = 1024.0
-
-[node name="Body" type="Control" parent="CanvasGroup" unique_id=901541332]
+[node name="Body" type="Control" parent="." unique_id=901541332]
 visible = false
-layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
 
-[node name="Base" type="NinePatchRect" parent="CanvasGroup/Body" unique_id=797511680]
+[node name="Base" type="NinePatchRect" parent="Body" unique_id=797511680]
 layout_mode = 0
 
-[node name="Head" type="Control" parent="CanvasGroup" unique_id=148784751]
-layout_mode = 3
+[node name="Head" type="Control" parent="." unique_id=148784751]
 anchors_preset = 0
 mouse_filter = 2
 
-[node name="Base" type="NinePatchRect" parent="CanvasGroup/Head" unique_id=2054169787]
+[node name="Base" type="NinePatchRect" parent="Head" unique_id=2054169787]
 layout_mode = 0
 
-[node name="Overlay" type="TextureRect" parent="CanvasGroup/Head" unique_id=461630709]
+[node name="Overlay" type="TextureRect" parent="Head" unique_id=461630709]
 layout_mode = 0
 mouse_filter = 2

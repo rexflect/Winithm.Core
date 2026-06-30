@@ -11,17 +11,13 @@ script = ExtResource("1_nflt")
 [node name="Indicator" type="NinePatchRect" parent="." unique_id=1958857338]
 layout_mode = 0
 
-[node name="CanvasGroup" type="CanvasGroup" parent="." unique_id=487031170]
-fit_margin = 1024.0
-
-[node name="BodyGroup" type="Control" parent="CanvasGroup" unique_id=1839167682]
-layout_mode = 3
+[node name="BodyGroup" type="Control" parent="." unique_id=1839167682]
 anchors_preset = 0
 mouse_filter = 2
 
-[node name="Base" type="NinePatchRect" parent="CanvasGroup/BodyGroup" unique_id=655690318]
+[node name="Base" type="NinePatchRect" parent="BodyGroup" unique_id=655690318]
 layout_mode = 0
 
-[node name="Overlay" type="TextureRect" parent="CanvasGroup/BodyGroup" unique_id=599360561]
+[node name="Overlay" type="TextureRect" parent="BodyGroup" unique_id=599360561]
 layout_mode = 0
 mouse_filter = 2
