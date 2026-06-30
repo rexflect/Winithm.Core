@@ -8,15 +8,7 @@ namespace Winithm.Core.Behaviors;
 public partial class NoteFloat : Control, IPoolable
 {
   // --- Dirty tracking ---
-  private record struct NoteFloatState
-  {
-    public Vector2 WindowSize;
-    public float Width, X;
-    public NoteSide Side;
-    public float Progress;
-  }
-
-  private NoteFloatState _lastState;
+  protected bool isDirty;
 
   // --- Child references ---
   private NinePatchRect? _indicator;
@@ -25,12 +17,24 @@ public partial class NoteFloat : Control, IPoolable
   private TextureRect? _overlay;
 
   // --- Properties set by NoteController ---
-  [Export] public Vector2 WindowSize { get; set; } = new(1280, 720);
-  [Export] public NoteType Type { get; set; } = NoteType.Hover;
-  [Export] public NoteSide Side { get; set; } = NoteSide.Bottom;
-  [Export] public float X { get; set; } = 0.5f;
-  [Export] public float Width { get; set; } = 300f;
-  [Export] public float Progress { get; set; } = 0f;
+  [Export] public Vector2 WindowSize { get; set
+    { if (field != value) { isDirty = true; field = value; } }
+  } = new(1280, 720);
+  [Export] public NoteType Type { get; set
+    { if (field != value) { isDirty = true; field = value; } }
+  } = NoteType.Hover;
+  [Export] public NoteSide Side { get; set
+    { if (field != value) { isDirty = true; field = value; } }
+  } = NoteSide.Bottom;
+  [Export] public float X { get; set
+    { if (field != value) { isDirty = true; field = value; } }
+  } = 0.5f;
+  [Export] public float Width { get; set
+    { if (field != value) { isDirty = true; field = value; } }
+  } = 300f;
+  [Export] public float Progress { get; set
+    { if (field != value) { isDirty = true; field = value; } }
+  } = 0f;
 
   public ResourcePack? ResourcePack { get; set; } = null;
 
@@ -39,7 +43,9 @@ public partial class NoteFloat : Control, IPoolable
   public static readonly float PERSPECTIVE_DEPTH_K = 5f;
   public static readonly float SLIDE_STRENGTH = 0.08f;
 
-  public float FloatOverlayRatio { get; set; } = 0.5f;
+  public float FloatOverlayRatio { get; set
+    { if (field != value) { isDirty = true; field = value; } }
+  } = 0.5f;
 
   public override void _Ready()
   {
@@ -99,19 +105,11 @@ public partial class NoteFloat : Control, IPoolable
 
 
     _overlay?.Texture = GetTextureSafe(Type, NotePart.Overlay);
-
-    _lastState = default;
     UpdateVisual();
   }
 
   public void UpdateVisual()
   {
-    bool isDirty = WindowSize != _lastState.WindowSize ||
-                   Width != _lastState.Width ||
-                   X != _lastState.X ||
-                   Side != _lastState.Side ||
-                   Progress != _lastState.Progress;
-
     if (!isDirty) return;
 
     var clampedProgress = Mathf.Clamp(Progress, 0f, 1f);
@@ -185,13 +183,6 @@ public partial class NoteFloat : Control, IPoolable
     }
 
 
-    _lastState = new NoteFloatState()
-    {
-      WindowSize = WindowSize,
-      Width = Width,
-      X = X,
-      Side = Side,
-      Progress = Progress
-    };
+    isDirty = false;
   }
 }

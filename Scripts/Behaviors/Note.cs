@@ -10,13 +10,9 @@ public partial class Note : Control, IPoolable
 {
   // --- Dirty tracking ---
   // Stores the last state to avoid redundant visual updates (dirty tracking)
-  private record struct NoteState
-  {
-    public Vector2 PlayerAreaSize;
-    public float Width, BodyHeight, NoteSize;
-  }
-
-  private NoteState _lastState;
+  protected bool isLayoutDirty = false;
+  protected bool isHeadDirty = false;
+  protected bool isBodyDirty = false;
 
   // --- Child references (assigned in _Ready) ---
   // References to scene nodes assigned during initialization
@@ -28,18 +24,30 @@ public partial class Note : Control, IPoolable
 
   // --- Properties set by NoteManager ---
   // Configurable properties typically managed by NoteManager
-  [Export] public Vector2 PlayerAreaSize { get; set; } = new(1280, 720);
-  [Export] public float Width { get; set; } = 300f;
+  [Export] public Vector2 PlayerAreaSize { get; set
+    { if (!value.IsEqualApprox(field)) { isLayoutDirty = true; field = value; } }
+  } = new(1280, 720);
+  [Export] public float Width { get; set
+    { if (field != value) { isLayoutDirty = true; field = value; } }
+  } = 300f;
   [Export] public NoteType Type { get; set; } = NoteType.Tap;
-  [Export] public float NoteSize { get; set; } = 1f;
-  [Export] public float BodyHeight { get; set; } = 0f;
+  [Export] public float NoteSize { get; set
+    { if (field != value) { isHeadDirty = true; field = value; } }
+  } = 1f;
+  [Export] public float BodyHeight { get; set
+    { if (field != value) { isBodyDirty = true; field = value; } }
+  } = 0f;
   public ResourcePack? ResourcePack { get; set; } = null;
 
   public static readonly float NOTE_HEAD_HEIGHT_RATIO = 0.025f;
   public static readonly float BASE_HIGHTLIGHTING_SIZE = 10f;
 
-  public float NoteHeadOverlayRatioSize { get; set; } = 1.2f;
-  public float NoteBodyWidthOffset { get; set; } = 0.015f;
+  public float NoteHeadOverlayRatioSize { get; set
+  { if (field != value) { isHeadDirty = true; field = value; } }
+  } = 1.2f;
+  public float NoteBodyWidthOffset { get; set
+  { if (field != value) { isBodyDirty = true; field = value; } }
+  } = 0.015f;
 
 
   // Initialize node references and perform initial visual update
@@ -115,24 +123,12 @@ public partial class Note : Control, IPoolable
         NoteType.Hold, highlighting ? NotePart.BaseHL : NotePart.Base
       );
 
-    // Force update visual since texture changed
-    _lastState = default;
     UpdateVisual();
   }
 
   // Recalculates sizes and positions of all components based on current properties
   public void UpdateVisual()
   {
-    bool headDirty =
-      PlayerAreaSize != _lastState.PlayerAreaSize ||
-      Width != _lastState.Width ||
-      NoteSize != _lastState.NoteSize;
-
-    bool bodyDirty =
-      PlayerAreaSize != _lastState.PlayerAreaSize ||
-      Width != _lastState.Width ||
-      BodyHeight != _lastState.BodyHeight;
-
     float minScale = Mathf.Min(PlayerAreaSize.X, PlayerAreaSize.Y);
     float headH = NoteSize * minScale * NOTE_HEAD_HEIGHT_RATIO;
 
@@ -145,7 +141,7 @@ public partial class Note : Control, IPoolable
       headScale = headH / headTex.GetSize().Y;
     }
 
-    if (headDirty)
+    if (isLayoutDirty || isHeadDirty)
     {
       // Update head component layout
       _headContainer?.Position = new(-headW / 2f, -headH);
@@ -184,7 +180,7 @@ public partial class Note : Control, IPoolable
       }
     }
 
-    if (bodyDirty)
+    if (isLayoutDirty || isBodyDirty)
     {
       // Update body component layout (for Hold notes)
       float bodyWidthOffset = minScale * NoteBodyWidthOffset;
@@ -213,12 +209,8 @@ public partial class Note : Control, IPoolable
     }
 
     // Save current state for next dirty check
-    _lastState = new NoteState()
-    {
-      PlayerAreaSize = PlayerAreaSize,
-      Width = Width,
-      NoteSize = NoteSize,
-      BodyHeight = BodyHeight
-    };
+    isLayoutDirty = false;
+    isHeadDirty = false;
+    isBodyDirty = false;
   }
 }
