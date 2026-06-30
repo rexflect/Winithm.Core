@@ -215,8 +215,6 @@ public abstract partial class WindowBase : Control, IPoolable
     {
       QueueRedraw();
       WindowFrame?.QueueRedraw();
-
-      isLayoutDirty = false;
     }
 
     if (isLayoutDirty || isTitleBarDirty)
@@ -224,8 +222,6 @@ public abstract partial class WindowBase : Control, IPoolable
       TitleBar?.QueueRedraw();
 
       TitleTextColor = ColorUtils.IsLight(TitleBarColor) ? Colors.Black : Colors.White;
-
-      isTitleBarDirty = false;
     }
 
     if (isLayoutDirty || isBodyDirty)
@@ -236,9 +232,11 @@ public abstract partial class WindowBase : Control, IPoolable
       NoteLayer?.Modulate = noteModulate;
       FloatNoteLayer?.Modulate = noteModulate;
       FocusNoteLayer?.Modulate = noteModulate;
-
-      isBodyDirty = false;
     }
+
+    isLayoutDirty = false;
+    isTitleBarDirty = false;
+    isBodyDirty = false;
   }
 
   // ---------------------------------------------------------------------------

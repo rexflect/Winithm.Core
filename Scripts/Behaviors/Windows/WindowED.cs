@@ -37,8 +37,6 @@ public partial class WindowED : WindowBase
     WindowFrame?.Size = new Vector2(WindowSize.X, WindowSize.Y + TitleBarHeight);
     WindowFrame?.Position = TitleBar?.Position ?? WindowFrame.Position;
     WindowFrame?.QueueRedraw();
-
-    isLayoutDirty = false;
   }
 
   protected override void OnWindowFrameDraw()

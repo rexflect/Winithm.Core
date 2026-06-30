@@ -5,18 +5,20 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class PlayerCombo : Control
 {
-  public record struct LastState
-  {
-    public Color TextColor, BgStripeColor, BgColor, PadColor;
-  }
+  protected bool isColorDirty = false;
 
-  [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
-  [Export] public Color TextColor = Colors.White;
-  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
-  [Export] public Color BgColor = new(0f, 0f, 0f);
-  [Export] public Color PadColor = new(0f, 0f, 0f);
-
-  private LastState _lastState = new();
+  [Export] public Color TextColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = Colors.White;
+  [Export] public Color BgStripeColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0.1f, 0.1f, 0.1f);
+  [Export] public Color BgColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
+  [Export] public Color PadColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
 
   private Label? _comboLabel;
   private Label? _statusLabel;
@@ -83,25 +85,19 @@ public partial class PlayerCombo : Control
       }
     }
 
-
     float t = _pauseTimer / PAUSE_DURATION;
     if (IsInstanceValid(_pauseControl))
     {
       float yOffset = _pauseControl.Size.Y * t;
       _progressRect?.OffsetTop = yOffset;
       _progressRect?.OffsetBottom = yOffset;
-    } else
+    }
+    else
       GD.PushWarning("[GameplayUI] PlayerCombo: _pauseControl is null");
   }
 
   public void UpdateVisual()
   {
-    bool isColorDirty =
-      TextColor != _lastState.TextColor
-      || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor
-      || PadColor != _lastState.PadColor;
-
     if (isColorDirty) UpdateColor();
   }
 
@@ -118,10 +114,7 @@ public partial class PlayerCombo : Control
 
     _progressRect?.Color = PadColor;
 
-    _lastState.TextColor = TextColor;
-    _lastState.BgStripeColor = BgStripeColor;
-    _lastState.BgColor = BgColor;
-    _lastState.PadColor = PadColor;
+    isColorDirty = false;
   }
 
   public void SetCombo(int combo, bool instant)

@@ -15,17 +15,16 @@ public partial class ComponentController : Control
   private SongMetaData? _songMetaData;
   private ChartMetadata? _chartMetaData;
 
-  private record struct LastState
-  {
-    public Vector2 ScreenSize;
-    public Color BgStripeColor;
-  }
+  protected bool isLayoutDirty = false;
+  protected bool isColorDirty = false;
 
-  [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
+  [Export] public Vector2 ScreenSize { get; set
+    { if (field != value) { isLayoutDirty = true; field = value; } }
+  } = Constants.Visual.DESIGN_RESOLUTION;
+  [Export] public Color BgStripeColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0.1f, 0.1f, 0.1f);
   [Export] public float SongProgressPercent = 0f;
-  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
-
-  private LastState _lastState;
 
   private Control? _songInfoTransform;
   private Control? _songInfoSubTransform;
@@ -69,7 +68,8 @@ public partial class ComponentController : Control
     ComponentManager manager, Metronome metronome, SongMetaData songMeta, ChartMetadata chartMeta
   )
   {
-    _lastState = default;
+    isLayoutDirty = true;
+    isColorDirty = true;
     _lastUpdateBeat = double.MinValue;
 
     _componentManager = manager;
@@ -89,9 +89,6 @@ public partial class ComponentController : Control
 
   public void ForceUpdate(double currentBeat, bool _force = true)
   {
-    bool isLayoutDirty = _lastState.ScreenSize != ScreenSize;
-    bool isColorDirty = _lastState.BgStripeColor != BgStripeColor;
-
     if (isLayoutDirty) UpdateLayout();
     if (isColorDirty) UpdateColor();
 
@@ -134,6 +131,9 @@ public partial class ComponentController : Control
     );
 
     _lastUpdateBeat = currentBeat;
+
+    isLayoutDirty = false;
+    isColorDirty = false;
   }
 
   public void SetCombo(int combo, bool instant = false) => _playerCombo?.SetCombo(combo, instant);
@@ -202,8 +202,6 @@ public partial class ComponentController : Control
     _chartInfo?.Scale = scale;
     _playerCombo?.Scale = scale;
     _playerScore?.Scale = scale;
-
-    _lastState.ScreenSize = ScreenSize;
   }
 
   public void UpdateColor()
@@ -233,7 +231,5 @@ public partial class ComponentController : Control
     _playerScore?.BgColor = BgColor;
     _playerScore?.PadColor = PadColor;
     _playerScore?.UpdateVisual();
-
-    _lastState.BgStripeColor = BgStripeColor;
   }
 }

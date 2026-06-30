@@ -4,22 +4,28 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class ChartInfo : Control
 {
-  public record struct LastState
-  {
-    public string DifficultText;
-    public Color TextColor, BgStripeColor, BgColor, PadColor;
-  }
+  protected bool isInfoDirty = false;
+  protected bool isColorDirty = false;
 
-  [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
-  [Export] public string DifficultText = "Info: 5";
-  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
-  [Export] public Color BgColor = new(0f, 0f, 0f);
-  [Export] public Color PadColor = new(0f, 0f, 0f);
-  [Export] public Color TextColor = Colors.White;
+  [Export] public string DifficultText { get; set
+    { if (field != value) { isInfoDirty = true; field = value; } }
+  } = "Info: 5";
+  [Export] public Color BgStripeColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0.1f, 0.1f, 0.1f);
+  [Export] public Color BgColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
+  [Export] public Color PadColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
+  [Export] public Color TextColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = Colors.White;
 
   public readonly float PAD_HEIGHT = 7.5f;
 
-  private LastState _lastState = new();
+
 
   private Label? _difficult;
   private ColorRect? _background;
@@ -36,13 +42,6 @@ public partial class ChartInfo : Control
 
   public void UpdateVisual()
   {
-    bool isColorDirty =
-      TextColor != _lastState.TextColor
-      || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor
-      || PadColor != _lastState.PadColor;
-    bool isInfoDirty = DifficultText != _lastState.DifficultText;
-
     if (isColorDirty) UpdateColor();
     if (isInfoDirty) UpdateInfo();
   }
@@ -60,10 +59,7 @@ public partial class ChartInfo : Control
 
     _pad?.Color = PadColor;
 
-    _lastState.TextColor = TextColor;
-    _lastState.BgStripeColor = BgStripeColor;
-    _lastState.BgColor = BgColor;
-    _lastState.PadColor = PadColor;
+    isColorDirty = false;
   }
 
   private void UpdateInfo()
@@ -110,6 +106,6 @@ public partial class ChartInfo : Control
     else
       GD.PushWarning("[GameplayUI] ChartInfo: _background is null");
 
-    _lastState.DifficultText = DifficultText;
+    isInfoDirty = false;
   }
 }

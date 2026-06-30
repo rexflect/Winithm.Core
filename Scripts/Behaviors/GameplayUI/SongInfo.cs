@@ -4,32 +4,71 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class SongInfo : Control
 {
-  public record struct LastState
+  protected bool isColorDirty = false;
+  protected bool isInfoDirty = false;
+  protected bool isIconDirty = false;
+  protected bool isProgressDirty = false;
+
+  public float SongProgress
   {
-    public Color TextColor, BgStripeColor, BgColor, PadColor;
-    public string SongName;
-    public float BPM, IconSize;
-    public Vector2 IconCenter;
-    public Texture2D SongIcon;
-    public float SongProgress;
-  }
+    get; set
+    { if (field != value) { isProgressDirty = true; field = value; } }
+  } = 0f;
 
-  public float SongProgress { get; set; } = 0f;
-
-  [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
-  [Export] public Color TextColor = Colors.White;
-  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
-  [Export] public Color BgColor = new(0f, 0f, 0f);
-  [Export] public Color PadColor = new(0f, 0f, 0f);
-  [Export] public string SongName = "Song Name";
-  [Export] public float BPM = 120f;
   [Export]
-  public Texture2D SongIcon =
-    GD.Load<Texture2D>("res://Winithm.Core/Resources/Textures/song_placeholder_image.png");
-  [Export] public Vector2 IconCenter = new(0.5f, 0.5f);
-  [Export] public float IconSize = 1f;
-
-  private LastState _lastState = new();
+  public Color TextColor
+  {
+    get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = Colors.White;
+  [Export]
+  public Color BgStripeColor
+  {
+    get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0.1f, 0.1f, 0.1f);
+  [Export]
+  public Color BgColor
+  {
+    get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
+  [Export]
+  public Color PadColor
+  {
+    get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
+  [Export]
+  public string SongName
+  {
+    get; set
+    { if (field != value) { isInfoDirty = true; field = value; } }
+  } = "Song Name";
+  [Export]
+  public float BPM
+  {
+    get; set
+    { if (field != value) { isInfoDirty = true; field = value; } }
+  } = 120f;
+  [Export]
+  public Texture2D SongIcon
+  {
+    get; set
+    { if (field != value) { isIconDirty = true; field = value; } }
+  } = GD.Load<Texture2D>("res://Winithm.Core/Resources/Textures/song_placeholder_image.png");
+  [Export]
+  public Vector2 IconCenter
+  {
+    get; set
+    { if (field != value) { isIconDirty = true; field = value; } }
+  } = new(0.5f, 0.5f);
+  [Export]
+  public float IconSize
+  {
+    get; set
+    { if (field != value) { isIconDirty = true; field = value; } }
+  } = 1f;
 
   private TextureRect? _icon;
   private Label? _name;
@@ -48,9 +87,9 @@ public partial class SongInfo : Control
     _background = GetNodeOrNull<ColorRect>("Background");
     _progressBgFill = GetNodeOrNull<ColorRect>("ProgressBgFill");
 
-    if (_name.Material is ShaderMaterial material)
+    if (_name?.Material is ShaderMaterial material)
       _nameMaterial = material;
-    if (_progressBgFill.Material is ShaderMaterial bgMaterial)
+    if (_progressBgFill?.Material is ShaderMaterial bgMaterial)
       _bgFillMaterial = bgMaterial;
 
     UpdateVisual();
@@ -58,27 +97,19 @@ public partial class SongInfo : Control
 
   public void UpdateVisual()
   {
-    bool isColorDirty =
-      TextColor != _lastState.TextColor
-      || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor
-      || PadColor != _lastState.PadColor;
-
-    bool isInfoDirty = SongName != _lastState.SongName || BPM != _lastState.BPM;
-    bool isIconDirty = SongIcon != _lastState.SongIcon ||
-                       IconCenter != _lastState.IconCenter ||
-                       IconSize != _lastState.IconSize;
-    bool isProgressDirty = SongProgress != _lastState.SongProgress;
-
     if (isColorDirty) UpdateColor();
     if (isInfoDirty) UpdateInfo();
     if (isIconDirty) UpdateIcon();
     if (isProgressDirty || isColorDirty) UpdateProgress();
+
+    isColorDirty = false;
+    isInfoDirty = false;
+    isIconDirty = false;
+    isProgressDirty = false;
   }
 
   private void UpdateColor()
   {
-
     _name?.AddThemeColorOverride("font_color", TextColor);
     _bpm?.AddThemeColorOverride("font_color", TextColor);
 
@@ -87,23 +118,15 @@ public partial class SongInfo : Control
       material.SetShaderParameter("stripe_color", BgStripeColor);
       material.SetShaderParameter("bg_color", BgColor);
     }
-
-    _lastState.TextColor = TextColor;
-    _lastState.BgStripeColor = BgStripeColor;
-    _lastState.BgColor = BgColor;
-    _lastState.PadColor = PadColor;
   }
 
   private void UpdateProgress()
   {
-
     _nameMaterial?.SetShaderParameter("progress", SongProgress);
     _nameMaterial?.SetShaderParameter("text_color", TextColor);
 
     _bgFillMaterial?.SetShaderParameter("progress", SongProgress);
     _bgFillMaterial?.SetShaderParameter("text_color", TextColor);
-
-    _lastState.SongProgress = SongProgress;
   }
 
   private void UpdateIcon()
@@ -123,11 +146,6 @@ public partial class SongInfo : Control
 
     _atlasTex.Region = new Rect2(topLeft, new Vector2(cropSize, cropSize));
     _icon?.Texture = _atlasTex;
-
-
-    _lastState.SongIcon = SongIcon;
-    _lastState.IconCenter = IconCenter;
-    _lastState.IconSize = IconSize;
   }
 
   private void UpdateInfo()
@@ -179,8 +197,5 @@ public partial class SongInfo : Control
     }
     else
       GD.PushWarning("[GameplayUI] SongInfo: _icon is null");
-
-    _lastState.SongName = SongName;
-    _lastState.BPM = BPM;
   }
 }

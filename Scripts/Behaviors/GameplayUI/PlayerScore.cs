@@ -4,18 +4,21 @@ namespace Winithm.Core.Behaviors.GameplayUI;
 
 public partial class PlayerScore : Control
 {
-  public record struct LastState
-  {
-    public Color TextColor, BgStripeColor, BgColor, PadColor;
-  }
+  protected bool isColorDirty = false;
+  protected int lastScore = -1;
 
-  [Export] public Vector2 ScreenSize = Constants.Visual.DESIGN_RESOLUTION;
-  [Export] public Color TextColor = Colors.White;
-  [Export] public Color BgStripeColor = new(0.1f, 0.1f, 0.1f);
-  [Export] public Color BgColor = new(0f, 0f, 0f);
-  [Export] public Color PadColor = new(0f, 0f, 0f);
-
-  private LastState _lastState = new();
+  [Export] public Color TextColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = Colors.White;
+  [Export] public Color BgStripeColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0.1f, 0.1f, 0.1f);
+  [Export] public Color BgColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
+  [Export] public Color PadColor { get; set
+    { if (field != value) { isColorDirty = true; field = value; } }
+  } = new(0f, 0f, 0f);
 
   private HBoxContainer? _scoreContainer;
   private Label? _accuracyLabel;
@@ -36,12 +39,6 @@ public partial class PlayerScore : Control
 
   public void UpdateVisual()
   {
-    bool isColorDirty =
-      TextColor != _lastState.TextColor
-      || BgStripeColor != _lastState.BgStripeColor
-      || BgColor != _lastState.BgColor
-      || PadColor != _lastState.PadColor;
-
     if (isColorDirty) UpdateColor();
   }
 
@@ -62,10 +59,7 @@ public partial class PlayerScore : Control
     _padLeft?.Color = PadColor;
     _padRight?.Color = PadColor;
 
-    _lastState.TextColor = TextColor;
-    _lastState.BgStripeColor = BgStripeColor;
-    _lastState.BgColor = BgColor;
-    _lastState.PadColor = PadColor;
+    isColorDirty = false;
   }
 
   public void SetAccuracy(float accuracy)
@@ -80,7 +74,9 @@ public partial class PlayerScore : Control
 
   private void ApplyScoreToRollers(int score, bool instant)
   {
-    if (!IsInstanceValid(_scoreContainer)) 
+    if (score == lastScore) return;
+
+    if (!IsInstanceValid(_scoreContainer))
     {
       GD.PushWarning("[GameplayUI] PlayerScore: _scoreContainer is null");
       return;
@@ -97,5 +93,7 @@ public partial class PlayerScore : Control
         i++;
       }
     }
+
+    lastScore = score;
   }
 }
