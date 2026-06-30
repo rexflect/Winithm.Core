@@ -198,15 +198,6 @@ public partial class WindowED : WindowBase
         TitleTextColor, thickness
       );
     }
-
-    // "Not Responding" tint over the title bar (drawn last, on top of everything).
-    if (UnresponsiveOverlayOpacity > 0f)
-    {
-      TitleBar.DrawRect(
-        new Rect2(Vector2.Zero, TitleBar.Size),
-        new Color(1f, 1f, 1f, UnresponsiveOverlayOpacity)
-      );
-    }
   }
 
   protected override void OnWindowBodyDraw()
