@@ -95,8 +95,10 @@ public class ObjectPool<T> : IDisposable where T : class
     if (element is null)
       throw new ArgumentNullException(nameof(element), "Cannot release a null element.");
 
+#if DEBUG
     if (_collectionCheck && _stack.Count > 0 && _stack.Contains(element))
       throw new InvalidOperationException("Trying to release an object that has already been released to the pool.");
+#endif
 
     if (element is IPoolable poolable)
       poolable.OnDespawn();
