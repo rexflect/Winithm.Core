@@ -37,6 +37,8 @@ public partial class NoteFloat : Control, IPoolable
 
   public static readonly float INDICATOR_FULL_OPACITY = 0.5f;
   public static readonly float BODY_OPACITY = 0.5f;
+  public static readonly float PERSPECTIVE_DEPTH_K = 5f;
+  public static readonly float SLIDE_STRENGTH = 0.08f;
 
   public float FloatOverlayRatio { get; set; } = 0.5f;
 
@@ -153,11 +155,9 @@ public partial class NoteFloat : Control, IPoolable
 
       // Perspective scale: simulates 1/(distance) projection
       // Near field factor k controls depth intensity (higher = more dramatic)
-      const float PERSPECTIVE_DEPTH_K = 5f;
       float perspectiveScale = clampedProgress / (1f + PERSPECTIVE_DEPTH_K * (1f - clampedProgress));
 
       // Depth slide: body drifts inward from its edge as it approaches
-      const float SLIDE_STRENGTH = 0.08f;
       float slideT = 1f - Mathf.Pow(clampedProgress, 2f);
       Vector2 edgeDir = Side switch
       {
