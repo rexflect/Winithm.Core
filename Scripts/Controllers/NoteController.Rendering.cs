@@ -126,6 +126,12 @@ public partial class NoteController
         state.PendingVisualRemovals.Add(note);
     }
 
+    foreach (var note in state.FloatNoteVisualMap.Keys)
+    {
+      if (note.LastSeenFrameSessionToken != state.FrameSessionToken)
+        state.PendingVisualRemovals.Add(note);
+    }
+
     foreach (var note in state.PendingVisualRemovals)
     {
       if (state.NoteVisualMap.TryGetValue(note, out var noteVisual))
