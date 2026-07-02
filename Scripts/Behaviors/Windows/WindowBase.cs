@@ -160,7 +160,6 @@ public abstract partial class WindowBase : Control, IPoolable
     else if (currentParent != layer)
       noteVisual.Reparent(layer, false);
 
-    layer?.MoveChild(noteVisual, -1);
     return noteVisual;
   }
 
@@ -196,7 +195,7 @@ public abstract partial class WindowBase : Control, IPoolable
   /// </summary>
   public void UpdateVisual()
   {
-    if (!isLayoutDirty && !isTitleBarDirty && !isBodyDirty) return;
+    if (!isLayoutDirty && !isTitleBarDirty && !isBodyDirty && !isOverlayDirty) return;
 
     if (isLayoutDirty)
     {
