@@ -15,6 +15,8 @@ public class FrameCache
 {
   internal double CachedBeat = double.NaN;
   internal float[] PrefixDistance = [];
+  internal float[] EvaluatedSpeeds = [];
+  internal float DistCurrent = 0f;
 }
 
 /// <summary>
@@ -231,7 +233,8 @@ public class SpeedStepManager :
   /// </summary>
   public void BakeFrameCache(double currentBeat)
   {
-    if (_frameCache is null || _speedStepCollection.Count == 0) return;
+    _frameCache ??= new FrameCache();
+    if (_speedStepCollection.Count == 0) return;
 
     // Rebuild only when the beat has actually changed.
     if (_frameCache.CachedBeat == currentBeat) return;
@@ -240,10 +243,14 @@ public class SpeedStepManager :
 
     int n = _speedStepCollection.Count;
     if (_frameCache.PrefixDistance.Length < n)
+    {
       _frameCache.PrefixDistance = new float[n];
+      _frameCache.EvaluatedSpeeds = new float[n];
+    }
 
     // Origin is at steps[0].Start
     _frameCache.PrefixDistance[0] = 0f;
+    _frameCache.EvaluatedSpeeds[0] = EvaluateSpeed(_speedStepCollection[0], currentBeat);
 
     for (int i = 1; i < n; i++)
     {
@@ -252,8 +259,13 @@ public class SpeedStepManager :
       double segLen = segEnd - segStart;
 
       float speed = EvaluateSpeed(_speedStepCollection[i], currentBeat);
+      _frameCache.EvaluatedSpeeds[i] = speed;
       _frameCache.PrefixDistance[i] = _frameCache.PrefixDistance[i - 1] + speed * (float)segLen;
     }
+
+    double laneStart = _speedStepCollection[0].StartBeat.AbsoluteValue;
+    double clampedCurrent = Math.Max(currentBeat, laneStart);
+    _frameCache.DistCurrent = DistanceFromOriginInternal(clampedCurrent);
   }
 
   /// <summary>
@@ -263,8 +275,8 @@ public class SpeedStepManager :
   {
     if (Math.Abs(currentBeat - targetBeat) < 0.0001f) return 0f;
 
-    if (_frameCache is null) _frameCache = new FrameCache();
-    if (_frameCache.CachedBeat != currentBeat && !forceRebuild) BakeFrameCache(currentBeat);
+    _frameCache ??= new FrameCache();
+    if (_frameCache.CachedBeat != currentBeat || forceRebuild) BakeFrameCache(currentBeat);
 
     double laneStart = _speedStepCollection.Count > 0 ? _speedStepCollection[0].StartBeat.AbsoluteValue : 0.0;
 
@@ -273,8 +285,8 @@ public class SpeedStepManager :
     double clampedTarget = Math.Max(targetBeat, laneStart);
     if (Math.Abs(clampedCurrent - clampedTarget) < 0.0001f) return 0f;
 
-    float distCurrent = DistanceFromOrigin(currentBeat, clampedCurrent);
-    float distTarget = DistanceFromOrigin(currentBeat, clampedTarget);
+    float distCurrent = _frameCache.DistCurrent;
+    float distTarget = DistanceFromOriginInternal(clampedTarget);
 
     return distTarget - distCurrent;
   }
@@ -285,19 +297,22 @@ public class SpeedStepManager :
   public float GetSpeedAt(double currentBeat, double beat)
   {
     if (_speedStepCollection is null || _speedStepCollection.Count == 0) return 1f;
+    
+    _frameCache ??= new FrameCache();
+    if (_frameCache.CachedBeat != currentBeat) BakeFrameCache(currentBeat);
 
     int n = _speedStepCollection.Count;
     double lastStart = _speedStepCollection[n - 1].StartBeat.AbsoluteValue;
     if (beat >= lastStart)
     {
-      return EvaluateSpeed(_speedStepCollection[n - 1], currentBeat);
+      return _frameCache.EvaluatedSpeeds[n - 1];
     }
 
     int idx = FindStepIndex(beat);
-    return EvaluateSpeed(_speedStepCollection[idx + 1], currentBeat);
+    return _frameCache.EvaluatedSpeeds[idx + 1];
   }
 
-  private float DistanceFromOrigin(double currentBeat, double beat)
+  private float DistanceFromOriginInternal(double beat)
   {
     if (_speedStepCollection.Count == 0) return 0f;
 
@@ -311,7 +326,7 @@ public class SpeedStepManager :
     if (beat >= lastStart)
     {
       double tail = beat - lastStart;
-      float speed = EvaluateSpeed(_speedStepCollection[n - 1], currentBeat);
+      float speed = _frameCache.EvaluatedSpeeds[n - 1];
       return _frameCache.PrefixDistance[n - 1] + speed * (float)tail;
     }
 
@@ -319,7 +334,7 @@ public class SpeedStepManager :
 
     double segStart = _speedStepCollection[idx].StartBeat.AbsoluteValue;
     double tail2 = beat - segStart;
-    float speed2 = EvaluateSpeed(_speedStepCollection[idx + 1], currentBeat);
+    float speed2 = _frameCache.EvaluatedSpeeds[idx + 1];
     return _frameCache.PrefixDistance[idx] + speed2 * (float)tail2;
   }
 
