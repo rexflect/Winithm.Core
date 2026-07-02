@@ -210,6 +210,7 @@ public partial class NoteController : Node
     float offScreenMarginPx = noteHeadHeight * OFF_SCREEN_MARGIN_FACTOR;
 
     float viewportScale = ComputeViewportScale(playerAreaSize);
+    float globalScale = pixelsPerBeat * viewportScale;
 
     foreach (var sideEntry in state.WindowData.Notes)
     {
@@ -222,12 +223,12 @@ public partial class NoteController : Node
 
       // Move cursor backwards if currentBeat rewound
       renderCursor = SyncCursorBackward(
-        state, side, renderCursor, currentBeat, pixelsPerBeat, viewportScale, offScreenMarginPx
+        state, side, renderCursor, currentBeat, globalScale, offScreenMarginPx
       );
 
       // Advance render cursor for notes that are far behind viewport
       renderCursor = SyncCursorForward(
-        state, noteList, renderCursor, currentBeat, pixelsPerBeat, viewportScale, offScreenMarginPx
+        state, noteList, renderCursor, currentBeat, globalScale, offScreenMarginPx
       );
 
       state.RenderCursors[side] = renderCursor;
@@ -256,14 +257,14 @@ public partial class NoteController : Node
 
           float headOffsetPx = state.WindowData.SpeedSteps.GetVisualOffset(
             currentBeat, noteStartBeat
-          ) * pixelsPerBeat * viewportScale;
+          ) * globalScale;
 
           // Notes beyond viewport: all subsequent are even further (sorted by StartBeat)
           if (headOffsetPx > viewportLengthPx + offScreenMarginPx) break;
 
           float tailOffsetPx = (noteData.Length == 0 || noteData.Type is not NoteType.Hold)
             ? headOffsetPx
-            : state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * pixelsPerBeat * viewportScale;
+            : state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * globalScale;
 
           if (!state.NoteVisualMap.TryGetValue(noteData, out var noteVisual))
             noteVisual = SpawnNote(state, noteData);
@@ -284,7 +285,7 @@ public partial class NoteController : Node
           // Wait, standard float notes scale from 0 to 1 over their entire approach time.
           float offsetPx = state.WindowData.SpeedSteps.GetVisualOffset(
             currentBeat, noteStartBeat
-          ) * pixelsPerBeat * viewportScale;
+          ) * globalScale;
 
           // Progress = 1 - (offsetPx / viewportLengthPx)
           // Note: offsetPx is distance from anchor to timing point. 
@@ -323,8 +324,7 @@ public partial class NoteController : Node
     NoteSide side,
     int cursor,
     double currentBeat,
-    float pixelsPerBeat,
-    float viewportScale,
+    float globalScale,
     float offScreenMarginPx
   )
   {
@@ -345,7 +345,7 @@ public partial class NoteController : Node
       int mid = (lo + hi) / 2;
       float distancePx = state.WindowData.SpeedSteps.GetVisualOffset(
         currentBeat, maxEndBeats[mid]
-      ) * pixelsPerBeat * viewportScale;
+      ) * globalScale;
 
       if (distancePx >= -offScreenMarginPx)
       {
@@ -366,8 +366,7 @@ public partial class NoteController : Node
     List<NoteData> noteList,
     int cursor,
     double currentBeat,
-    float pixelsPerBeat,
-    float viewportScale,
+    float globalScale,
     float offScreenMarginPx
   )
   {
@@ -380,7 +379,7 @@ public partial class NoteController : Node
         : noteData.StartBeat.AbsoluteValue;
 
       float distancePx =
-        state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * pixelsPerBeat * viewportScale;
+        state.WindowData.SpeedSteps.GetVisualOffset(currentBeat, noteEndBeat) * globalScale;
 
       if (distancePx < -offScreenMarginPx) cursor++;
       else break;
