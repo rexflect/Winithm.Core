@@ -88,14 +88,8 @@ public partial class HitResponseController : Node
     var fx = pool.Get();
     _sceneByInstance[fx] = scene;
 
-    // Reparent to the global HitFXLayer
-    // AddChild manually can emit spurious ready/exit-tree signals and is not
-    // deferred-safe.  Reparent(keepGlobalTransform: false) is equivalent and safe.
-    if (fx.GetParent() != _hitFXLayer)
-      fx.Reparent(_hitFXLayer, false);
-
-    _hitFXLayer.MoveChild(fx, -1); // -1 = move to last child (Godot 4.x shorthand)
-
+    // Remove MoveChild since additive blending makes draw order irrelevant and Godot reordering is slow
+    
     // NOT the canvas transform; it does not account for CanvasLayer offset.
     // Use GetScreenTransform() (Godot 4) for correct canvas-to-local conversion.
     fx.Position = _hitFXLayer.GetScreenTransform().AffineInverse() * info.Position;
@@ -237,7 +231,11 @@ public partial class HitResponseController : Node
             fx = new HitFX();
           }
 
-          AddChild(fx);
+          if (IsInstanceValid(_hitFXLayer))
+            _hitFXLayer.AddChild(fx);
+          else
+            AddChild(fx);
+            
           return fx;
         },
         actionOnGet: static fx =>
@@ -249,10 +247,6 @@ public partial class HitResponseController : Node
         {
           fx.Visible = false;
           fx.SetProcess(false);
-
-          // Return ownership to the pool's parent node
-          if (fx.GetParent() != this)
-            fx.Reparent(this, false);
         },
         defaultCapacity: 16
     );
