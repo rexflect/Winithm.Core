@@ -17,18 +17,15 @@ public partial class WindowController
   }
 
   /// <summary>
-  /// Returns a list of all window IDs that contain the given global position.
+  /// Populates the provided collection with all window IDs that contain the given global position.
   /// </summary>
-  private readonly List<string> _windowIdsCache = [];
-  public List<string> GetListWindowIdsAtMousePosition(Vector2 mousePos)
+  public static void GetWindowIdsAtMousePosition(Vector2 mousePos, HashSet<string> results)
   {
-    _windowIdsCache.Clear();
+    results.Clear();
 
     foreach (var entry in _windowStates)
       if (IsMouseOverWindowId(entry.Key, mousePos))
-        _windowIdsCache.Add(entry.Key);
-
-    return _windowIdsCache;
+        results.Add(entry.Key);
   }
 
   public int GetTotalComboPassedInDestroyedWindows(double currentBeat)
