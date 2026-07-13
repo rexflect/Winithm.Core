@@ -14,9 +14,6 @@ public partial class HitResponseController : Node
   [Export] public Vector2 PlayerAreaSize { set; get; } = new(1280, 720);
   [Export] public float HitSoundVolume { set; get; } = 0.5f;
 
-  private float _cachedHitSoundVolume = -1f;
-  private float _cachedVolumeDb = 0f;
-
   private readonly Dictionary<PackedScene, NodePool<HitFX>> _hitFXPools = [];
   private readonly Dictionary<HitFX, PackedScene> _sceneByInstance = [];
   private NodePool<AudioStreamPlayer>? _hitSoundPool;
@@ -55,13 +52,7 @@ public partial class HitResponseController : Node
       }
 
       var player = GetHitSoundPool().Get();
-      
-      if (_cachedHitSoundVolume != HitSoundVolume)
-      {
-        _cachedHitSoundVolume = HitSoundVolume;
-        _cachedVolumeDb = Mathf.LinearToDb(HitSoundVolume);
-      }
-      player.VolumeDb = _cachedVolumeDb;
+      player.VolumeDb = Mathf.LinearToDb(HitSoundVolume);
       player.Stream = soundStream;
       player.Play();
     }
@@ -127,28 +118,25 @@ public partial class HitResponseController : Node
 
     var pool = GetHitFXPool(scene); // Instantiates defaultCapacity nodes
 
-    // Force shader compilation to prevent first-hit stutter and pre-instantiate 16 nodes
-    var dummies = new List<HitFX>(16);
-    for (int i = 0; i < 16; i++)
+    // Force shader compilation to prevent first-hit stutter
+    var dummy = pool.Get();
+    _sceneByInstance[dummy] = scene;
+
+    // RequestHitFX(), so Position assignment is harmless but Play() might
+    // try to manipulate the scene tree before the node is added.
+    // Ensure it is added to a visible parent first.
+    if (!IsInstanceValid(dummy.GetParent()))
     {
-      var dummy = pool.Get();
-      _sceneByInstance[dummy] = scene;
-
-      if (!IsInstanceValid(dummy.GetParent()))
-      {
-        if (IsInstanceValid(_hitFXLayer))
-          _hitFXLayer.AddChild(dummy);
-        else
-          AddChild(dummy);
-      }
-
-      dummy.Position = PlayerAreaSize; // Off-screen position
-      dummies.Add(dummy);
+      if (IsInstanceValid(_hitFXLayer))
+        _hitFXLayer.AddChild(dummy);
+      else
+        AddChild(dummy);
     }
 
+    dummy.Position = PlayerAreaSize; // Off-screen position
     _hitFXLayer?.Modulate = Colors.White with { A = 0.001f }; // Nearly invisible – avoids flash
 
-    dummies[0].Play(
+    dummy.Play(
         HitResultType.Perfect,
         NoteType.Tap,
         1f,            // Dummy note width
@@ -160,24 +148,6 @@ public partial class HitResponseController : Node
           ReleaseHitFX(fx);
         }
     );
-
-    // Immediately release the rest
-    for (int i = 1; i < 16; i++)
-    {
-      ReleaseHitFX(dummies[i]);
-    }
-
-    // Prewarm Hit Sounds
-    var soundPool = GetHitSoundPool();
-    var soundDummies = new List<AudioStreamPlayer>(32);
-    for (int i = 0; i < 32; i++)
-    {
-      soundDummies.Add(soundPool.Get());
-    }
-    for (int i = 0; i < 32; i++)
-    {
-      ReleaseHitSound(soundDummies[i]);
-    }
 
     _hitFXLayer?.Modulate = Colors.White; // Nearly invisible – avoids flash
   }
