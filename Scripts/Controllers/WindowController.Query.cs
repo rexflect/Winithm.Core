@@ -19,7 +19,7 @@ public partial class WindowController
   /// <summary>
   /// Populates the provided collection with all window IDs that contain the given global position.
   /// </summary>
-  public static void GetWindowIdsAtMousePosition(Vector2 mousePos, HashSet<string> results)
+  public void GetWindowIdsAtMousePosition(Vector2 mousePos, HashSet<string> results)
   {
     results.Clear();
 
