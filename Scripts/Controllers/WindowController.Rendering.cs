@@ -104,7 +104,7 @@ public partial class WindowController
     {
       windowVisual.UnresponsiveOverlayOpacity = 0f;
       windowVisual.IsNotResponding = false;
-      if (windowVisual.WindowBody != null) windowVisual.WindowBody.Modulate = Colors.White;
+      windowVisual.WindowBody?.Modulate = Colors.White;
     }
     else if (currentBeat < windowData.UnresponsiveEndBeat)
     {
@@ -115,16 +115,15 @@ public partial class WindowController
         / (windowData.UnresponsiveEndBeat - windowData.UnresponsiveStartBeat);
 
       float easingVal = (float)EasingFunctions.Evaluate(EasingType.CubicOut, t);
-      // Reduce opacity to up to 50% (0.5f)
-      float windowModulateVal = Mathf.Lerp(1f, 0.5f, easingVal);
-      windowVisual.UnresponsiveOverlayOpacity = 0f; // No separate overlay anymore, just window opacity
-      if (windowVisual.WindowBody != null) windowVisual.WindowBody.Modulate = new Color(1f, 1f, 1f, windowModulateVal);
+      float overlayOpacity = Mathf.Lerp(0f, 1f, easingVal);
+      windowVisual.UnresponsiveOverlayOpacity = overlayOpacity;
+      windowVisual.WindowBody?.Modulate = new Color(1f, 1f, 1f, 0.5f);
     }
     else
     {
       windowVisual.IsNotResponding = true;
-      windowVisual.UnresponsiveOverlayOpacity = 0f; // No separate overlay
-      if (windowVisual.WindowBody != null) windowVisual.WindowBody.Modulate = new Color(1f, 1f, 1f, 0.5f);
+      windowVisual.UnresponsiveOverlayOpacity = 1f; // No separate overlay
+      windowVisual.WindowBody?.Modulate = new Color(1f, 1f, 1f, 0.5f);
     }
   }
 
