@@ -73,13 +73,15 @@ public static partial class ShaderUtils
     var uniforms = new List<ShaderUniform>();
     foreach (Match match in ShaderUniformRegex().Matches(shaderCode))
     {
-      uniforms.Add(new ShaderUniform
+      var shaderUniform = new ShaderUniform
       {
         Type = match.Groups[1].Value,
         Name = match.Groups[2].Value,
         Hint = match.Groups[3].Success ? match.Groups[3].Value.Trim() : null,
         RawDefaultValue = match.Groups[4].Success ? match.Groups[4].Value.Trim() : null,
-      });
+      };
+
+      if (shaderUniform.Type != "sampler2D") uniforms.Add(shaderUniform);
     }
     return uniforms;
   }

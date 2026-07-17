@@ -48,6 +48,8 @@ public class OverlayData : IStoryboardable<string>, IDeepCloneableUID<OverlayDat
     cloned.StoryboardEvents.OnUpdated -= cloned.BubbleStoryboard;
 
     cloned.ID = objectFactory.GenerateUID();
+    cloned.StartBeat = StartBeat;
+    cloned.EndBeat = EndBeat;
     cloned.Name = Name;
     cloned.ShaderFile = ShaderFile;
     cloned.AffectsUI = AffectsUI;

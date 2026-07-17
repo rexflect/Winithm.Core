@@ -177,7 +177,7 @@ public static class WNCParser
       for (int j = 3; j < parts.Length; j++)
       {
         string p = parts[j];
-        string key = (j - 1).ToString();
+        string key = (j - 3).ToString();
         var val = p == "-"
           ? new AnyValue() { Type = AnyValueType.Inherited }
           : AnyValue.Parse(p);

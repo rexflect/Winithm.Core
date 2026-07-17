@@ -66,13 +66,13 @@ public static class ParserUtils
   /// </summary>
   public static bool TryParseIntBool(string text, out bool result)
   {
-    if (text.Contains('.') || int.TryParse(text, out int _))
+    if (text.Contains('.') || !int.TryParse(text, out int val))
     {
       result = false;
       return false;
     }
 
-    result = text.Trim() == "1";
+    result = val != 0;
     return true;
   }
 
