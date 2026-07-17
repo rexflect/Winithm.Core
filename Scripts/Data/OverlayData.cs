@@ -52,6 +52,7 @@ public class OverlayData : IStoryboardable<string>, IDeepCloneableUID<OverlayDat
     cloned.ShaderFile = ShaderFile;
     cloned.AffectsUI = AffectsUI;
     cloned.Layer = Layer;
+    cloned.SubLayer = SubLayer;
 
     foreach (var pair in ShaderParams)
       cloned.ShaderParams[pair.Key] = pair.Value;
