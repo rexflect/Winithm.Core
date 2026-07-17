@@ -41,22 +41,26 @@ public partial class WindowController
 
   /// <summary>
   /// Binary search O(log n) for the last period where Start <= beat,
-  /// then checks containment. Periods are sorted by Start (appended chronologically).
-  /// Stateless — safe for scrubbing in any direction.
+  /// then checks containment. Returns the matched period or null.
   /// </summary>
-  public bool IsFocusableAt(string windowId, double currentBeat)
+  public (double Start, double End)? GetMissFocusPeriodAt(string windowId, double currentBeat)
   {
-    if (!_windowStates.TryGetValue(windowId, out var state)) return false;
-    var periods = state.Data.FocusablePeriods;
+    if (!_windowStates.TryGetValue(windowId, out var state))
+      return null;
 
+    var periods = state.Data.MissFocusPeriods;
     int count = periods.Count;
-    if (count == 0) return false;
+
+    if (count == 0)
+      return null;
 
     // Binary search: find largest index where Start <= currentBeat
     int lo = 0, hi = count - 1, candidate = -1;
+
     while (lo <= hi)
     {
       int mid = lo + ((hi - lo) >> 1);
+
       if (periods[mid].Start <= currentBeat)
       {
         candidate = mid;
@@ -68,10 +72,15 @@ public partial class WindowController
       }
     }
 
-    if (candidate < 0) return false;
+    if (candidate < 0)
+      return null;
 
-    double end = periods[candidate].End;
-    return double.IsNaN(end) || currentBeat <= end;
+    var (Start, End) = periods[candidate];
+
+    if (double.IsNaN(End) || currentBeat <= End)
+      return (Start, End);
+
+    return null;
   }
 
   /// <summary>Returns the IDs of all currently active (rendered) windows.</summary>

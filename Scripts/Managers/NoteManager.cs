@@ -57,7 +57,6 @@ public class NoteManager :
   /// <summary>Prefix-sum of combo values aligned with ComboEventBeats.</summary>
   public int[] ComboPrefixSum { get; private set; } = [];
 
-  public BeatTime ExpectedStartFocusBeat { get; private set; } = BeatTime.Max;
   public BeatTime ExpectedEndCloseBeat { get; private set; } = BeatTime.Max;
   public int TotalComboCount { get; private set; } = 0;
 
@@ -134,7 +133,6 @@ public class NoteManager :
   {
     if (_windowData is null)
     {
-      ExpectedStartFocusBeat = BeatTime.Max;
       ExpectedEndCloseBeat = BeatTime.Max;
       TotalNoteCount = 0;
       TotalHittableNoteCount = 0;
@@ -151,7 +149,6 @@ public class NoteManager :
     var prevExpectedEndCloseBeat = ExpectedEndCloseBeat;
     var prevWindowEndBeat = _windowData.EndBeat;
 
-    ExpectedStartFocusBeat = _windowData.UnFocus ? _windowData.StartBeat : BeatTime.Min;
     ExpectedEndCloseBeat = _windowData.EndBeat;
 
     
@@ -162,12 +159,6 @@ public class NoteManager :
 
       foreach (var note in notes)
       {
-        if (note.Type is NoteType.Focus && note.IsHittable)
-        {
-          if (note.StartBeat < ExpectedStartFocusBeat)
-            ExpectedStartFocusBeat = note.StartBeat;
-        }
-
         if (note.Type is NoteType.Close && note.IsHittable)
         {
           if (note.StartBeat < ExpectedEndCloseBeat)
@@ -204,8 +195,7 @@ public class NoteManager :
           : note.StartBeat.AbsoluteValue;
 
         if (
-          note.StartBeat >= ExpectedStartFocusBeat
-          && noteEndBeat <= ExpectedEndCloseBeat.AbsoluteValue
+          noteEndBeat <= ExpectedEndCloseBeat.AbsoluteValue
           && note.IsHittable
           && note.Type is not NoteType.Indicator
         )

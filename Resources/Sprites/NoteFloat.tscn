@@ -6,18 +6,23 @@
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
+use_parent_material = true
 script = ExtResource("1_nflt")
 
 [node name="Indicator" type="NinePatchRect" parent="." unique_id=1958857338]
 layout_mode = 0
+use_parent_material = true
 
 [node name="BodyGroup" type="Control" parent="." unique_id=1839167682]
 anchors_preset = 0
 mouse_filter = 2
+use_parent_material = true
 
 [node name="Base" type="NinePatchRect" parent="BodyGroup" unique_id=655690318]
 layout_mode = 0
+use_parent_material = true
 
 [node name="Overlay" type="TextureRect" parent="BodyGroup" unique_id=599360561]
 layout_mode = 0
 mouse_filter = 2
+use_parent_material = true

@@ -51,25 +51,49 @@ public partial class WindowController
     return best;
   }
 
-  private void AnimateFocusableOverlay(
-    WindowBase windowVisual, double currentBeat
-  )
+  private void AnimateMissFocusGrayscale(
+    WindowBase windowVisual, WindowData windowData, double currentBeat
+)
   {
     if (_audioController?.CurrentTime is null)
     {
-      windowVisual.UnFocusOverlayOpacity = 0f;
-      windowVisual.UnFocus = true;
+      windowVisual.MissFocusGrayscale = 0f;
       GD.PushWarning(
-        "[WindowController] Cannot animate focusable overlay since _audioController.CurrentTime is not initialized."
+          "[WindowController] Cannot animate focusable overlay since _audioController.CurrentTime is not initialized."
       );
       return;
     }
 
-    // Focus pulse: deterministic sin wave based on beat for perfect scrub rendering
-    float sinVal = Mathf.Sin((float)_audioController.CurrentTime * FocusablePulseFrequency * Mathf.Pi);
-    float opacityVal = sinVal >= 0.5f ? 1f : 0f;
-    windowVisual.UnFocusOverlayOpacity = opacityVal;
-    windowVisual.UnFocus = true;
+    var period = GetMissFocusPeriodAt(windowData.ID, _audioController.CurrentTime);
+
+    if (period is not { } p)
+    {
+      windowVisual.MissFocusGrayscale = 0f;
+      return;
+    }
+
+    // Infinite period -> giữ trạng thái đầy đủ
+    if (double.IsNaN(p.End))
+    {
+      windowVisual.MissFocusGrayscale = 1f;
+      return;
+    }
+
+    double duration = p.End - p.Start;
+
+    if (duration <= 0)
+    {
+      windowVisual.MissFocusGrayscale = 1f;
+      return;
+    }
+
+    float progress = Mathf.Clamp((float)((currentBeat - p.Start) / duration), 0f, 1f);
+
+    windowVisual.MissFocusGrayscale = Mathf.Lerp(
+        1f,
+        0f,
+        (float)EasingFunctions.Evaluate(EasingType.CubicOut, progress)
+    );
   }
 
   private static void AnimateUnresponsiveOverlay(
@@ -79,28 +103,28 @@ public partial class WindowController
     if (currentBeat < windowData.UnresponsiveStartBeat)
     {
       windowVisual.UnresponsiveOverlayOpacity = 0f;
-      windowVisual.IsNotRespondingTitle = false;
-      windowVisual.WindowBody?.Modulate = Colors.White;
+      windowVisual.IsNotResponding = false;
+      if (windowVisual.WindowBody != null) windowVisual.WindowBody.Modulate = Colors.White;
     }
     else if (currentBeat < windowData.UnresponsiveEndBeat)
     {
-      windowVisual.IsNotRespondingTitle = true;
+      windowVisual.IsNotResponding = true;
 
       double t =
         (currentBeat - windowData.UnresponsiveStartBeat)
         / (windowData.UnresponsiveEndBeat - windowData.UnresponsiveStartBeat);
 
       float easingVal = (float)EasingFunctions.Evaluate(EasingType.CubicOut, t);
-      float overlayOpacityVal = Mathf.Lerp(0, WindowBase.UnresponsiveOverlayTint.A, easingVal);
-      float windowModulateVal = Mathf.Lerp(1, WindowBase.UnresponsiveWindowModulate.A, easingVal);
-      windowVisual.UnresponsiveOverlayOpacity = overlayOpacityVal;
-      windowVisual.WindowBody?.Modulate = new(1f, 1f, 1f, windowModulateVal);
+      // Reduce opacity to up to 50% (0.5f)
+      float windowModulateVal = Mathf.Lerp(1f, 0.5f, easingVal);
+      windowVisual.UnresponsiveOverlayOpacity = 0f; // No separate overlay anymore, just window opacity
+      if (windowVisual.WindowBody != null) windowVisual.WindowBody.Modulate = new Color(1f, 1f, 1f, windowModulateVal);
     }
     else
     {
-      windowVisual.IsNotRespondingTitle = true;
-      windowVisual.UnresponsiveOverlayOpacity = WindowBase.UnresponsiveOverlayTint.A;
-      windowVisual.WindowBody?.Modulate = WindowBase.UnresponsiveWindowModulate;
+      windowVisual.IsNotResponding = true;
+      windowVisual.UnresponsiveOverlayOpacity = 0f; // No separate overlay
+      if (windowVisual.WindowBody != null) windowVisual.WindowBody.Modulate = new Color(1f, 1f, 1f, 0.5f);
     }
   }
 

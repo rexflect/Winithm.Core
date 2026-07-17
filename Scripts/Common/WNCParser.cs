@@ -418,8 +418,6 @@ public static class WNCParser
       );
       if (parts.Length >= 1) current.Borderless =
         ParserUtils.TryParseIntBool(parts[0], out bool bl) ? bl : false;
-      if (parts.Length >= 2) current.UnFocus =
-        ParserUtils.TryParseIntBool(parts[1], out bool uf) ? uf : false;
     }
     else if (ParserUtils.TryParseProperty(trimmed, "Layer:", out string layer))
     {

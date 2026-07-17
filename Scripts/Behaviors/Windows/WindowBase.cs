@@ -17,7 +17,8 @@ public abstract partial class WindowBase : Control, IPoolable
   // Dirty tracking
   // ---------------------------------------------------------------------------
 
-  protected bool isOverlayDirty = false;
+  protected bool isUnresponsiveDirty = false;
+  protected bool isMissFocusDirty = false;
   protected bool isLayoutDirty = false;
   protected bool isTitleBarDirty = false;
   protected bool isBodyDirty = false;
@@ -54,19 +55,18 @@ public abstract partial class WindowBase : Control, IPoolable
   [Export] public bool Borderless { get; set
     { if (field != value) { isLayoutDirty = true; field = value; } }
   } = false;
-  [Export] public bool UnFocus { get; set; } = false;
 
   // ---------------------------------------------------------------------------
   // Runtime state injected by WindowManager each frame
   // ---------------------------------------------------------------------------
 
-  public float UnFocusOverlayOpacity { get; set
-    { if (field != value) { isOverlayDirty = true; field = value; } }
+  public float MissFocusGrayscale { get; set
+    { if (field != value) { isMissFocusDirty = true; field = value; } }
   }
   public float UnresponsiveOverlayOpacity { get; set
-    { if (field != value) { isOverlayDirty = true; field = value; } }
+    { if (field != value) { isUnresponsiveDirty = true; field = value; } }
   }
-  public bool IsNotRespondingTitle { get; set
+  public bool IsNotResponding { get; set
     { if (field != value) { isTitleBarDirty = true; field = value; } }
   }
 
@@ -78,20 +78,24 @@ public abstract partial class WindowBase : Control, IPoolable
   public Control? WindowBody { get; private set; }
   public Control? WindowFrame { get; private set; }
 
-  // NoteLayer → FloatNoteLayer → UnfocusOverlay → FocusNoteLayer → UnresponsiveOverlay → HitFXLayer
+  // NoteLayer → FloatNoteLayer -> UnresponsiveOverlay → HitFXLayer
   public Control? NoteLayer { get; private set; }
   public Control? FloatNoteLayer { get; private set; }
-  public Control? UnfocusOverlay { get; private set; }
-  public Control? FocusNoteLayer { get; private set; }
   public Control? UnresponsiveOverlay { get; private set; }
+
+  // ---------------------------------------------------------------------------
+  // Miss-focus grayscale — scoped to WindowBody's subtree only
+  // ---------------------------------------------------------------------------
+  private static readonly Shader _grayscaleShader =
+    GD.Load<Shader>("res://Winithm.Core/Resources/Shaders/WindowGrayscale.gdshader");
+
+  private ShaderMaterial? _grayscaleMaterial;
 
   // ---------------------------------------------------------------------------
   // Shared constants
   // ---------------------------------------------------------------------------
 
-  public static readonly Color UnfocusOverlayTint = new(0.85f, 0.85f, 0.85f, 0.25f);
-  public static readonly Color UnresponsiveOverlayTint = new(1f, 1f, 1f, 0.75f);
-  public static readonly Color UnresponsiveWindowModulate = new(1f, 1f, 1f, 0.75f);
+  public static readonly Color UnresponsiveOverlayTint = new(1f, 1f, 1f);
 
   protected float TitleBarHeight { get; set; }
   protected Color TitleTextColor { get; set; } = Colors.White;
@@ -118,14 +122,16 @@ public abstract partial class WindowBase : Control, IPoolable
 
     NoteLayer = GetNodeOrNull<Control>("WindowBody/NoteLayer");
     FloatNoteLayer = GetNodeOrNull<Control>("WindowBody/FloatNoteLayer");
-    UnfocusOverlay = GetNodeOrNull<Control>("WindowBody/UnfocusOverlay");
-    FocusNoteLayer = GetNodeOrNull<Control>("WindowBody/FocusNoteLayer");
     UnresponsiveOverlay = GetNodeOrNull<Control>("WindowBody/UnresponsiveOverlay");
+
+    // Godot does not auto-cascade CanvasItem materials to children.
+    // We force children to use WindowBody's material so they are grayed out together.
+    _grayscaleMaterial = new ShaderMaterial { Shader = _grayscaleShader };
+    WindowBody?.Material = _grayscaleMaterial;
 
     Draw += OnWindowLayoutUpdate;
     TitleBar?.Draw += OnTitleBarDraw;
     WindowBody?.Draw += OnWindowBodyDraw;
-    UnfocusOverlay?.Draw += OnUnfocusOverlayDraw;
     UnresponsiveOverlay?.Draw += OnUnresponsiveOverlayDraw;
     WindowFrame?.Draw += OnWindowFrameDraw;
   }
@@ -136,7 +142,6 @@ public abstract partial class WindowBase : Control, IPoolable
     Draw -= OnWindowLayoutUpdate;
     TitleBar?.Draw -= OnTitleBarDraw;
     WindowBody?.Draw -= OnWindowBodyDraw;
-    UnfocusOverlay?.Draw -= OnUnfocusOverlayDraw;
     UnresponsiveOverlay?.Draw -= OnUnresponsiveOverlayDraw;
     WindowFrame?.Draw -= OnWindowFrameDraw;
   }
@@ -144,7 +149,8 @@ public abstract partial class WindowBase : Control, IPoolable
   /// <summary>Resets dirty-tracking — call before re-scripting an existing node.</summary>
   public void ResetDirtyState()
   {
-    isOverlayDirty = true;
+    isMissFocusDirty = true;
+    isUnresponsiveDirty = true;
     isLayoutDirty = true;
     isTitleBarDirty = true;
     isBodyDirty = true;
@@ -171,7 +177,7 @@ public abstract partial class WindowBase : Control, IPoolable
       NoteType.Drag => NoteLayer,
       NoteType.Hold => NoteLayer,
       NoteType.Hover => FloatNoteLayer,
-      NoteType.Focus => FocusNoteLayer,
+      NoteType.Focus => FloatNoteLayer,
       NoteType.Close => FloatNoteLayer,
       _ => null
     };
@@ -195,7 +201,7 @@ public abstract partial class WindowBase : Control, IPoolable
   /// </summary>
   public void UpdateVisual()
   {
-    if (!isLayoutDirty && !isTitleBarDirty && !isBodyDirty && !isOverlayDirty) return;
+    if (!isLayoutDirty && !isTitleBarDirty && !isBodyDirty && !isUnresponsiveDirty && !isMissFocusDirty) return;
 
     if (isLayoutDirty)
     {
@@ -217,19 +223,20 @@ public abstract partial class WindowBase : Control, IPoolable
       var noteModulate = new Color(1f, 1f, 1f, NoteOpacity);
       NoteLayer?.Modulate = noteModulate;
       FloatNoteLayer?.Modulate = noteModulate;
-      FocusNoteLayer?.Modulate = noteModulate;
     }
 
-    if (isOverlayDirty)
+    if (isMissFocusDirty) OnMissFocusShaderUpdate();
+
+    if (isUnresponsiveDirty)
     {
-      UnfocusOverlay?.QueueRedraw();
       UnresponsiveOverlay?.QueueRedraw();
     }
 
     isLayoutDirty = false;
     isTitleBarDirty = false;
     isBodyDirty = false;
-    isOverlayDirty = false;
+    isMissFocusDirty = false;
+    isUnresponsiveDirty = false;
   }
 
   // ---------------------------------------------------------------------------
@@ -260,10 +267,14 @@ public abstract partial class WindowBase : Control, IPoolable
   protected abstract void OnWindowBodyDraw();
 
   /// <summary>
-  /// Draw the unfocus dim overlay.
-  /// Called every time <see cref="UnfocusOverlay"/> redraws.
+  /// Pushes <see cref="MissFocusGrayscale"/> into the shared grayscale shader's
+  /// uniform. Style-agnostic — override only if a specific OS style ever needs
+  /// different desaturation behavior.
   /// </summary>
-  protected abstract void OnUnfocusOverlayDraw();
+  protected virtual void OnMissFocusShaderUpdate()
+  {
+    _grayscaleMaterial?.SetShaderParameter("grayscale_amount", MissFocusGrayscale);
+  }
 
   /// <summary>
   /// Draw the unresponsive (frozen) overlay.

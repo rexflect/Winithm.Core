@@ -24,7 +24,7 @@ public partial class WindowController : Node
   protected ThemeChannelController? _themeController;
   protected NoteController? _noteController;
   protected WindowManager? _windowManager;
-  private Control? _objectsLayer;
+  private Control? _objectLayer;
 
   private PackedScene _windowScene = GD.Load<PackedScene>("res://Winithm.Core/Resources/Sprites/Window.tscn");
 
@@ -49,8 +49,10 @@ public partial class WindowController : Node
   private ulong _frameSessionToken = 1;
   private NodePool<WindowBase>? _windowPool;
 
+  public readonly double MISS_FOCUS_DURATION = 5.0;
+
   public void Initialize(
-      Control objectsLayer,
+      Control objectLayer,
       WindowManager windowManager,
       AudioController audioController,
       GroupController groupController,
@@ -66,7 +68,7 @@ public partial class WindowController : Node
     _frameSessionToken = 0;
     _lastUpdateBeat = -1f;
 
-    _objectsLayer = objectsLayer;
+    _objectLayer = objectLayer;
     _audioController = audioController;
     _groupController = groupController;
     _themeController = themeController;
@@ -220,8 +222,8 @@ public partial class WindowController : Node
         _windowStates[windowData.ID] = state;
         _noteController?.RegisterWindow(windowData.ID, windowData, windowVisual);
 
-        if (windowVisual.GetParent() != _objectsLayer)
-          windowVisual.Reparent(_objectsLayer);
+        if (windowVisual.GetParent() != _objectLayer)
+          windowVisual.Reparent(_objectLayer);
 
         windowVisual.ZIndex = LayerUtils.ComposeLayerIndex(windowData.Layer, windowData.SubLayer);
       }
@@ -236,29 +238,14 @@ public partial class WindowController : Node
 
       ApplyWindowTransformAndAppearance(windowVisual, windowData, currentBeat, lifeCycleScale, _force);
 
-      if (windowData.UnFocus)
-      {
-        bool isFocusableNow = IsFocusableAt(windowData.ID, currentBeat);
-        if (isFocusableNow)
-          AnimateFocusableOverlay(windowVisual, currentBeat);
-        else
-        {
-          windowVisual.UnFocusOverlayOpacity = WindowBase.UnfocusOverlayTint.A;
-          windowVisual.UnFocus = true;
-        }
-      }
-      else
-      {
-        windowVisual.UnFocusOverlayOpacity = 0f;
-        windowVisual.UnFocus = false;
-      }
+      AnimateMissFocusGrayscale(windowVisual, windowData, currentBeat);
 
       if (windowData.Unresponsive)
         AnimateUnresponsiveOverlay(windowVisual, windowData, currentBeat);
       else
       {
         windowVisual.UnresponsiveOverlayOpacity = 0f;
-        windowVisual.IsNotRespondingTitle = false;
+        windowVisual.IsNotResponding = false;
       }
 
       windowVisual.UpdateVisual();
@@ -285,30 +272,24 @@ public partial class WindowController : Node
       GD.PushError("[WindowController] _audioController.Metronome is not initialized to compute window animation");
   }
 
-  public void AddStartFocusable(string windowId, double currentBeat)
+
+
+  public void AddMissFocusPeriod(string windowId, double currentBeat)
   {
-    if (!_windowStates.TryGetValue(windowId, out var state)) return;
-    var windowData = state.Data;
-
-    windowData.UnFocus = true;
-    windowData.FocusablePeriods.Add((currentBeat, double.NaN));
-  }
-
-  public void AddEndFocusable(string windowId, double currentBeat)
-  {
-    if (!_windowStates.TryGetValue(windowId, out var state)) return;
-    var windowData = state.Data;
-    if (!windowData.UnFocus) return;
-
-    var periods = windowData.FocusablePeriods;
-
-    // Active period (End == NaN) is always the last one,
-    // since we always close before opening a new period.
-    int last = periods.Count - 1;
-    if (last >= 0 && double.IsNaN(periods[last].End))
+    if (_audioController?.Metronome is null)
     {
-      periods[last] = (periods[last].Start, currentBeat);
-      windowData.UnFocus = false;
+      GD.PushError(
+          "[WindowController] _audioController.Metronome is not initialized to compute window animation."
+      );
+      return;
     }
+
+    if (!_windowStates.TryGetValue(windowId, out var state))
+      return;
+
+    double startTime = _audioController.Metronome.ToSeconds(currentBeat);
+    double endBeat = _audioController.Metronome.ToBeat(startTime + MISS_FOCUS_DURATION);
+
+    state.Data.MissFocusPeriods.Add((currentBeat, endBeat));
   }
 }

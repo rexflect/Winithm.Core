@@ -142,7 +142,7 @@ public static class WNCGenerator
         sb.AppendLine($"+ {w.ID} {ParserUtils.FormatFloat(w.InitX)} {ParserUtils.FormatFloat(w.InitY)} {ParserUtils.FormatFloat(w.InitScaleX)} {ParserUtils.FormatFloat(w.InitScaleY)} {ParserUtils.FormatFloat(w.InitR)} {ParserUtils.FormatFloat(w.InitG)} {ParserUtils.FormatFloat(w.InitB)} {ParserUtils.FormatFloat(w.InitA)} {ParserUtils.FormatFloat(w.InitNoteA)}");
         sb.AppendLine($" Name: {w.Name ?? ""}");
         sb.AppendLine($" Title: {w.Title ?? ""}");
-        sb.AppendLine($" Flags: {ParserUtils.FormatIntBool(w.Borderless)} {ParserUtils.FormatIntBool(w.UnFocus)}");
+        sb.AppendLine($" Flags: {ParserUtils.FormatIntBool(w.Borderless)}");
         sb.AppendLine($" Anchor: {ParserUtils.FormatFloat(w.AnchorX)} {ParserUtils.FormatFloat(w.AnchorY)}");
         sb.AppendLine($" Layer: {w.Layer} {w.SubLayer}");
         sb.AppendLine($" Group: {w.GroupID ?? ""}");

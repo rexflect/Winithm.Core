@@ -201,9 +201,6 @@ public class WindowManager : IObjectManager<WindowData>
     windowData.OnLifeCycleChanged -= HandleLifeCycleChanged;
     windowData.OnLifeCycleChanged += HandleLifeCycleChanged;
 
-    windowData.OnUnFocusChanged -= HandleUnFocusChanged;
-    windowData.OnUnFocusChanged += HandleUnFocusChanged;
-
     windowData.OnUnResponsiveChanged -= HandleUnResponsiveChanged;
     windowData.OnUnResponsiveChanged += HandleUnResponsiveChanged;
   }
@@ -214,17 +211,10 @@ public class WindowManager : IObjectManager<WindowData>
     windowData.OnLifeCycleChanged -= HandleLifeCycleChanged;
     windowData.Notes.OnNoteAddedAtBeat -= HandleNoteAddedAtBeat;
     windowData.Notes.OnNoteRemovedAtBeat -= HandleNoteRemovedAtBeat;
-    windowData.OnUnFocusChanged -= HandleUnFocusChanged;
     windowData.OnUnResponsiveChanged -= HandleUnResponsiveChanged;
   }
 
   private void HandleUpdated(WindowData windowData) => NotifyChanged();
-
-  private void HandleUnFocusChanged(WindowData windowData)
-  {
-    windowData.Notes.Compute();
-    NotifyChanged();
-  }
 
   private void HandleUnResponsiveChanged(WindowData windowData)
   {

@@ -99,7 +99,7 @@ public partial class WindowWD10 : WindowBase
     float availWidth = w - textX - totalButtonsWidth - textRightPad;
 
     // Build caption string and truncate with ellipsis if it doesn't fit.
-    string titleText = IsNotRespondingTitle ? (Title ?? "") + " (Not Responding)" : (Title ?? "");
+    string titleText = IsNotResponding ? (Title ?? "") + " (Not Responding)" : (Title ?? "");
     string displayTitle = "";
 
     if (fontReady && titleText.Length > 0 && availWidth > 0f)
@@ -205,15 +205,6 @@ public partial class WindowWD10 : WindowBase
 
     // Draw body color at full opacity; unfocus dimming is handled by UnfocusOverlay.
     WindowBody.DrawRect(new Rect2(Vector2.Zero, WindowBody.Size), WindowColor);
-  }
-
-  protected override void OnUnfocusOverlayDraw()
-  {
-    if (!IsInstanceValid(UnfocusOverlay)) return;
-
-    // Semi-transparent tint that dims the window when it loses focus.
-    var unfocusColor = UnfocusOverlayTint with { A = UnfocusOverlayTint.A * UnFocusOverlayOpacity };
-    UnfocusOverlay.DrawRect(new Rect2(Vector2.Zero, UnfocusOverlay.Size), unfocusColor);
   }
 
   protected override void OnUnresponsiveOverlayDraw()

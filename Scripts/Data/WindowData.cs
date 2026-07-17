@@ -12,7 +12,6 @@ namespace Winithm.Core.Data;
 public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID<WindowData>
 {
   public event Action<WindowData>? OnLifeCycleChanged;
-  public event Action<WindowData>? OnUnFocusChanged;
   public event Action<WindowData>? OnUnResponsiveChanged;
   public event Action<WindowData>? OnUpdated;
 
@@ -28,7 +27,6 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID
 
   // Window Flags
   public bool Borderless { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = false;
-  public bool UnFocus { get; set { if (field == value) return; field = value; OnUnFocusChanged?.Invoke(this); } } = false;
 
   // Transform init values
   public float InitX { get; set { if (field == value) return; field = value; OnUpdated?.Invoke(this); } } = 640f;
@@ -56,10 +54,9 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID
   public bool Unresponsive { get; set { if (field == value) return; field = value; OnUnResponsiveChanged?.Invoke(this); } } = false;
 
   /// <summary>
-  /// List of focusable periods. Each period has a Start and End beat.
-  /// A period with End == double.NaN means it is currently active (not yet ended).
+  /// List of miss focus periods. Each period has a Start and End beat.
   /// </summary>
-  public List<(double Start, double End)> FocusablePeriods = [];
+  public List<(double Start, double End)> MissFocusPeriods = [];
 
   /// <summary>
   /// Pre-computed animation timestamps.
@@ -78,7 +75,7 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID
     Notes.OnLifeCycleChanged += BubbleNoteLifeCycle;
     Notes.OnUpdated += BubbleNote;
 
-    // Note requires reference to WindowData for Focus/Close boundary logic
+    // Note requires reference to WindowData for Close boundary logic
     Notes.SetWindowData(this);
   }
 
@@ -135,7 +132,6 @@ public class WindowData : IStoryboardable<StoryboardProperty>, IDeepCloneableUID
     cloned.GroupID = GroupID;
     cloned.ThemeChannelID = ThemeChannelID;
     cloned.Borderless = Borderless;
-    cloned.UnFocus = UnFocus;
     cloned.InitX = InitX;
     cloned.InitY = InitY;
     cloned.InitScaleX = InitScaleX;
