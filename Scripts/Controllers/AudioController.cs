@@ -59,7 +59,11 @@ public partial class AudioController : Node
   public void Initialize(Metronome metronome)
   {
     Metronome = metronome;
-    AddChild(_player);
+
+    if (_player.GetParent() == null)
+    {
+      AddChild(_player);
+    }
   }
 
   // ── Clock update ────────────────────────────────────────────────────────────
