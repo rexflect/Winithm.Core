@@ -7,18 +7,18 @@ public static class LayerUtils
 {
   public static int ComposeLayerIndex(int layer, int subLayer)
   {
-    layer = Math.Clamp(layer, -999, 999);
-    subLayer = Math.Clamp(subLayer, 0, 999_999);
+    layer = Math.Clamp(layer, -3, 3);
+    subLayer = Math.Clamp(subLayer, 0, 999);
 
     int digits = subLayer == 0 ? 0 : (int)Math.Floor(Math.Log10(subLayer) + 1);
-    int paddedSubLayer = subLayer * (int)Math.Pow(10, 6 - digits);
+    int paddedSubLayer = subLayer * (int)Math.Pow(10, 3 - digits);
 
-    return layer * 1_000_000 + paddedSubLayer;
+    return layer * 1_000 + paddedSubLayer;
   }
 
   public static (int layer, int subLayer) DecomposeLayerIndex(int index)
   {
-    return (index / 1_000_000, index % 1_000_000);
+    return (index / 1_000, index % 1_000);
   }
 }
 
