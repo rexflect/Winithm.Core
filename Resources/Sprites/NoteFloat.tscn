@@ -3,26 +3,26 @@
 [ext_resource type="Script" uid="uid://c4k0uyxwxufw2" path="res://Winithm.Core/Scripts/Behaviors/NoteFloat.cs" id="1_nflt"]
 
 [node name="NoteFloat" type="Control" unique_id=1753838755]
+use_parent_material = true
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
-use_parent_material = true
 script = ExtResource("1_nflt")
 
 [node name="Indicator" type="NinePatchRect" parent="." unique_id=1958857338]
-layout_mode = 0
 use_parent_material = true
+layout_mode = 0
 
 [node name="BodyGroup" type="Control" parent="." unique_id=1839167682]
+use_parent_material = true
 anchors_preset = 0
 mouse_filter = 2
-use_parent_material = true
 
 [node name="Base" type="NinePatchRect" parent="BodyGroup" unique_id=655690318]
-layout_mode = 0
 use_parent_material = true
+layout_mode = 0
 
 [node name="Overlay" type="TextureRect" parent="BodyGroup" unique_id=599360561]
+use_parent_material = true
 layout_mode = 0
 mouse_filter = 2
-use_parent_material = true

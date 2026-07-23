@@ -3,32 +3,32 @@
 [ext_resource type="Script" uid="uid://dk0uswyuio5f1" path="res://Winithm.Core/Scripts/Behaviors/Note.cs" id="1_5o3w4"]
 
 [node name="Note" type="Control" unique_id=1006967786]
+use_parent_material = true
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
-use_parent_material = true
 script = ExtResource("1_5o3w4")
 
 [node name="Body" type="Control" parent="." unique_id=901541332]
 visible = false
+use_parent_material = true
 anchors_preset = 0
 mouse_filter = 2
-use_parent_material = true
 
 [node name="Base" type="NinePatchRect" parent="Body" unique_id=797511680]
-layout_mode = 0
 use_parent_material = true
+layout_mode = 0
 
 [node name="Head" type="Control" parent="." unique_id=148784751]
+use_parent_material = true
 anchors_preset = 0
 mouse_filter = 2
-use_parent_material = true
 
 [node name="Base" type="NinePatchRect" parent="Head" unique_id=2054169787]
-layout_mode = 0
 use_parent_material = true
+layout_mode = 0
 
 [node name="Overlay" type="TextureRect" parent="Head" unique_id=461630709]
+use_parent_material = true
 layout_mode = 0
 mouse_filter = 2
-use_parent_material = true
